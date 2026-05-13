@@ -179,7 +179,7 @@
       <div class="container">
         <div class="benefits-inner">
           <div class="benefits-text">
-            <span class="label-tag">¿Por qué elegirnos?</span>
+            <span class="label-tag">¿Por qué elegirnos a nosotros?</span>
             <h2 class="section-heading">La mejor experiencia<br>en <span class="text-green">reservas deportivas</span></h2>
             <p class="section-desc">
               Diseñado pensando en jugadores y propietarios.
