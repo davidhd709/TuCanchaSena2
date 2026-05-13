@@ -50,7 +50,7 @@
           </span>
           <h1 class="hero-title">
             Reserva tu cancha y<br>
-            <span class="hero-title-accent">juega como un profesional ahora!</span>
+            <span class="hero-title-accent">juega como un profesional!</span>
           </h1>
           <p class="hero-subtitle">
             Encuentra las mejores canchas sintéticas cerca de ti.
