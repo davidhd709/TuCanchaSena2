@@ -2,7 +2,7 @@
 
 Hoja de ruta hasta el primer MVP funcional y desplegable. El alcance del MVP es: **un cliente puede registrarse, ver canchas, reservar un horario con comprobante de pago, y el negocio puede aprobar/rechazar la reserva**. Todo eso desplegado en Railway con datos que sobreviven a un redeploy.
 
-> Estado verificado el 2026-05-12 sobre `main` (96fc8bb).
+> Estado verificado el 2026-05-12 sobre `main` (96fc8bb). Reparto en 7 paquetes definido el 2026-05-13.
 
 ## Estado de partida (real, no documental)
 
@@ -18,132 +18,159 @@ Lo que **ya funciona**:
 Lo que **no funciona o no existe**:
 
 - `npm test` en backend falla — falta instalar `jest` y `ts-jest` aunque hay specs escritos.
-- No hay endpoint `/api/health` (el `railway.json` lo referencia → healthcheck rojo en deploy).
+- `app.controller.ts` tiene un `/api/health` que no pinga la BD, pero `railway.json` espera 200 estable.
 - No hay exception filter global — los errores Prisma se filtran sin formatear.
 - Sin rate limiting en login/register.
 - Uploads en disco local (`backend/uploads/`) — se pierden entre deploys de Railway.
 - Sin paginación en `bookings.findAll`, `bookings.findMine`, `courts`, `businesses`.
 - Enum `bussines` con typo persistente en schema y código.
 - Sin pipeline CI definido.
-- Stores Pinia incompletos — solo existe `auth.ts`; las páginas hacen `fetch` directo sin estado compartido.
+- Stores Pinia existen (`bookings`, `courts`, `businesses`, `auth`) pero llaman a `fetch` directo sin plugin interceptado.
 - Sin manejo unificado de errores HTTP en el frontend (toasts, retry, expiración de token).
 
-## Equipo y roles
+## Reparto en 9 paquetes (7 personas)
 
-| # | Rol | Responsable principal |
-|---|---|---|
-| 1 | Backend Senior | API, dominio, base de datos |
-| 2 | Frontend Senior | UI, stores, integración API |
-| 3 | QA Engineer | Tests, automatización, regresión |
-| 4 | DevOps Engineer | CI/CD, despliegue, infra |
-| 5 | Arquitecto de Software | Diseño, refactor, decisiones técnicas |
-| 6 | Especialista en Seguridad | Auth, validación, secretos |
-| 7 | Product Manager / UX | Flujo, priorización, feedback |
+Cada paquete es autocontenible, sin bloqueos cruzados. **P1** toma 3 paquetes (backend + infra); los otros 6 toman 1 paquete cada uno. La única coordinación es el orden de merge para evitar rebases dolorosos.
+
+| # | Paquete | Persona | Foco | Riesgo de cruce |
+|---|---|---|---|---|
+| 1 | Robustez backend + Storage + Seguridad | **P1 henry** | API, errores, uploads, env, throttler | bajo |
+| 2 | Migración `bussines → business` full-stack | P2 | Prisma + DTOs + frontend stores/middleware | medio (toca código de P3, P4) |
+| 3 | Plugin `$fetch` + stores migrados | P3 | Frontend infraestructura | bajo |
+| 4 | Flujo de reserva del cliente | P4 | Página `book.vue` + componentes del flujo | bajo |
+| 5 | UI reutilizable + copy ES + accesibilidad | P5 | Componentes, textos en todas las páginas | bajo |
+| 6 | Testing backend automatizado | P6 | Jest, specs reparados, spec race condition | nulo |
+| 7 | Smoke E2E + Playwright + qa-smoke.md | P7 | Pruebas manuales y E2E del flujo crítico | nulo |
+| 8 | CI (GitHub Actions) | **P1** | Workflows, cache, blocking merge | nulo |
+| 9 | Deploy Railway end-to-end | **P1** | Postgres, volumen, env, README de deploy | bajo |
 
 ---
 
-## Fase MVP-1: Bloqueantes para abrir a usuarios
+## Fase MVP-1 — Bloqueantes para abrir a usuarios
 
 Objetivo: la app se despliega en Railway, un cliente puede completar una reserva y el negocio puede gestionarla sin que se pierdan datos.
 
-### Backend Senior
+### Paquete 1 — Robustez backend + Storage + Seguridad (henry)
 
-- Crear endpoint `GET /api/health` en `app.controller.ts` que retorne `{ status: 'ok', db: <ping> }`. Hoy el `railway.json` apunta a una ruta inexistente.
-- Implementar exception filter global en `backend/src/common/filters/prisma-exception.filter.ts` y registrarlo en `main.ts`. Mapear `P2002` → 409, `P2025` → 404.
-- Añadir paginación (`page`, `pageSize`) en `bookings.findAll`, `bookings.findMine`, `courts` y `businesses`. Devolver `{ data, total, page, pageSize }`.
-- Crear módulo `uploads` que abstraiga el almacenamiento (`LocalStorageStrategy` para dev, `S3StorageStrategy` para prod). Configurable por `STORAGE_DRIVER` env. Reemplaza el `useStaticAssets` de `main.ts:27` cuando el driver sea S3.
-- Sustituir el enum `bussines` por `business` (schema, DTOs, guards, seed). Es una migración Postgres con `ALTER TYPE`. Coordinar con Frontend Senior porque rompe contrato.
+- `GET /api/health` con ping a DB (`SELECT 1`). 200 `{ status, db: 'up' }`, 503 si falla.
+- Exception filter global en `backend/src/common/filters/prisma-exception.filter.ts` registrado en `main.ts`. Mapear `P2002 → 409`, `P2025 → 404`, resto → 500 logueado.
+- `PaginationDto` (`page≥1`, `pageSize≤100`, defaults 1/20) + helper `paginate.ts`. Aplicar a `bookings.findAll`, `bookings.findMine`, `courts.findAll`, `businesses.findAll`. Respuesta `{ data, total, page, pageSize }`.
+- Módulo `uploads/` con interfaz `StorageDriver` + `LocalStorageDriver` + `S3StorageDriver`, seleccionado por `STORAGE_DRIVER` env. `useStaticAssets` de `main.ts:27` solo se monta cuando driver es `local`.
+- Endurecer `paymentProof` en `bookings.controller.ts` (`FileInterceptor`): MIME `image/png|jpeg|application/pdf`, tamaño ≤5 MB, regenerar nombre con UUID (ignorar `originalname`).
+- Validar env al arranque en `main.ts`: abortar si `JWT_SECRET < 32` chars o falta; en `NODE_ENV=production` rechazar `CORS_ORIGIN=*` o vacío.
+- Rate limit con `@nestjs/throttler` en `POST /api/auth/login` y `POST /api/auth/register`: 5 req/min/IP.
 
-### Frontend Senior
+### Paquete 2 — Migración `bussines → business` full-stack (P2)
 
-- Crear stores Pinia por dominio: `stores/bookings.ts`, `stores/courts.ts`, `stores/businesses.ts`. Centralizar fetch, caché y errores.
-- Plugin `plugins/api.client.ts` con `$fetch` interceptado: inyecta `Authorization`, intercepta 401 → logout, 5xx → toast.
-- Completar el flujo de reserva en `pages/client/courts/[courtId]/book.vue`: selector de fecha, slots disponibles, subida de comprobante, confirmación.
-- Reemplazar `tucancha-sena: file:..` (eliminado) por revisión de cualquier import roto que dependiera de ese path.
-- Cambiar `role === 'bussines'` por `role === 'business'` en stores, middleware y páginas una vez el Backend Senior termine el rename del enum.
+- Migración Prisma: `ALTER TYPE "UserRole" RENAME VALUE 'bussines' TO 'business'`.
+- Backend: `@IsIn(['admin','business','client'])` en DTOs, comparaciones de `role` en guards, `bookings.service.ts`, `courts.controller.ts`, seed.
+- Frontend: `stores/auth.ts`, `middleware/role.ts`, comparaciones `role === 'bussines'` en páginas.
+- `RolesGuard` en modo "acepta ambos valores" durante una semana para no invalidar JWT vivos (con flag `LEGACY_ROLE_ACCEPT` que se quita después).
+- Actualizar seed para que cree usuarios con `business`.
+- Merge rápido y temprano para evitar conflictos con 3 y 4.
 
-### QA Engineer
+### Paquete 3 — Plugin `$fetch` + stores migrados (P3)
 
-- Instalar dependencias de testing en backend: `jest`, `ts-jest`, `@nestjs/testing` (ya está). Verificar que `npm test` pasa con los specs existentes.
-- Reparar/actualizar `auth.service.spec.ts` y `bookings.service.spec.ts` tras el cambio a `prisma.$transaction` y los tipos de `auth.service`.
-- Agregar specs para el caso de race condition de reserva: dos `create` concurrentes con el mismo slot, uno gana, uno recibe 409.
-- Smoke test E2E manual documentado: registro cliente → login → reserva → aprobación negocio → cancelación. Resultado en `qa-smoke.md` (creado tras la verificación, **no antes**).
+- `plugins/api.client.ts` con `$fetch.create` interceptado: inyecta `Authorization` desde `useAuthStore`, 401 → logout + redirect a `/auth/login`, 5xx → toast genérico, propaga el resto del error con tipos.
+- Composable `useApiError(err)` que mapea errores comunes a mensajes en español.
+- Sistema de toasts compartido (snackbar global Vuetify) expuesto vía `useToast`.
+- Repasar los stores existentes (`stores/bookings.ts`, `stores/courts.ts`, `stores/businesses.ts`) para que llamen al `$fetch` interceptado en vez de `fetch` directo. Manejar `loading`, `error` y caché simple.
 
-### DevOps Engineer
+### Paquete 4 — Flujo de reserva del cliente (P4)
 
-- Crear pipeline CI con jobs para backend y frontend (lint, build, test) y cache de `node_modules`.
-- Levantar un servicio Postgres en Railway y conectar el backend. Documentar las env vars en una sección de `README.md` (no en un md aparte).
-- Configurar volumen persistente en Railway para `/app/uploads` mientras el módulo `uploads` con S3 no esté listo. Es la salida de emergencia.
-- Probar deploy end-to-end: push a `main` → CI verde → Railway redeploya → `/api/health` responde 200 → seed corre solo la primera vez.
+- `pages/client/courts/[courtId]/book.vue` end-to-end: selector de fecha (`v-date-picker`), render de slots disponibles consumiendo `GET /api/bookings/availability`, subida de comprobante con preview, paso de confirmación final.
+- Componentes nuevos en `frontend/app/components/booking/`: `BookingDateTimePicker.vue`, `BookingPaymentUpload.vue`, `BookingConfirmation.vue`.
+- Estado del formulario durante la subida (`pending → uploaded → submitted`) sin perder datos si la subida falla.
+- Tras `submitted`, redirigir a `pages/client/bookings/[id].vue` con el detalle en estado `pending`.
+- Manejo de errores propios del flujo: slot tomado por otro mientras el usuario llenaba el formulario (409 del backend) → mensaje claro + refresh de slots.
 
-### Arquitecto de Software
+### Paquete 5 — UI reutilizable + copy ES + accesibilidad (P5)
 
-- Definir el contrato del módulo `uploads` (interface `StorageDriver`) y revisar el PR del Backend Senior.
-- Documentar en `README.md` la decisión de arquitectura de uploads (driver-pattern), por qué no inyectamos `S3Client` directo.
-- Revisar y aprobar el cambio de enum `bussines → business` (impacto en migración, frontend, JWT existentes).
+- Componentes reutilizables en `frontend/app/components/ui/`: `EmptyState.vue`, `ErrorState.vue`, `LoadingState.vue` (skeleton). Aplicarlos en las listas de canchas, reservas y dashboard.
+- Unificar copy en español en **todas las páginas** (admin/business/client/auth/dashboard/profile). Centralizar textos repetidos en `frontend/app/composables/useCopy.ts` o constantes; corregir mezcla EN/ES en mensajes de error y botones.
+- Accesibilidad mínima: `aria-label` en iconos sin texto, foco visible (`:focus-visible` en tema Vuetify), navegación por teclado en el dialog de reserva y en los menús de aprobación.
+- Lista priorizada en `README.md` o issue tracker de las 3 páginas con peor UX actual y qué se mejoró.
 
-### Especialista en Seguridad
+### Paquete 6 — Testing backend automatizado (P6)
 
-- Forzar `JWT_SECRET` mínimo 32 caracteres al arranque (`main.ts`) — abortar si falta o es débil.
-- Validar `CORS_ORIGIN` en producción: rechazar `*` y exigir lista explícita.
-- Instalar `@nestjs/throttler` y configurar rate limit en `POST /api/auth/login` y `POST /api/auth/register` (5 req/min por IP).
-- Auditar `paymentProof` upload: limitar MIME (`image/png`, `image/jpeg`, `application/pdf`), tamaño (≤5MB), reescribir nombre con UUID (no respetar el del cliente).
+- Instalar `jest`, `ts-jest`, `@nestjs/testing` y dejar `npm test` verde en backend.
+- Reparar `auth.service.spec.ts` y `bookings.service.spec.ts` tras el cambio a `prisma.$transaction` y los tipos de `auth.service`.
+- Nuevo spec de race condition: dos `create` concurrentes con el mismo slot — uno gana, el otro recibe 409.
+- Cobertura de happy path para `auth.service` (register, login, me) y `bookings.service` (create, approve, reject, cancel).
+- `npm test` se ejecuta en menos de 30s y es ejecutable sin red (BD en memoria con mocks de Prisma o testcontainers locales).
 
-### Product Manager / UX
+### Paquete 7 — Smoke E2E + Playwright + qa-smoke.md (P7)
 
-- Definir el flujo crítico del MVP en 1 pantalla (Miro/Figma): cliente → reserva → confirmación. Compartir con el equipo antes del día 3.
-- Revisar copy de errores en español (las páginas tienen mensajes en mezcla EN/ES).
-- Lista priorizada de las 3 páginas con peor UX actual y qué cambiar en cada una.
+- `qa-smoke.md` con checklist E2E manual: registro cliente → login → reserva → aprobación negocio → cancelación. Crear el archivo **después** de correr el flujo, no antes.
+- Setup de Playwright en `frontend/tests/e2e/` con un test del flujo crítico (registro → reserva → estado pending). El test arranca el backend y frontend buildados.
+- Reporte de regresiones encontradas durante el smoke (issue list o sección al final del `qa-smoke.md`).
+- Coordinar con P6 que `npm test` esté verde antes de empezar el E2E (si no, lo deja arrancado y avisa).
+
+### Paquete 8 — CI con GitHub Actions (Henry)
+
+- `.github/workflows/ci.yml` con jobs `backend` y `frontend` en paralelo: `npm ci`, `lint`, `build`, `test`. Cache de `node_modules` por hash de `package-lock.json`.
+- Servicio Postgres en el workflow del job de backend (`services: postgres:16`) con `DATABASE_URL` apuntando a `localhost:5432` para que los specs corran contra una BD real, no solo mocks.
+- Variables sensibles del CI como secrets de GitHub (`CI_DATABASE_URL`, `CI_JWT_SECRET`).
+- Branch protection en `main`: bloquear merge si el workflow falla.
+- Badge de status del CI en `README.md`.
+
+### Paquete 9 — Deploy Railway end-to-end (Henry)
+
+- Crear servicio Postgres en Railway. Cablear `DATABASE_URL` al servicio backend.
+- Variables del backend: `JWT_SECRET` (fuerte, ≥32 chars), `CORS_ORIGIN` (URL del frontend desplegado), `PUBLIC_BASE_URL`, `STORAGE_DRIVER=local` por ahora.
+- Volumen persistente montado en `/app/uploads` (puente hasta que el paquete 1 termine `S3StorageDriver` y se cambie a `STORAGE_DRIVER=s3`).
+- Healthcheck en `/api/health` (depende de que el paquete 1 lo deje pingando la BD).
+- Servicio frontend con `NUXT_PUBLIC_API_BASE` apuntando a la URL del backend `+ /api`.
+- Probar deploy completo: push a `main` → CI verde (paquete 8) → Railway redeploya → `/api/health` 200 → registro → reserva en producción.
+- Sección de "Variables de entorno" actualizada en `README.md` con todo lo necesario para deploy.
 
 ---
 
-## Fase MVP-2: Estabilidad post-lanzamiento ( tras MVP-1)
+## Fase MVP-2 — Estabilidad post-lanzamiento (tras MVP-1)
 
-Objetivo: la app aguanta carga real, los errores son visibles, las regresiones se detectan en CI.
+Objetivo: la app aguanta carga real, los errores son visibles, las regresiones se detectan en CI. Cada uno sigue con el mismo paquete que en MVP-1.
 
-### Backend Senior
+### Paquete 1 (Robustez + Storage)
+- Filtros en `GET /api/courts`: `businessId`, `type`, `priceMin`, `priceMax`, `lat`/`lng`/`radiusKm` (Haversine).
+- Cron `@nestjs/schedule` con `@Cron('0 3 * * 0')`: marcar `no_show` reservas confirmadas con fecha pasada no completadas.
+- Notificaciones email con `@nestjs-modules/mailer` y plantillas Handlebars. Mailtrap local mientras tanto; cuando el paquete 7 provisione Resend/SES en prod, solo cambian las env.
+- Helmet activo, `npm audit` con threshold de severidad.
+- Verificar que `password` nunca aparece en logs ni en respuestas API.
 
-- Notificaciones por email (`@nestjs-modules/mailer`): nuevo evento de booking creado → notificar al business; aprobada/rechazada → notificar al cliente.
-- Filtros de búsqueda en `GET /api/courts`: por `businessId`, `type`, rango de precio, ciudad/lat-lng (radio).
-- Cron job semanal para marcar como `no_show` reservas confirmadas con fecha pasada sin completar.
+### Paquete 2 (Migración enum)
+- Retirar el flag `LEGACY_ROLE_ACCEPT` del `RolesGuard` tras una semana en producción.
+- ADR corto en `/docs/adr/` documentando la migración y por qué se eligió convivencia transitoria.
 
-### Frontend Senior
-
+### Paquete 3 (Plugin + stores)
 - Code splitting de las páginas grandes (`dashboard`, `admin/*`).
-- Skeleton loaders en listas (canchas, reservas).
-- Componente `<EmptyState />` y `<ErrorState />` reutilizable.
-- Accesibilidad básica: `aria-label` en iconos sin texto, foco visible, navegación con teclado en el dialog de reserva.
+- Skeleton loaders en listas (canchas, reservas) usando los stores ya migrados.
 
-### QA Engineer
+### Paquete 4 (Flujo cliente)
+- Vista calendario y feature "repetir reserva" desde el detalle de booking.
+- Calificación de canchas tras `completed`.
 
+### Paquete 5 (UI reutilizable)
+- Skeleton loaders en listas, code splitting de páginas grandes (`dashboard`, `admin/*`).
+- Wireframes de features post-MVP.
+
+### Paquete 6 (Testing backend)
 - Cobertura mínima 60% en `auth.service`, `bookings.service`, `courts.service` (medida con `--coverage`).
-- Suite E2E con Playwright para el flujo crítico (registro, login, reserva, aprobación). Corre en CI contra el frontend buildado.
-- Reporte de cobertura publicado como artifact en la plataforma de CI elegida.
+- Reporte de cobertura como artifact del CI.
 
-### DevOps Engineer
+### Paquete 7 (E2E)
+- Extender la suite Playwright al flujo de business (aprobar/rechazar) y al de admin.
+- Tests E2E corren en CI contra el frontend buildado (acuerdo con P1 sobre el workflow).
 
+### Paquete 8 (CI henry)
+- Job de PR previews con Playwright.
+- `npm audit` en CI con threshold de severidad.
+- Cache de Playwright browsers entre runs.
+
+### Paquete 9 (Deploy henry)
 - Staging environment en Railway con su propia BD. PR previews opcional.
 - Logs estructurados (JSON) en backend con `pino` o `nestjs-pino`.
-- Alerta básica: si `/api/health` falla 3 veces seguidas en Railway → notificación al canal del equipo.
-
-### Arquitecto de Software
-
-- Revisar y aprobar PRs grandes (uploads, throttler, exception filter).
-- ADR (Architecture Decision Record) corto en `README.md` o `/docs/adr/` para: 1) almacenamiento, 2) auth strategy, 3) deploy target.
-- Bench rápido del endpoint `availableSlots` — N+1 potencial con `findUnique(include availability)` por día.
-
-### Especialista en Seguridad
-
-- Helmet en backend (`@nestjs/helmet` o equivalente).
-- Auditar dependencias: `npm audit` en CI con threshold de severidad.
-- Rotación documentada de `JWT_SECRET` (qué pasa con los tokens emitidos).
-- Verificar que `password` nunca aparece en logs ni en respuestas API (revisar `console.log` y exception filter).
-
-### Product Manager / UX
-
-- Recolectar feedback de 3–5 usuarios beta (negocios reales y clientes).
-- Tablero público de prioridades con los issues abiertos clasificados.
-- Wireframes de las features post-MVP (calificación de canchas, repetir reserva, vista calendario).
+- Alerta: si `/api/health` falla 3 veces seguidas → notificación al canal del equipo.
+- Rotación documentada de `JWT_SECRET`.
 
 ---
 
@@ -153,7 +180,7 @@ Objetivo: la app aguanta carga real, los errores son visibles, las regresiones s
 - [ ] `npm test` ejecuta y pasa todos los specs existentes en backend.
 - [ ] CI corre en cada push y bloquea merge si falla.
 - [ ] Deploy en Railway con dominio público accesible para los 3 roles.
-- [ ] `/api/health` responde 200.
+- [ ] `/api/health` responde 200 y pinga la BD.
 - [ ] Un cliente puede completar el flujo `registro → reserva → comprobante subido → estado pending` sin tocar la base de datos manualmente.
 - [ ] El comprobante de pago sobrevive a un redeploy (volumen persistente o S3).
 - [ ] No quedan referencias a `bussines` (todo es `business`).
@@ -163,8 +190,11 @@ Objetivo: la app aguanta carga real, los errores son visibles, las regresiones s
 ## Riesgos abiertos
 
 - **Railway free tier:** si la carga sube, el plan no escala bien. Plan B: Render + Supabase.
-- **Migración de enum `bussines → business`:** invalida tokens emitidos. Hay que decidir si forzar logout global o convivir con ambos valores por una semana.
-- **Sin tests automatizados:** los cambios actuales (transacción de booking, tipos de auth) no tienen cobertura. Lo primero que debe pasar en MVP-1 es destrabar Jest.
+- **Migración de enum `bussines → business`:** invalida tokens emitidos. El paquete 2 lo resuelve con `RolesGuard` transicional (acepta ambos durante una semana). Hay que retirarlo en MVP-2.
+- **Cruce paquete 2 ↔ paquetes 3/4/5:** todos tocan `stores/auth.ts`, middleware o copy de páginas. Si el paquete 2 mergea primero, los otros rebasean fácil. Si mergea último, el paquete 2 absorbe los cambios y reemplaza los literales.
+- **Cruce paquete 1 ↔ paquete 9:** el `STORAGE_DRIVER=s3` del paquete 1 reemplaza al volumen persistente del paquete 9. Mientras tanto conviven sin chocar (driver `local` + volumen).
+- **Cruce paquete 6 ↔ paquete 8:** ambos tocan la ejecución de `npm test`. El paquete 6 deja `npm test` verde localmente y el paquete 8 lo monta en CI con Postgres. Si el 6 no termina, el 8 puede arrancar con un workflow vacío que solo hace `lint` y `build`, y se completa después.
+- **Cruce paquete 4 ↔ paquete 5:** ambos tocan componentes y copy. P4 hace componentes específicos del flujo de reserva, P5 hace los reutilizables y copy global. Si P5 saca `EmptyState`/`ErrorState` primero, P4 los reusa.
 
 ## Cambios ya aplicados en esta iteración
 
@@ -175,3 +205,4 @@ Para no acumular deuda silenciosa, este plan parte de los siguientes fixes ya re
 - `auth.service.ts` tipado con `User` de `@prisma/client` (eliminados los `any`).
 - Removida la dependencia circular `"tucancha-sena": "file:.."` de `frontend/package.json`.
 - Eliminados `plan-mejora-tucancha.md`, `qa-build-report.md` y `backend/output.txt` (estaban desactualizados o eran ruido).
+- Stores Pinia `bookings.ts`, `courts.ts`, `businesses.ts` creados (pendiente migrarlos al plugin `$fetch` interceptado en el paquete 3).
