@@ -33,14 +33,16 @@ export const useBusinessesStore = defineStore('businesses', {
   },
 
   actions: {
-    async fetchBusinesses() {
+    async fetchBusinesses(force = false) {
+      if (!force && this.businesses.length > 0) return
+
       const { apiFetch } = useApi()
       this.loading = true
       this.error = null
       try {
         this.businesses = await apiFetch<Business[]>('/businesses')
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al cargar los negocios'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.loading = false
@@ -55,7 +57,7 @@ export const useBusinessesStore = defineStore('businesses', {
         this.currentBusiness = await apiFetch<Business>(`/businesses/${id}`)
         return this.currentBusiness
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al cargar el negocio'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.loading = false

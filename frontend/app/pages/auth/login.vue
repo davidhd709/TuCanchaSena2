@@ -144,6 +144,14 @@ onMounted(() => {
   authStore.hydrate()
   if (authStore.isAuthenticated) {
     router.push('/dashboard')
+    return
+  }
+
+  // Verificar si viene por sesión expirada
+  const route = useRoute()
+  if (route.query.reason === 'session_expired') {
+    const toast = useToast()
+    toast.warning('Tu sesión expiró. Por favor inicia sesión nuevamente.')
   }
 })
 </script>

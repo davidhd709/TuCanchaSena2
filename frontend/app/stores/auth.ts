@@ -83,7 +83,6 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('auth_token')
         localStorage.removeItem('auth_user')
       }
-      navigateTo('/auth/login')
     },
 
     hydrate() {
