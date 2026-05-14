@@ -105,6 +105,7 @@
               variant="text"
               size="small"
               color="primary"
+              :aria-label="`Editar usuario ${item.firstName} ${item.lastName}`"
               @click="openEdit(item)"
             >
               <v-icon>mdi-pencil</v-icon>
@@ -117,6 +118,7 @@
               variant="text"
               size="small"
               :color="item.isActive ? 'warning' : 'success'"
+              :aria-label="item.isActive ? `Suspender usuario ${item.firstName} ${item.lastName}` : `Reactivar usuario ${item.firstName} ${item.lastName}`"
               @click="toggleStatus(item)"
             >
               <v-icon>{{ item.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}</v-icon>
@@ -131,6 +133,7 @@
               variant="text"
               size="small"
               color="error"
+              :aria-label="`Eliminar usuario ${item.firstName} ${item.lastName}`"
               @click="openDelete(item)"
             >
               <v-icon>mdi-delete</v-icon>
@@ -330,7 +333,7 @@ const form = reactive({
 // ── Constants ──────────────────────────────────────────────────────────────
 const roleOptions = [
   { title: 'Super Admin', value: 'admin' },
-  { title: 'Negocio', value: 'bussines' },
+  { title: 'Negocio', value: 'business' },
   { title: 'Cliente', value: 'client' },
 ]
 
@@ -362,17 +365,17 @@ const filteredUsers = computed(() => {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const roleColor = (role: string) => {
-  const m: Record<string, string> = { admin: 'error', bussines: 'primary', client: 'success' }
+  const m: Record<string, string> = { admin: 'error', business: 'primary', client: 'success' }
   return m[role] ?? 'default'
 }
 const roleLabel = (role: string) => {
-  const m: Record<string, string> = { admin: 'Super Admin', bussines: 'Negocio', client: 'Cliente' }
+  const m: Record<string, string> = { admin: 'Super Admin', business: 'Negocio', client: 'Cliente' }
   return m[role] ?? role
 }
 const roleIcon = (role: string) => {
   const m: Record<string, string> = {
     admin: 'mdi-shield-crown',
-    bussines: 'mdi-store',
+    business: 'mdi-store',
     client: 'mdi-account',
   }
   return m[role] ?? 'mdi-account'

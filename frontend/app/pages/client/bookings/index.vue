@@ -23,10 +23,17 @@
       <v-tab value="cancelled">Canceladas</v-tab>
     </v-tabs>
 
-    <div v-if="loading" class="d-flex justify-center py-10">
-      <v-progress-circular indeterminate color="primary" />
-    </div>
+    <!-- Estado de carga -->
+    <LoadingState v-if="loading" :count="3" :sm="6" :lg="4" />
 
+    <!-- Estado de error -->
+    <ErrorState
+      v-else-if="fetchError"
+      message="No pudimos cargar tus reservas. Verifica tu conexión e intenta de nuevo."
+      @retry="loadBookings"
+    />
+
+    <!-- Lista de reservas -->
     <v-row v-else>
       <v-col v-for="booking in tabBookings" :key="booking.id" cols="12" sm="6" lg="4">
         <v-card rounded="lg" hover>
@@ -34,7 +41,7 @@
             <div class="d-flex align-center justify-space-between mb-3">
               <div class="d-flex align-center gap-3">
                 <v-avatar color="primary" variant="tonal" size="40" rounded="lg">
-                  <v-icon size="20">mdi-soccer-field</v-icon>
+                  <v-icon size="20" aria-hidden="true">mdi-soccer-field</v-icon>
                 </v-avatar>
                 <div>
                   <div class="text-subtitle-2 font-weight-bold">{{ booking.court?.name ?? 'Cancha' }}</div>
@@ -48,15 +55,15 @@
 
             <div class="d-flex flex-column gap-1 mb-3">
               <div class="d-flex align-center gap-2 text-body-2">
-                <v-icon size="16" color="primary">mdi-calendar</v-icon>
+                <v-icon size="16" color="primary" aria-hidden="true">mdi-calendar</v-icon>
                 {{ booking.date }}
               </div>
               <div class="d-flex align-center gap-2 text-body-2">
-                <v-icon size="16" color="primary">mdi-clock-outline</v-icon>
+                <v-icon size="16" color="primary" aria-hidden="true">mdi-clock-outline</v-icon>
                 {{ booking.startTime }} – {{ booking.endTime }}
               </div>
               <div class="d-flex align-center gap-2 text-body-2">
-                <v-icon size="16" color="primary">mdi-cash</v-icon>
+                <v-icon size="16" color="primary" aria-hidden="true">mdi-cash</v-icon>
                 {{ booking.paymentMethod === 'nequi' ? 'Nequi' : 'Transferencia' }}
               </div>
             </div>
@@ -71,12 +78,13 @@
               target="_blank"
               block
               class="mb-2"
+              :aria-label="`Ver comprobante de pago de ${booking.court?.name ?? 'la cancha'}`"
             >
               Ver comprobante
             </v-btn>
 
             <p v-if="booking.rejectionReason" class="text-caption text-error mt-2">
-              <v-icon size="12">mdi-alert-circle</v-icon>
+              <v-icon size="12" aria-hidden="true">mdi-alert-circle</v-icon>
               Rechazo: {{ booking.rejectionReason }}
             </p>
           </v-card-text>
@@ -98,13 +106,19 @@
         </v-card>
       </v-col>
 
+      <!-- Estado vacío -->
       <v-col v-if="tabBookings.length === 0" cols="12">
-        <v-alert type="info" variant="tonal" rounded="lg">
-          No tienes reservas en esta categoría.
-          <template v-if="activeTab === 'all'">
-            <v-btn to="/client/courts" variant="text" color="primary" class="ml-2">¡Reserva una cancha!</v-btn>
+        <EmptyState
+          icon="mdi-calendar-blank-outline"
+          title="Sin reservas"
+          :description="activeTab === 'all' ? 'Aún no tienes ninguna reserva registrada.' : 'No tienes reservas en esta categoría.'"
+        >
+          <template v-if="activeTab === 'all'" #action>
+            <v-btn to="/client/courts" color="primary" variant="flat" prepend-icon="mdi-soccer-field">
+              Reservar una cancha
+            </v-btn>
           </template>
-        </v-alert>
+        </EmptyState>
       </v-col>
     </v-row>
 
@@ -184,9 +198,15 @@ const confirmCancel = async () => {
   }
 }
 
-onMounted(async () => {
+const fetchError = ref(false)
+
+const loadBookings = async () => {
   loading.value = true
+  fetchError.value = false
   try { bookings.value = await apiFetch<any[]>('/bookings/my-bookings') }
+  catch { fetchError.value = true }
   finally { loading.value = false }
-})
+}
+
+onMounted(loadBookings)
 </script>

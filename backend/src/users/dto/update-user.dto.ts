@@ -14,8 +14,8 @@ export class UpdateUserDto {
   phone?: string;
 
   @IsOptional()
-  @IsIn(['admin', 'bussines', 'client'])
-  role?: 'admin' | 'bussines' | 'client';
+  @IsIn(['admin', 'business', 'client'])
+  role?: 'admin' | 'business' | 'client';
 
   @IsOptional()
   @IsBoolean()

@@ -1,20 +1,29 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto, ScheduleDto, UpdateBusinessDto } from './dto/business.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { buildPaginated, pageParams } from '../common/utils/paginate';
 
 @Injectable()
 export class BusinessesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.business.findMany({
-      where: { isActive: true },
-      include: {
-        schedules: true,
-        owner: { select: { id: true, firstName: true, lastName: true, email: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(p: PaginationDto) {
+    const { skip, take, page, pageSize } = pageParams(p);
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.business.findMany({
+        where: { isActive: true },
+        skip,
+        take,
+        include: {
+          schedules: true,
+          owner: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.business.count({ where: { isActive: true } }),
+    ]);
+    return buildPaginated(data, total, page, pageSize);
   }
 
   findByOwner(ownerId: string) {

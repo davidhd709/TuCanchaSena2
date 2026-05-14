@@ -32,11 +32,11 @@ export default defineNuxtPlugin(() => {
       }
     },
 
-    onResponseError({ response }) {
+    async onResponseError({ response }) {
       if (response.status === 401) {
         // Token inválido o expirado → cierre de sesión y redirección
-        toast.warning('Tu sesión expiró. Por favor inicia sesión nuevamente.')
         authStore.logout()
+        navigateTo('/auth/login?reason=session_expired')
       } else if (response.status >= 500) {
         // Error del servidor → notificar al usuario sin romper el flujo
         toast.error('Error del servidor. Por favor intenta de nuevo.')

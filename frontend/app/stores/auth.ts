@@ -6,7 +6,7 @@ export interface User {
   firstName: string
   lastName: string
   phone?: string
-  role: 'admin' | 'bussines' | 'client'
+  role: 'admin' | 'business' | 'client'
   isActive: boolean
 }
 
@@ -24,14 +24,14 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.token && !!state.user,
     isAdmin: (state) => state.user?.role === 'admin',
-    isBusiness: (state) => state.user?.role === 'bussines',
+    isBusiness: (state) => state.user?.role === 'business',
     isClient: (state) => state.user?.role === 'client',
     fullName: (state) =>
       state.user ? `${state.user.firstName} ${state.user.lastName}` : '',
     roleLabel: (state) => {
       switch (state.user?.role) {
         case 'admin': return 'Super Admin'
-        case 'bussines': return 'Negocio'
+        case 'business': return 'Negocio'
         case 'client': return 'Cliente'
         default: return ''
       }
@@ -83,7 +83,6 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('auth_token')
         localStorage.removeItem('auth_user')
       }
-      navigateTo('/auth/login')
     },
 
     hydrate() {

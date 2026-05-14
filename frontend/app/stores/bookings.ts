@@ -57,14 +57,16 @@ export const useBookingsStore = defineStore('bookings', {
 
   actions: {
     /** Reservas del cliente autenticado */
-    async fetchMyBookings() {
+    async fetchMyBookings(force = false) {
+      if (!force && this.myBookings.length > 0) return
+
       const { apiFetch } = useApi()
       this.loading = true
       this.error = null
       try {
         this.myBookings = await apiFetch<Booking[]>('/bookings/mine')
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al cargar tus reservas'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.loading = false
@@ -72,14 +74,16 @@ export const useBookingsStore = defineStore('bookings', {
     },
 
     /** Todas las reservas (admin / business) */
-    async fetchAllBookings() {
+    async fetchAllBookings(force = false) {
+      if (!force && this.allBookings.length > 0) return
+
       const { apiFetch } = useApi()
       this.loading = true
       this.error = null
       try {
         this.allBookings = await apiFetch<Booking[]>('/bookings')
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al cargar las reservas'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.loading = false
@@ -110,7 +114,7 @@ export const useBookingsStore = defineStore('bookings', {
         this.myBookings.unshift(booking)
         return booking
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al crear la reserva'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.creating = false
@@ -130,7 +134,7 @@ export const useBookingsStore = defineStore('bookings', {
         if (idx !== -1) this.allBookings[idx] = updated
         return updated
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al actualizar la reserva'
+        this.error = useApiError(e)
         throw e
       }
     },

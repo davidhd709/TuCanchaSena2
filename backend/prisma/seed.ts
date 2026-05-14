@@ -29,7 +29,7 @@ async function main() {
       firstName: 'Carlos',
       lastName: 'Pérez',
       phone: '+57 300 000 0000',
-      role: UserRole.bussines,
+      role: UserRole.business,
     },
   })
 
