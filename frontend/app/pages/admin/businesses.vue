@@ -314,7 +314,7 @@ const openCreate = async () => {
     try {
       const users = await apiFetch<any[]>('/users')
       businessUsers.value = users
-        .filter(u => u.role === 'bussines' && u.isActive)
+        .filter(u => u.role === 'business' && u.isActive)
         .map(u => ({ id: u.id, label: `${u.firstName} ${u.lastName} (${u.email})` }))
     } finally {
       usersLoading.value = false

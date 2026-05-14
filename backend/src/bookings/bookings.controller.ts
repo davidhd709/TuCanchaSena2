@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -11,14 +12,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 import { BookingsService } from './bookings.service';
 import { AvailableSlotsQueryDto, CreateBookingDto, RejectBookingDto } from './dto/booking.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { ALLOWED_UPLOAD_MIME, MAX_UPLOAD_BYTES } from '../uploads/storage.driver';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('bookings')
@@ -27,17 +29,17 @@ export class BookingsController {
 
   @Get()
   @Roles('admin')
-  findAll() {
-    return this.bookings.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.bookings.findAll(pagination);
   }
 
   @Get('my-bookings')
-  myBookings(@CurrentUser() user: JwtUser) {
-    return this.bookings.findMine(user.sub);
+  myBookings(@CurrentUser() user: JwtUser, @Query() pagination: PaginationDto) {
+    return this.bookings.findMine(user.sub, pagination);
   }
 
   @Get('business/:businessId')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   byBusiness(@Param('businessId') businessId: string, @CurrentUser() user: JwtUser) {
     return this.bookings.findByBusiness(businessId, user);
   }
@@ -55,14 +57,17 @@ export class BookingsController {
   @Post()
   @UseInterceptors(
     FileInterceptor('paymentProof', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (_req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname)}`);
-        },
-      }),
-      limits: { fileSize: 5 * 1024 * 1024 },
+      storage: memoryStorage(),
+      limits: { fileSize: MAX_UPLOAD_BYTES },
+      fileFilter: (_req, file, cb) => {
+        if (!(ALLOWED_UPLOAD_MIME as readonly string[]).includes(file.mimetype)) {
+          return cb(
+            new BadRequestException('El comprobante debe ser PNG, JPG o PDF'),
+            false
+          );
+        }
+        cb(null, true);
+      },
     })
   )
   create(
@@ -70,29 +75,30 @@ export class BookingsController {
     @CurrentUser() user: JwtUser,
     @UploadedFile() file?: Express.Multer.File
   ) {
-    return this.bookings.create(dto, user.sub, file?.filename);
+    const upload = file ? { buffer: file.buffer, mimetype: file.mimetype } : undefined;
+    return this.bookings.create(dto, user.sub, upload);
   }
 
   @Post(':id/confirm')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   confirm(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.bookings.confirm(id, user);
   }
 
   @Post(':id/reject')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   reject(@Param('id') id: string, @Body() dto: RejectBookingDto, @CurrentUser() user: JwtUser) {
     return this.bookings.reject(id, dto, user);
   }
 
   @Post(':id/complete')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   complete(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.bookings.complete(id, user);
   }
 
   @Post(':id/no-show')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   noShow(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.bookings.noShow(id, user);
   }

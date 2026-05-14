@@ -2,12 +2,15 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto, RejectBookingDto } from './dto/booking.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { buildPaginated, pageParams } from '../common/utils/paginate';
+import { STORAGE_DRIVER, StorageDriver, UploadInput } from '../uploads/storage.driver';
 
 const DAYS = [
   'sunday',
@@ -28,22 +31,36 @@ const toMinutes = (hhmm: string) => {
 export class BookingsService {
   constructor(
     private prisma: PrismaService,
-    private config: ConfigService
+    @Inject(STORAGE_DRIVER) private storage: StorageDriver
   ) {}
 
-  findAll() {
-    return this.prisma.booking.findMany({
-      include: { court: { include: { business: true } }, user: this.userSelect() },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(p: PaginationDto) {
+    const { skip, take, page, pageSize } = pageParams(p);
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.booking.findMany({
+        skip,
+        take,
+        include: { court: { include: { business: true } }, user: this.userSelect() },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.booking.count(),
+    ]);
+    return buildPaginated(data, total, page, pageSize);
   }
 
-  findMine(userId: string) {
-    return this.prisma.booking.findMany({
-      where: { userId },
-      include: { court: { include: { business: true } } },
-      orderBy: { date: 'desc' },
-    });
+  async findMine(userId: string, p: PaginationDto) {
+    const { skip, take, page, pageSize } = pageParams(p);
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.booking.findMany({
+        where: { userId },
+        skip,
+        take,
+        include: { court: { include: { business: true } } },
+        orderBy: { date: 'desc' },
+      }),
+      this.prisma.booking.count({ where: { userId } }),
+    ]);
+    return buildPaginated(data, total, page, pageSize);
   }
 
   async findByBusiness(businessId: string, currentUser: { sub: string; role: string }) {
@@ -126,7 +143,7 @@ export class BookingsService {
     return { date: dateStr, dayOfWeek, courtId, slots };
   }
 
-  async create(dto: CreateBookingDto, userId: string, paymentProofPath?: string) {
+  async create(dto: CreateBookingDto, userId: string, file?: UploadInput) {
     const court = await this.prisma.court.findUnique({
       where: { id: dto.courtId },
       include: { availability: true },
@@ -170,9 +187,7 @@ export class BookingsService {
       : Number(court.pricePerHour);
     const totalPrice = hours * pricePerHour;
 
-    const proofUrl = paymentProofPath
-      ? `${this.config.get<string>('PUBLIC_BASE_URL') ?? ''}/uploads/${paymentProofPath}`
-      : undefined;
+    const proofUrl = file ? (await this.storage.save(file)).url : undefined;
 
     return this.prisma.$transaction(async (tx) => {
       const overlap = await tx.booking.findFirst({
@@ -245,7 +260,7 @@ export class BookingsService {
     if (currentUser.role === 'client' && booking.userId !== currentUser.sub) {
       throw new ForbiddenException('No puedes cancelar esta reserva');
     }
-    if (currentUser.role === 'bussines' && booking.court.business.ownerId !== currentUser.sub) {
+    if (currentUser.role === 'business' && booking.court.business.ownerId !== currentUser.sub) {
       throw new ForbiddenException('No puedes cancelar esta reserva');
     }
     return this.prisma.booking.update({

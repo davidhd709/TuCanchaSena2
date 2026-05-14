@@ -137,14 +137,14 @@ const initials = computed(() => {
 })
 
 const roleColor = computed(() => {
-  const map: Record<string, string> = { admin: 'error', bussines: 'primary', client: 'success' }
+  const map: Record<string, string> = { admin: 'error', business: 'primary', client: 'success' }
   return map[authStore.user?.role ?? ''] ?? 'default'
 })
 
 const roleIcon = computed(() => {
   const map: Record<string, string> = {
     admin: 'mdi-shield-crown',
-    bussines: 'mdi-store',
+    business: 'mdi-store',
     client: 'mdi-account',
   }
   return map[authStore.user?.role ?? ''] ?? 'mdi-account'

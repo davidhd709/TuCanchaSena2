@@ -1,5 +1,7 @@
 # Tu Cancha — Plataforma de reserva de canchas sintéticas
 
+[![CI](https://github.com/davidhd709/TuCanchaSena2/actions/workflows/ci.yml/badge.svg)](https://github.com/davidhd709/TuCanchaSena2/actions/workflows/ci.yml)
+
 Monorepo separado en dos responsabilidades:
 
 ```
@@ -113,7 +115,7 @@ npm run dev                              # http://localhost:3000
 | Rol | Email | Password |
 |---|---|---|
 | `admin` | admin@tucancha.local | `Password123!` |
-| `bussines` | negocio@tucancha.local | `Password123!` |
+| `business` | negocio@tucancha.local | `Password123!` |
 | `client` | cliente@tucancha.local | `Password123!` |
 
 ## Flujo para colaboradores
@@ -169,7 +171,7 @@ User ──< Business ──< Court ──< CourtAvailability
 Software (independiente, módulo CMS)
 ```
 
-- **User**: roles `admin` | `bussines` | `client`. Soft-delete con `isActive`.
+- **User**: roles `admin` | `business` | `client`. Soft-delete con `isActive`.
 - **Business**: tiene un dueño (User), uno o más horarios (`BusinessSchedule`) y varias canchas.
 - **Court**: pertenece a un Business, define precio base y estado. Cada cancha tiene varios slots de `CourtAvailability` (por día, con precio especial opcional).
 - **Booking**: reserva de una `Court` por un `User`, con flujo `pending → confirmed → completed | cancelled | no_show`. El backend calcula `totalPrice` desde la duración y el `pricePerHour` del slot (o el de la cancha si no hay precio especial).
@@ -187,11 +189,16 @@ Tabla completa en [`backend/README.md`](backend/README.md). El backend monta tod
 |---|---|---|
 | `PORT` | 8001 | Puerto HTTP |
 | `DATABASE_URL` | — | Cadena Postgres |
-| `JWT_SECRET` | — | Secreto JWT |
+| `JWT_SECRET` | — | Secreto JWT. **Mínimo 32 caracteres**; el backend aborta el arranque si falta o es más corto |
 | `JWT_EXPIRES_IN` | 7d | Expiración del token |
-| `CORS_ORIGIN` | http://localhost:3000 | Orígenes permitidos (separados por coma) |
-| `PUBLIC_BASE_URL` | http://localhost:8001 | Base URL para construir URLs de archivos subidos |
-| `UPLOADS_DIR` | uploads | Carpeta local para `paymentProof` |
+| `CORS_ORIGIN` | http://localhost:3000 | Orígenes permitidos (separados por coma). En `NODE_ENV=production` no se acepta `*` |
+| `PUBLIC_BASE_URL` | http://localhost:8001 | Base URL para construir URLs de archivos subidos (driver `local`) |
+| `STORAGE_DRIVER` | local | Almacenamiento de comprobantes: `local` (disco) o `s3` |
+| `UPLOADS_DIR` | uploads | Carpeta local para `paymentProof` (driver `local`) |
+| `S3_REGION` | — | Región del bucket (driver `s3`) |
+| `S3_BUCKET` | — | Nombre del bucket (driver `s3`) |
+| `S3_PREFIX` | payment-proofs | Prefijo de las claves dentro del bucket (driver `s3`) |
+| `S3_PUBLIC_BASE` | (URL estándar AWS) | Base pública del bucket si usas CDN o dominio propio (driver `s3`) |
 
 **Frontend** (`frontend/.env`):
 
@@ -224,47 +231,24 @@ Ambos proyectos tienen `nixpacks.toml` y `railway.json`. No se necesita Docker.
    - `NUXT_PUBLIC_API_BASE` → la URL pública del backend `+ /api`
 3. Railway detecta `nixpacks.toml`, hace `npm run build` y arranca con Nitro en `$PORT`.
 
+## Almacenamiento de archivos (driver-pattern)
+
+Los comprobantes de pago (`paymentProof`) se guardan a través de una abstracción `StorageDriver` (`backend/src/uploads/`). La app depende del **contrato**, no de una implementación concreta:
+
+- `StorageDriver` — interfaz con un solo método `save(file) → { key, url }`.
+- `LocalStorageDriver` — escribe en `UPLOADS_DIR` y devuelve una URL bajo `PUBLIC_BASE_URL/uploads/`.
+- `S3StorageDriver` — sube al bucket con `PutObjectCommand` y devuelve la URL pública.
+- `UploadsModule` elige la implementación según `STORAGE_DRIVER` (`local` | `s3`) en un `useFactory`.
+
+**Por qué un driver y no inyectar `S3Client` directo:** `bookings.service` no debería saber si el archivo va a disco o a la nube. Con el driver, dev usa disco y prod usa S3 cambiando solo una env var, sin tocar el dominio. El día que se agregue otro backend de almacenamiento, se añade un driver y un `case` — nada más.
+
+Validaciones de subida (en `bookings.controller`): MIME restringido a `image/png`, `image/jpeg`, `application/pdf`; tamaño ≤ 5 MB; el nombre del archivo se regenera con UUID (se ignora el `originalname` del cliente).
+
+Con `STORAGE_DRIVER=local`, en Railway los archivos se pierden entre deploys salvo que montes un volumen persistente en `/app/uploads`. La solución definitiva es `STORAGE_DRIVER=s3`.
+
 ## Notas
 
 - El rol `bussines` mantiene la grafía original del frontend. Si quieres corregirlo a `business`, actualiza el enum en `backend/prisma/schema.prisma`, los `class-validator` `@IsIn` y los chequeos de `role` en el frontend (`stores/auth.ts`, páginas, middleware).
-- Los archivos de `paymentProof` se guardan en `backend/uploads/` y se sirven en `/uploads/<archivo>`. En Railway se pierden entre deploys salvo que añadas un volumen persistente montado en `/app/uploads` o uses S3/Cloudinary.
-
----
-
-## UI reutilizable, copy ES y accesibilidad (Paquete 5 — MVP-1)
-
-### Nuevos componentes en `frontend/app/components/ui/`
-
-| Componente | Props | Uso |
-|---|---|---|
-| `EmptyState.vue` | `icon`, `iconColor`, `title`, `description` + slot `#action` | Listas vacías con CTA opcional |
-| `ErrorState.vue` | `message` + evento `@retry` | Error de carga con botón Reintentar |
-| `LoadingState.vue` | `count`, `cols`, `sm`, `lg`, `type` | Skeleton de tarjetas mientras carga |
-
-### Nuevo composable `frontend/app/composables/useCopy.ts`
-
-Centraliza textos en español para validaciones, roles, estados de reserva, acciones y errores.
-Evita duplicar strings en cada página.
-
-```ts
-const copy = useCopy()
-copy.validation.required   // 'Este campo es requerido'
-copy.roles.business        // 'Negocio'
-copy.bookingStatus.pending // 'Pendiente'
-```
-
-### 3 páginas con peor UX — mejoradas
-
-| # | Página | Problema original | Mejora aplicada |
-|---|---|---|---|
-| 1 | `client/courts/index.vue` | Spinner desnudo sin skeleton, estado vacío con `v-alert` genérico sin CTA, sin estado de error | `LoadingState` con skeleton de tarjetas, `EmptyState` con botón "Limpiar filtros", `ErrorState` con retry |
-| 2 | `admin/bookings.vue` | Sin estado vacío alguno en la tabla, botón de comprobante sin `aria-label` | Slot `#no-data` con `EmptyState`, `aria-label="Ver comprobante de pago"` en botón icono |
-| 3 | `business/bookings.vue` | Botones de navegación del calendario sin `aria-label`, bloques de reserva no accesibles por teclado, estado vacío con `v-alert` genérico | `aria-label` en chevrons, `role="button" tabindex="0"` + keyboard handler en booking-blocks, `EmptyState` |
-
-### Accesibilidad aplicada en toda la app
-
-- `aria-label` explícito en todos los botones de icono sin texto visible
-- `aria-hidden="true"` en iconos decorativos
-- `role="button"` + `tabindex="0"` + handler `@keydown.enter.space` en elementos clickeables no nativos
-- `aria-labelledby` en el dialog de detalle de reserva (`business/bookings.vue`)
-- `:focus-visible` con color de marca en todos los elementos interactivos (ver `assets/main.css`)
+- Endpoints de lectura paginados (`GET /api/bookings`, `/api/bookings/my-bookings`, `/api/courts`, `/api/businesses`) aceptan `?page` y `?pageSize` (default 1/20, máx 100) y responden `{ data, total, page, pageSize }`.
+- `GET /api/health` hace un ping real a la BD: responde 200 `{ status, db: 'up' }` o 503 si Postgres no responde.
+- Rate limit de 5 req/min por IP en `POST /api/auth/login` y `POST /api/auth/register`.

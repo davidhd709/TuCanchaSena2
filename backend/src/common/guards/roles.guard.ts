@@ -16,7 +16,15 @@ export class RolesGuard implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest();
-    if (!user || !required.includes(user.role)) {
+    
+    // Normalize role for legacy support (bussines -> business)
+    const normalizeRole = (role: string): Role => {
+      return (role === 'bussines' ? 'business' : role) as Role;
+    };
+    
+    const normalizedUserRole = normalizeRole(user?.role);
+    
+    if (!user || !required.includes(normalizedUserRole)) {
       throw new ForbiddenException('No tienes permisos para esta acción');
     }
     return true;

@@ -4,7 +4,7 @@ import { createParamDecorator } from '@nestjs/common';
 export interface JwtUser {
   sub: string;
   email: string;
-  role: 'admin' | 'bussines' | 'client';
+  role: 'admin' | 'business' | 'client';
 }
 
 export const CurrentUser = createParamDecorator(

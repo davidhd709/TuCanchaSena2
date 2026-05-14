@@ -45,14 +45,16 @@ export const useCourtsStore = defineStore('courts', {
   },
 
   actions: {
-    async fetchCourts() {
+    async fetchCourts(force = false) {
+      if (!force && this.courts.length > 0) return
+
       const { apiFetch } = useApi()
       this.loading = true
       this.error = null
       try {
         this.courts = await apiFetch<Court[]>('/courts')
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al cargar las canchas'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.loading = false
@@ -67,7 +69,7 @@ export const useCourtsStore = defineStore('courts', {
         this.currentCourt = await apiFetch<Court>(`/courts/${id}`)
         return this.currentCourt
       } catch (e: any) {
-        this.error = e?.data?.message ?? 'Error al cargar la cancha'
+        this.error = useApiError(e)
         throw e
       } finally {
         this.loading = false
