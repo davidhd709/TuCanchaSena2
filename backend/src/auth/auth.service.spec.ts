@@ -43,6 +43,23 @@ const mockJwtService = {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// DATOS REUTILIZABLES
+// ─────────────────────────────────────────────────────────────────
+
+/** Usuario completo de ejemplo (incluye password hasheada) */
+const mockFullUser = {
+  id: 'user-uuid-1',
+  email: 'test@tucancha.com',
+  password: 'hashed-password',
+  firstName: 'Juan',
+  lastName: 'Pérez',
+  phone: '3001234567',
+  role: 'client',
+  isActive: true,
+  createdAt: new Date('2025-01-01'),
+}
+
+// ─────────────────────────────────────────────────────────────────
 // SUITE PRINCIPAL
 // ─────────────────────────────────────────────────────────────────
 
@@ -89,7 +106,7 @@ describe('AuthService', () => {
       phone: '3001234567',
     }
 
-    it('debería registrar un nuevo usuario correctamente', async () => {
+    it('debería registrar un nuevo usuario correctamente (happy path)', async () => {
       /**
        * Escenario: el email NO existe en la BD → debe crear el usuario
        * y devolver un token + datos del usuario.
@@ -99,22 +116,12 @@ describe('AuthService', () => {
        * 2. create devuelve un usuario falso
        */
       mockPrismaService.user.findUnique.mockResolvedValue(null)
-      mockPrismaService.user.create.mockResolvedValue({
-        id: 'user-uuid-1',
-        email: registerDto.email,
-        password: 'hashed-password',
-        firstName: registerDto.firstName,
-        lastName: registerDto.lastName,
-        phone: registerDto.phone,
-        role: 'client',
-        isActive: true,
-        createdAt: new Date(),
-      })
+      mockPrismaService.user.create.mockResolvedValue(mockFullUser)
 
       const result = await service.register(registerDto)
 
       // Verificamos la estructura de la respuesta
-      expect(result).toHaveProperty('access_token')
+      expect(result).toHaveProperty('access_token', 'mock-jwt-token')
       expect(result).toHaveProperty('user')
       expect(result.user.email).toBe(registerDto.email)
       // La contraseña NUNCA debe aparecer en la respuesta pública
@@ -144,26 +151,22 @@ describe('AuthService', () => {
       password: 'Password123!',
     }
 
-    it('debería hacer login correctamente con credenciales válidas', async () => {
+    it('debería hacer login correctamente con credenciales válidas (happy path)', async () => {
       /**
        * Escenario: usuario existe, está activo, y la contraseña es correcta.
-       * bcrypt.compare compara el texto plano con el hash.
+       * bcrypt.compare compara el texto plano con el hash real.
        */
       const hashedPassword = await bcrypt.hash(loginDto.password, 10)
       mockPrismaService.user.findUnique.mockResolvedValue({
-        id: 'user-uuid-1',
-        email: loginDto.email,
+        ...mockFullUser,
         password: hashedPassword,
-        firstName: 'Juan',
-        lastName: 'Pérez',
-        role: 'client',
-        isActive: true, // ← importante: el usuario debe estar activo
       })
 
       const result = await service.login(loginDto)
 
       expect(result).toHaveProperty('access_token', 'mock-jwt-token')
       expect(result.user.email).toBe(loginDto.email)
+      expect(result.user).not.toHaveProperty('password')
     })
 
     it('debería lanzar UnauthorizedException si el usuario no existe', async () => {
@@ -174,9 +177,7 @@ describe('AuthService', () => {
 
     it('debería lanzar UnauthorizedException si el usuario está inactivo', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue({
-        id: 'user-uuid-1',
-        email: loginDto.email,
-        password: 'some-hash',
+        ...mockFullUser,
         isActive: false, // ← usuario desactivado
       })
 
@@ -186,8 +187,7 @@ describe('AuthService', () => {
     it('debería lanzar UnauthorizedException si la contraseña es incorrecta', async () => {
       const hashedPassword = await bcrypt.hash('correct-password', 10)
       mockPrismaService.user.findUnique.mockResolvedValue({
-        id: 'user-uuid-1',
-        email: loginDto.email,
+        ...mockFullUser,
         password: hashedPassword,
         isActive: true,
       })
@@ -196,6 +196,29 @@ describe('AuthService', () => {
       await expect(
         service.login({ email: loginDto.email, password: 'wrong-password' }),
       ).rejects.toThrow(UnauthorizedException)
+    })
+  })
+
+  // ── Tests de me() ───────────────────────────────────────────────
+  describe('me()', () => {
+    it('debería devolver los datos públicos del usuario autenticado (happy path)', async () => {
+      /**
+       * Escenario: el usuario existe en la BD → devuelve sus datos sin password.
+       */
+      mockPrismaService.user.findUnique.mockResolvedValue(mockFullUser)
+
+      const result = await service.me('user-uuid-1')
+
+      expect(result.id).toBe('user-uuid-1')
+      expect(result.email).toBe('test@tucancha.com')
+      // La contraseña nunca debe exponerse
+      expect(result).not.toHaveProperty('password')
+    })
+
+    it('debería lanzar UnauthorizedException si el userId no existe', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null)
+
+      await expect(service.me('non-existent-id')).rejects.toThrow(UnauthorizedException)
     })
   })
 })
