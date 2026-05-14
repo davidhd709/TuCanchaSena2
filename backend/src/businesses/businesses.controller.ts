@@ -19,7 +19,7 @@ export class BusinessesController {
   }
 
   @Get('my-businesses')
-  @Roles('bussines', 'admin')
+  @Roles('business', 'admin')
   myBusinesses(@CurrentUser() user: JwtUser) {
     return this.businesses.findByOwner(user.sub);
   }
@@ -36,13 +36,13 @@ export class BusinessesController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   update(@Param('id') id: string, @Body() dto: UpdateBusinessDto, @CurrentUser() user: JwtUser) {
     return this.businesses.update(id, dto, user);
   }
 
   @Delete(':id')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   remove(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.businesses.remove(id, user);
   }

@@ -39,7 +39,7 @@ export class BookingsController {
   }
 
   @Get('business/:businessId')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   byBusiness(@Param('businessId') businessId: string, @CurrentUser() user: JwtUser) {
     return this.bookings.findByBusiness(businessId, user);
   }
@@ -80,25 +80,25 @@ export class BookingsController {
   }
 
   @Post(':id/confirm')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   confirm(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.bookings.confirm(id, user);
   }
 
   @Post(':id/reject')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   reject(@Param('id') id: string, @Body() dto: RejectBookingDto, @CurrentUser() user: JwtUser) {
     return this.bookings.reject(id, dto, user);
   }
 
   @Post(':id/complete')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   complete(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.bookings.complete(id, user);
   }
 
   @Post(':id/no-show')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   noShow(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.bookings.noShow(id, user);
   }

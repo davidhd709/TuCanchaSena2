@@ -260,7 +260,7 @@ export class BookingsService {
     if (currentUser.role === 'client' && booking.userId !== currentUser.sub) {
       throw new ForbiddenException('No puedes cancelar esta reserva');
     }
-    if (currentUser.role === 'bussines' && booking.court.business.ownerId !== currentUser.sub) {
+    if (currentUser.role === 'business' && booking.court.business.ownerId !== currentUser.sub) {
       throw new ForbiddenException('No puedes cancelar esta reserva');
     }
     return this.prisma.booking.update({

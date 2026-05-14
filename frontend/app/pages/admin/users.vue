@@ -330,7 +330,7 @@ const form = reactive({
 // ── Constants ──────────────────────────────────────────────────────────────
 const roleOptions = [
   { title: 'Super Admin', value: 'admin' },
-  { title: 'Negocio', value: 'bussines' },
+  { title: 'Negocio', value: 'business' },
   { title: 'Cliente', value: 'client' },
 ]
 
@@ -362,17 +362,17 @@ const filteredUsers = computed(() => {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const roleColor = (role: string) => {
-  const m: Record<string, string> = { admin: 'error', bussines: 'primary', client: 'success' }
+  const m: Record<string, string> = { admin: 'error', business: 'primary', client: 'success' }
   return m[role] ?? 'default'
 }
 const roleLabel = (role: string) => {
-  const m: Record<string, string> = { admin: 'Super Admin', bussines: 'Negocio', client: 'Cliente' }
+  const m: Record<string, string> = { admin: 'Super Admin', business: 'Negocio', client: 'Cliente' }
   return m[role] ?? role
 }
 const roleIcon = (role: string) => {
   const m: Record<string, string> = {
     admin: 'mdi-shield-crown',
-    bussines: 'mdi-store',
+    business: 'mdi-store',
     client: 'mdi-account',
   }
   return m[role] ?? 'mdi-account'

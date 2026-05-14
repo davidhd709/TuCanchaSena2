@@ -31,19 +31,19 @@ export class CourtsController {
   }
 
   @Post()
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   create(@Body() dto: CreateCourtDto, @CurrentUser() user: JwtUser) {
     return this.courts.create(dto, user);
   }
 
   @Patch(':id')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   update(@Param('id') id: string, @Body() dto: UpdateCourtDto, @CurrentUser() user: JwtUser) {
     return this.courts.update(id, dto, user);
   }
 
   @Delete(':id')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   remove(@Param('id') id: string, @CurrentUser() user: JwtUser) {
     return this.courts.remove(id, user);
   }
@@ -55,7 +55,7 @@ export class CourtsController {
   }
 
   @Post(':id/availability')
-  @Roles('admin', 'bussines')
+  @Roles('admin', 'business')
   replaceAvailability(
     @Param('id') id: string,
     @Body() dto: ReplaceAvailabilityDto,

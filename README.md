@@ -115,7 +115,7 @@ npm run dev                              # http://localhost:3000
 | Rol | Email | Password |
 |---|---|---|
 | `admin` | admin@tucancha.local | `Password123!` |
-| `bussines` | negocio@tucancha.local | `Password123!` |
+| `business` | negocio@tucancha.local | `Password123!` |
 | `client` | cliente@tucancha.local | `Password123!` |
 
 ## Flujo para colaboradores
@@ -171,7 +171,7 @@ User ──< Business ──< Court ──< CourtAvailability
 Software (independiente, módulo CMS)
 ```
 
-- **User**: roles `admin` | `bussines` | `client`. Soft-delete con `isActive`.
+- **User**: roles `admin` | `business` | `client`. Soft-delete con `isActive`.
 - **Business**: tiene un dueño (User), uno o más horarios (`BusinessSchedule`) y varias canchas.
 - **Court**: pertenece a un Business, define precio base y estado. Cada cancha tiene varios slots de `CourtAvailability` (por día, con precio especial opcional).
 - **Booking**: reserva de una `Court` por un `User`, con flujo `pending → confirmed → completed | cancelled | no_show`. El backend calcula `totalPrice` desde la duración y el `pricePerHour` del slot (o el de la cancha si no hay precio especial).
