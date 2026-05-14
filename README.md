@@ -1,5 +1,7 @@
 # Tu Cancha — Plataforma de reserva de canchas sintéticas
 
+[![CI](https://github.com/davidhd709/TuCanchaSena2/actions/workflows/ci.yml/badge.svg)](https://github.com/davidhd709/TuCanchaSena2/actions/workflows/ci.yml)
+
 Monorepo separado en dos responsabilidades:
 
 ```
