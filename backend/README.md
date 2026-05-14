@@ -42,18 +42,18 @@ npm run start:prod
 | GET  | `/api/users` | admin |
 | PATCH/DELETE | `/api/users/:id` | admin/dueño |
 | GET  | `/api/businesses` | admin |
-| GET  | `/api/businesses/my-businesses` | bussines |
-| POST/PATCH/DELETE | `/api/businesses[/:id]` | admin/bussines |
+| GET  | `/api/businesses/my-businesses` | business |
+| POST/PATCH/DELETE | `/api/businesses[/:id]` | admin/business |
 | GET  | `/api/courts` | público |
 | GET  | `/api/courts/by-business/:id` | autenticado |
 | GET  | `/api/courts/:id/availability` | público |
-| POST | `/api/courts/:id/availability` | admin/bussines |
+| POST | `/api/courts/:id/availability` | admin/business |
 | GET  | `/api/bookings` | admin |
 | GET  | `/api/bookings/my-bookings` | autenticado |
-| GET  | `/api/bookings/business/:id` | admin/bussines |
+| GET  | `/api/bookings/business/:id` | admin/business |
 | GET  | `/api/bookings/court/:id/available-slots?date=YYYY-MM-DD` | autenticado |
 | POST | `/api/bookings` (multipart con `paymentProof`) | autenticado |
-| POST | `/api/bookings/:id/{confirm,reject,complete,no-show}` | admin/bussines |
+| POST | `/api/bookings/:id/{confirm,reject,complete,no-show}` | admin/business |
 | DELETE | `/api/bookings/:id` | autor / business / admin |
 | GET/POST/PATCH/DELETE | `/api/software[/:id]` | admin (lectura pública) |
 
@@ -62,5 +62,5 @@ npm run start:prod
 | Rol | Email | Password |
 |---|---|---|
 | admin | admin@tucancha.local | Password123! |
-| bussines | negocio@tucancha.local | Password123! |
+| business | negocio@tucancha.local | Password123! |
 | client | cliente@tucancha.local | Password123! |

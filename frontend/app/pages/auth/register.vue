@@ -175,7 +175,7 @@ const form = reactive({
 
 const roleOptions = [
   { title: 'Cliente', value: 'client' },
-  { title: 'Propietario de Negocio', value: 'bussines' },
+  { title: 'Propietario de Negocio', value: 'business' },
 ]
 
 const rules = {

@@ -113,7 +113,7 @@ npm run dev                              # http://localhost:3000
 | Rol | Email | Password |
 |---|---|---|
 | `admin` | admin@tucancha.local | `Password123!` |
-| `bussines` | negocio@tucancha.local | `Password123!` |
+| `business` | negocio@tucancha.local | `Password123!` |
 | `client` | cliente@tucancha.local | `Password123!` |
 
 ## Flujo para colaboradores
@@ -169,7 +169,7 @@ User ──< Business ──< Court ──< CourtAvailability
 Software (independiente, módulo CMS)
 ```
 
-- **User**: roles `admin` | `bussines` | `client`. Soft-delete con `isActive`.
+- **User**: roles `admin` | `business` | `client`. Soft-delete con `isActive`.
 - **Business**: tiene un dueño (User), uno o más horarios (`BusinessSchedule`) y varias canchas.
 - **Court**: pertenece a un Business, define precio base y estado. Cada cancha tiene varios slots de `CourtAvailability` (por día, con precio especial opcional).
 - **Booking**: reserva de una `Court` por un `User`, con flujo `pending → confirmed → completed | cancelled | no_show`. El backend calcula `totalPrice` desde la duración y el `pricePerHour` del slot (o el de la cancha si no hay precio especial).
@@ -226,5 +226,5 @@ Ambos proyectos tienen `nixpacks.toml` y `railway.json`. No se necesita Docker.
 
 ## Notas
 
-- El rol `bussines` mantiene la grafía original del frontend. Si quieres corregirlo a `business`, actualiza el enum en `backend/prisma/schema.prisma`, los `class-validator` `@IsIn` y los chequeos de `role` en el frontend (`stores/auth.ts`, páginas, middleware).
+- El rol `business` se utiliza en todo el stack con la grafía correcta.
 - Los archivos de `paymentProof` se guardan en `backend/uploads/` y se sirven en `/uploads/<archivo>`. En Railway se pierden entre deploys salvo que añadas un volumen persistente montado en `/app/uploads` o uses S3/Cloudinary.
