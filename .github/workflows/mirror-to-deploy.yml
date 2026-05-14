@@ -23,11 +23,12 @@ jobs:
 
       - name: Configurar deploy key
         env:
-          MIRROR_SSH_KEY: ${{ secrets.MIRROR_SSH_KEY }}
+          # El secret guarda la llave privada codificada en base64 (una sola línea,
+          # inmune a problemas de copia/pegado). Aquí se decodifica.
+          MIRROR_SSH_KEY_B64: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          # tr -d '\r' limpia retornos de carro que se cuelan al pegar el secret.
-          printf '%s\n' "$MIRROR_SSH_KEY" | tr -d '\r' > ~/.ssh/mirror_key
+          echo "$MIRROR_SSH_KEY_B64" | base64 -d > ~/.ssh/mirror_key
           chmod 600 ~/.ssh/mirror_key
           # Falla temprano y claro si la llave quedó mal formada.
           ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
