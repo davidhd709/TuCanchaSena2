@@ -37,14 +37,25 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <!-- Estado de carga -->
+    <LoadingState v-if="loading" :count="3" :sm="6" :lg="4" />
+
+    <!-- Estado de error -->
+    <ErrorState
+      v-else-if="fetchError"
+      message="No pudimos cargar las canchas. Verifica tu conexión e intenta de nuevo."
+      @retry="loadCourts"
+    />
+
+    <!-- Lista de canchas -->
+    <v-row v-else>
       <v-col v-for="court in filteredCourts" :key="court.id" cols="12" sm="6" lg="4">
         <v-card rounded="lg" hover class="h-100 d-flex flex-column">
           <div
-            class="d-flex align-center justify-center bg-success-lighten-4"
+            class="d-flex align-center justify-center"
             style="height:140px; background: linear-gradient(135deg,#e8f5e9,#c8e6c9)"
           >
-            <v-icon size="64" color="success">mdi-soccer-field</v-icon>
+            <v-icon size="64" color="success" aria-hidden="true">mdi-soccer-field</v-icon>
           </div>
           <v-card-text class="pa-4 flex-1-1">
             <div class="d-flex align-center justify-space-between mb-1">
@@ -54,9 +65,9 @@
               </v-chip>
             </div>
             <p class="text-caption text-medium-emphasis mb-2">
-              <v-icon size="12">mdi-store</v-icon> {{ court.business?.name }}
+              <v-icon size="12" aria-hidden="true">mdi-store</v-icon> {{ court.business?.name }}
               <template v-if="court.business?.city">
-                · <v-icon size="12">mdi-map-marker</v-icon> {{ court.business.city }}
+                · <v-icon size="12" aria-hidden="true">mdi-map-marker</v-icon> {{ court.business.city }}
               </template>
             </p>
             <p class="text-body-2 text-medium-emphasis mb-3 line-clamp-2">
@@ -68,7 +79,7 @@
                 <span class="text-caption font-weight-regular text-medium-emphasis">/hora</span>
               </div>
               <div class="text-caption text-medium-emphasis">
-                <v-icon size="14">mdi-account-group</v-icon>
+                <v-icon size="14" aria-hidden="true">mdi-account-group</v-icon>
                 {{ court.capacity }} jugadores
               </div>
             </div>
@@ -88,13 +99,19 @@
         </v-card>
       </v-col>
 
-      <v-col v-if="loading" cols="12" class="text-center py-10">
-        <v-progress-circular indeterminate color="primary" />
-      </v-col>
-      <v-col v-if="!loading && filteredCourts.length === 0" cols="12">
-        <v-alert type="info" variant="tonal" rounded="lg">
-          No se encontraron canchas con los filtros aplicados.
-        </v-alert>
+      <!-- Estado vacío -->
+      <v-col v-if="filteredCourts.length === 0" cols="12">
+        <EmptyState
+          icon="mdi-soccer-field"
+          title="Sin canchas disponibles"
+          :description="search || typeFilter ? 'No se encontraron canchas con los filtros aplicados.' : 'Aún no hay canchas disponibles. Vuelve pronto.'"
+        >
+          <template v-if="search || typeFilter" #action>
+            <v-btn variant="tonal" color="primary" @click="search = ''; typeFilter = null">
+              Limpiar filtros
+            </v-btn>
+          </template>
+        </EmptyState>
       </v-col>
     </v-row>
   </div>
@@ -146,9 +163,15 @@ const filteredCourts = computed(() => {
   return result
 })
 
-onMounted(async () => {
+const fetchError = ref(false)
+
+const loadCourts = async () => {
   loading.value = true
+  fetchError.value = false
   try { courts.value = await apiFetch<any[]>('/courts') }
+  catch { fetchError.value = true }
   finally { loading.value = false }
-})
+}
+
+onMounted(loadCourts)
 </script>

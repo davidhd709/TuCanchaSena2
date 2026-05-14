@@ -105,6 +105,7 @@
               variant="text"
               size="small"
               color="primary"
+              :aria-label="`Editar usuario ${item.firstName} ${item.lastName}`"
               @click="openEdit(item)"
             >
               <v-icon>mdi-pencil</v-icon>
@@ -117,6 +118,7 @@
               variant="text"
               size="small"
               :color="item.isActive ? 'warning' : 'success'"
+              :aria-label="item.isActive ? `Suspender usuario ${item.firstName} ${item.lastName}` : `Reactivar usuario ${item.firstName} ${item.lastName}`"
               @click="toggleStatus(item)"
             >
               <v-icon>{{ item.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}</v-icon>
@@ -131,6 +133,7 @@
               variant="text"
               size="small"
               color="error"
+              :aria-label="`Eliminar usuario ${item.firstName} ${item.lastName}`"
               @click="openDelete(item)"
             >
               <v-icon>mdi-delete</v-icon>

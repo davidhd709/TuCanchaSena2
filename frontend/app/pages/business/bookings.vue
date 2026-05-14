@@ -22,9 +22,9 @@
     <!-- ── Week navigation ─────────────────────────────────────────────────── -->
     <div class="d-flex align-center gap-2 mb-4 flex-wrap">
       <v-btn-group density="compact" variant="tonal" rounded="lg">
-        <v-btn icon="mdi-chevron-left" @click="prevWeek" />
+        <v-btn icon="mdi-chevron-left" aria-label="Semana anterior" @click="prevWeek" />
         <v-btn @click="goToToday" class="px-4">Hoy</v-btn>
-        <v-btn icon="mdi-chevron-right" @click="nextWeek" />
+        <v-btn icon="mdi-chevron-right" aria-label="Semana siguiente" @click="nextWeek" />
       </v-btn-group>
 
       <span class="text-subtitle-2 font-weight-medium ml-1">{{ weekRangeLabel }}</span>
@@ -123,12 +123,16 @@
 
             <!-- Booking blocks -->
             <div
-              v-for="b in laidOutBookings(day.iso)"
+              v-for="b in laidOutBookings(day.iso ?? '')"
               :key="b.id"
               class="booking-block"
               :class="`booking-${b.status}`"
               :style="bookingBlockStyle(b)"
+              role="button"
+              tabindex="0"
+              :aria-label="`Reserva de ${b.client?.firstName ?? ''} ${b.client?.lastName ?? ''} en ${b.court?.name ?? 'cancha'}, ${(b.startTime ?? '').slice(0,5)}–${(b.endTime ?? '').slice(0,5)}`"
               @click="openDetail(b)"
+              @keydown.enter.space.prevent="openDetail(b)"
             >
               <div class="booking-title text-caption font-weight-bold text-truncate">
                 {{ b.court?.name ?? 'Cancha' }}
@@ -158,19 +162,21 @@
       </div>
     </v-card>
 
-    <!-- No bookings info -->
+    <!-- Sin reservas -->
     <div v-if="!loading && bookings.length === 0" class="mt-4">
-      <v-alert type="info" variant="tonal" rounded="lg">
-        No hay reservas registradas para este negocio.
-      </v-alert>
+      <EmptyState
+        icon="mdi-calendar-blank-outline"
+        title="Sin reservas esta semana"
+        description="No hay reservas registradas para este negocio en el período seleccionado."
+      />
     </div>
 
-    <!-- ── Booking detail dialog ────────────────────────────────────────────── -->
-    <v-dialog v-model="detailDialog" max-width="480">
+    <!-- ── Booking detail dialog ────────────────────────────────────────── -->
+    <v-dialog v-model="detailDialog" max-width="480" aria-labelledby="booking-detail-title">
       <v-card v-if="selectedBooking" rounded="lg">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3 d-flex align-center gap-2">
-          <v-icon color="primary">mdi-calendar-check</v-icon>
-          Detalle de Reserva
+          <v-icon color="primary" aria-hidden="true">mdi-calendar-check</v-icon>
+          <span id="booking-detail-title">Detalle de Reserva</span>
           <v-spacer />
           <BookingStatusChip :status="selectedBooking.status" />
         </v-card-title>
@@ -419,8 +425,11 @@ const weekDays = computed(() => {
 })
 
 const weekRangeLabel = computed(() => {
-  const f = new Date(weekDays.value[0].iso + 'T00:00:00')
-  const l = new Date(weekDays.value[6].iso + 'T00:00:00')
+  const first = weekDays.value[0]
+  const last  = weekDays.value[6]
+  if (!first || !last) return ''
+  const f = new Date(first.iso + 'T00:00:00')
+  const l = new Date(last.iso  + 'T00:00:00')
   const fStr = f.toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })
   const lStr = l.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
   return `${fStr} – ${lStr}`
@@ -432,8 +441,8 @@ const totalCalHeight = computed(() => (END_HOUR - START_HOUR) * HOUR_HEIGHT)
 
 // ── Time helpers ───────────────────────────────────────────────────────────
 const toMin = (t: string) => {
-  const [h, m] = t.split(':').map(Number)
-  return h * 60 + m
+  const parts = t.split(':').map(Number)
+  return (parts[0] ?? 0) * 60 + (parts[1] ?? 0)
 }
 
 // ── Current time indicator ─────────────────────────────────────────────────
@@ -461,7 +470,7 @@ function laidOutBookings (iso: string): any[] {
   for (const b of sorted) {
     let placed = false
     for (let i = 0; i < laneEnds.length; i++) {
-      if (laneEnds[i] <= b.startTime) {
+      if ((laneEnds[i] ?? '') <= b.startTime) {
         laneEnds[i] = b.endTime
         b._lane = i
         placed = true
@@ -513,7 +522,10 @@ const statusLegend = [
 // ── Helpers ────────────────────────────────────────────────────────────────
 const formatDate = (dateStr: string) => {
   if (!dateStr) return ''
-  const [y, mo, d] = dateStr.split('-').map(Number)
+  const parts = dateStr.split('-').map(Number)
+  const y  = parts[0] ?? new Date().getFullYear()
+  const mo = parts[1] ?? 1
+  const d  = parts[2] ?? 1
   return new Date(y, mo - 1, d).toLocaleDateString('es-CO', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
