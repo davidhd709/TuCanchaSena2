@@ -1,181 +1,153 @@
 <template>
-  <v-app :theme="theme">
-    <!-- Navigation Drawer -->
-    <v-navigation-drawer
-      v-model="drawer"
-      :rail="rail"
-      permanent
-      :color="drawerColor"
-    >
-      <!-- Logo -->
-      <v-list-item
-        prepend-icon="mdi-soccer-field"
-        :title="rail ? '' : 'Canchas Sintéticas'"
-        :subtitle="rail ? '' : authStore.roleLabel"
-        nav
-        class="py-4"
-      >
-        <template #append>
-          <v-btn
-            :icon="rail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
-            variant="text"
-            @click="rail = !rail"
-          />
-        </template>
-      </v-list-item>
+  <v-app theme="tucancha">
+    <template v-if="authStore.isBusiness">
+      <div class="owner-shell">
+        <aside class="owner-sidebar">
+          <div>
+            <div class="owner-brand">Owner Panel</div>
+            <p class="owner-brand-sub">Manage your fields</p>
+          </div>
 
-      <v-divider />
+          <nav class="owner-nav">
+            <NuxtLink v-for="item in businessNav" :key="item.to" :to="item.to" class="owner-link">
+              <v-icon :icon="item.icon" size="20" /> {{ item.title }}
+            </NuxtLink>
+          </nav>
 
-      <!-- Navigation Items -->
-      <v-list density="compact" nav class="mt-2">
-        <template v-for="item in navItems" :key="item.to">
-          <!-- Group with children -->
-          <v-list-group v-if="item.children" :value="item.title">
-            <template #activator="{ props }">
-              <v-list-item
-                v-bind="props"
-                :prepend-icon="item.icon"
-                :title="item.title"
-                rounded="lg"
-              />
-            </template>
-            <v-list-item
-              v-for="child in item.children"
-              :key="child.to"
-              :to="child.to"
-              :prepend-icon="child.icon"
-              :title="child.title"
-              rounded="lg"
-              active-color="primary"
-            />
-          </v-list-group>
+          <div class="owner-bottom">
+            <v-btn color="primary" block size="large" to="/business/courts" prepend-icon="mdi-plus">Nueva Cancha</v-btn>
+            <div class="owner-user">
+              <span class="owner-avatar">{{ initials }}</span>
+              <div>
+                <div class="owner-user-name">{{ authStore.fullName }}</div>
+                <div class="owner-user-role">Owner Admin</div>
+              </div>
+            </div>
+            <v-btn variant="text" color="error" prepend-icon="mdi-logout" @click="handleLogout">Cerrar Sesión</v-btn>
+          </div>
+        </aside>
 
-          <!-- Single item -->
-          <v-list-item
-            v-else
-            :to="item.to"
-            :prepend-icon="item.icon"
-            :title="item.title"
-            rounded="lg"
-            active-color="primary"
-          />
-        </template>
-      </v-list>
+        <main class="owner-main">
+          <div class="owner-content"><slot /></div>
+        </main>
+      </div>
+    </template>
 
-      <template #append>
-        <v-divider />
-        <v-list density="compact" nav class="my-2">
-          <v-list-item
-            to="/profile"
-            prepend-icon="mdi-account-circle"
-            title="Mi Perfil"
-            rounded="lg"
-            active-color="primary"
-          />
-          <v-list-item
-            prepend-icon="mdi-logout"
-            title="Cerrar Sesión"
-            rounded="lg"
-            @click="handleLogout"
-          />
-        </v-list>
-      </template>
-    </v-navigation-drawer>
-
-    <!-- Top App Bar -->
-    <v-app-bar elevation="0" border="b">
-      <v-app-bar-title>
-        <span class="text-body-1 font-weight-medium">{{ currentPageTitle }}</span>
-      </v-app-bar-title>
-      <template #append>
-        <v-btn icon @click="toggleTheme" class="mr-1">
-          <v-icon>{{ theme === 'light' ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
-        </v-btn>
-        <v-menu>
-          <template #activator="{ props }">
-            <v-btn v-bind="props" class="mr-2" variant="tonal" rounded="lg">
-              <v-avatar size="28" color="primary" class="mr-2">
-                <span class="text-caption font-weight-bold text-white">{{ initials }}</span>
-              </v-avatar>
-              <span v-if="!$vuetify.display.smAndDown" class="text-body-2">{{ authStore.fullName }}</span>
-              <v-icon end>mdi-chevron-down</v-icon>
-            </v-btn>
-          </template>
-          <v-list density="compact" rounded="lg" min-width="180">
-            <v-list-item to="/profile" prepend-icon="mdi-account" title="Mi Perfil" />
-            <v-divider />
-            <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" @click="handleLogout" />
-          </v-list>
-        </v-menu>
-      </template>
-    </v-app-bar>
-
-    <!-- Main Content -->
-    <v-main style="background: #F5F7FA">
-      <v-container fluid class="pa-6">
-        <slot />
-      </v-container>
-    </v-main>
+    <template v-else>
+      <header class="dash-nav">
+        <div class="dash-nav-inner">
+          <NuxtLink to="/" class="dash-nav-brand">TuCancha</NuxtLink>
+          <nav class="dash-nav-links">
+            <NuxtLink v-for="item in adminNav" :key="item.to" :to="item.to" class="dash-nav-link">{{ item.title }}</NuxtLink>
+          </nav>
+          <v-menu location="bottom end" offset="10">
+            <template #activator="{ props }"><button v-bind="props" class="dash-nav-profile"><span class="dash-nav-avatar">{{ initials }}</span></button></template>
+            <v-list density="comfortable" rounded="lg" min-width="220" class="pa-2">
+              <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi Perfil" rounded="lg" />
+              <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" rounded="lg" base-color="error" @click="handleLogout" />
+            </v-list>
+          </v-menu>
+        </div>
+      </header>
+      <main class="dash-main"><div class="dash-content"><slot /></div></main>
+    </template>
   </v-app>
 </template>
 
 <script setup lang="ts">
 const authStore = useAuthStore()
-const route = useRoute()
-
-const drawer = ref(true)
-const rail = ref(false)
-const theme = ref('light')
-
-const toggleTheme = () => {
-  theme.value = theme.value === 'light' ? 'dark' : 'light'
-}
-
-const drawerColor = computed(() =>
-  theme.value === 'dark' ? '#1a1a2e' : 'white'
-)
-
 const initials = computed(() => {
   if (!authStore.user) return '?'
   return `${authStore.user.firstName[0]}${authStore.user.lastName[0]}`.toUpperCase()
 })
 
-// Navigation items per role
 const adminNav = [
-  { to: '/dashboard', icon: 'mdi-view-dashboard', title: 'Dashboard' },
-  { to: '/admin/users', icon: 'mdi-account-group', title: 'Usuarios' },
-  { to: '/admin/businesses', icon: 'mdi-store', title: 'Negocios' },
-  { to: '/admin/courts', icon: 'mdi-soccer-field', title: 'Canchas' },
-  { to: '/admin/bookings', icon: 'mdi-calendar-check', title: 'Reservas' },
-  { to: '/admin/software', icon: 'mdi-application', title: 'Software' },
+  { to: '/dashboard', title: 'Inicio' },
+  { to: '/admin/users', title: 'Usuarios' },
+  { to: '/admin/businesses', title: 'Negocios' },
+  { to: '/admin/courts', title: 'Canchas' },
+  { to: '/admin/bookings', title: 'Reservas' },
 ]
 
 const businessNav = [
-  { to: '/dashboard', icon: 'mdi-view-dashboard', title: 'Dashboard' },
-  { to: '/business', icon: 'mdi-store', title: 'Mis Negocios' },
-  { to: '/business/courts', icon: 'mdi-soccer-field', title: 'Mis Canchas' },
-  { to: '/business/bookings', icon: 'mdi-calendar-check', title: 'Reservas' },
+  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Dashboard' },
+  { to: '/business/courts', icon: 'mdi-soccer-field', title: 'Canchas' },
+  { to: '/business/bookings', icon: 'mdi-calendar-check-outline', title: 'Reservas' },
+  { to: '/business', icon: 'mdi-store-outline', title: 'Ajustes' },
 ]
 
-const clientNav = [
-  { to: '/dashboard', icon: 'mdi-view-dashboard', title: 'Dashboard' },
-  { to: '/client/courts', icon: 'mdi-soccer-field', title: 'Explorar Canchas' },
-  { to: '/client/bookings', icon: 'mdi-calendar-account', title: 'Mis Reservas' },
-]
-
-const navItems = computed(() => {
-  if (authStore.isAdmin) return adminNav
-  if (authStore.isBusiness) return businessNav
-  return clientNav
-})
-
-const currentPageTitle = computed(() => {
-  const all = [...adminNav, ...businessNav, ...clientNav]
-  const found = all.find((item) => item.to === route.path)
-  return found?.title ?? 'Dashboard'
-})
-
-const handleLogout = () => {
-  authStore.logout()
-}
+const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/login') }
 </script>
+
+<style scoped>
+.owner-shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
+.owner-sidebar {
+  border-right: 1px solid rgba(255,255,255,.08);
+  background: #0d1319;
+  padding: 26px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.owner-brand { color: #63df89; font-size: 2rem; font-weight: 800; }
+.owner-brand-sub { color: #a4b0ba; margin-top: 2px; }
+.owner-nav { display: flex; flex-direction: column; gap: 8px; }
+.owner-link {
+  color: #c3ccd4;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.owner-link.router-link-active { background: #67dc8b; color: #0e1f14; font-weight: 700; }
+.owner-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.owner-user { display: flex; align-items: center; gap: 10px; }
+.owner-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700;
+  background: linear-gradient(135deg, #67dc8b, #2ab963);
+  color: #112218;
+}
+.owner-user-name { color: #e7edf3; font-weight: 700; }
+.owner-user-role { color: #95a0ab; font-size: .85rem; }
+.owner-main { background: #0f1318; }
+.owner-content { padding: 30px 24px; }
+.owner-content > * {
+  animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+.owner-content > *:nth-child(2) { animation-delay: .03s; }
+.owner-content > *:nth-child(3) { animation-delay: .06s; }
+.owner-content > *:nth-child(4) { animation-delay: .09s; }
+
+.dash-nav {
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: rgba(12,16,22,.9);
+}
+.dash-nav-inner {
+  max-width: 1320px; margin: 0 auto; height: 72px; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.dash-nav-brand { color: #63df89; font-weight: 800; text-decoration: none; font-size: 1.6rem; }
+.dash-nav-links { display: flex; gap: 18px; }
+.dash-nav-link { color: #bbc4ce; text-decoration: none; }
+.dash-nav-link.router-link-active { color: #67dc8b; }
+.dash-nav-avatar {
+  width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, #67dc8b, #2ab963); color: #0f1b13;
+}
+.dash-main { min-height: calc(100vh - 72px); }
+.dash-content { max-width: 1320px; margin: 0 auto; padding: 26px 24px; }
+.dash-content > * {
+  animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+.dash-content > *:nth-child(2) { animation-delay: .03s; }
+.dash-content > *:nth-child(3) { animation-delay: .06s; }
+.dash-content > *:nth-child(4) { animation-delay: .09s; }
+
+@media (max-width: 980px) {
+  .owner-shell { grid-template-columns: 1fr; }
+  .owner-sidebar { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
+}
+</style>

@@ -1,22 +1,23 @@
 <template>
   <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Todas las Reservas</h1>
-        <p class="text-body-2 text-medium-emphasis">Historial global de reservas</p>
-      </div>
-      <v-spacer />
-      <v-select
-        v-model="statusFilter"
-        :items="statusOptions"
-        label="Filtrar por estado"
-        clearable
-        hide-details
-        style="max-width:220px"
-      />
-    </div>
+    <PageHeader
+      tag="Administración"
+      title="Todas las Reservas"
+      subtitle="Historial global de reservas"
+    >
+      <template #action>
+        <v-select
+          v-model="statusFilter"
+          :items="statusOptions"
+          label="Filtrar por estado"
+          clearable
+          hide-details
+          style="max-width:220px"
+        />
+      </template>
+    </PageHeader>
 
-    <v-card rounded="lg">
+    <v-card rounded="lg" class="admin-shell-card">
       <v-data-table
         :headers="headers"
         :items="filteredBookings"
@@ -67,7 +68,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'] })
 
-const { apiFetch } = useApi()
+const { apiList } = useApi()
 const bookings = ref<any[]>([])
 const loading = ref(false)
 const statusFilter = ref<string | null>(null)
@@ -99,10 +100,29 @@ const fetchError = ref(false)
 const loadBookings = async () => {
   loading.value = true
   fetchError.value = false
-  try { bookings.value = await apiFetch<any[]>('/bookings') }
+  try { bookings.value = await apiList<any>('/bookings') }
   catch { fetchError.value = true }
   finally { loading.value = false }
 }
 
 onMounted(loadBookings)
 </script>
+
+<style scoped>
+.admin-shell-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+:deep(.v-data-table .v-table__wrapper table tbody tr:hover) {
+  background: rgba(111, 230, 140, 0.04);
+}
+:deep(.v-data-table .v-table__wrapper table tbody td) {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+:deep(.v-data-table .v-table__wrapper table thead th) {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.08em;
+}
+</style>

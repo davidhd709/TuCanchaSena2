@@ -1,126 +1,48 @@
 <template>
-  <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Explorar Canchas</h1>
-        <p class="text-body-2 text-medium-emphasis">Encuentra y reserva la cancha perfecta</p>
-      </div>
+  <section class="explore-page">
+    <div class="explore-head">
+      <h1>Explora canchas disponibles</h1>
+      <p>Encuentra el espacio perfecto para tu próximo partido</p>
     </div>
 
-    <!-- Filters -->
-    <v-row class="mb-4" dense>
-      <v-col cols="12" sm="5">
-        <v-text-field
-          v-model="search"
-          placeholder="Buscar por nombre o negocio..."
-          prepend-inner-icon="mdi-magnify"
-          clearable
-          hide-details
-        />
-      </v-col>
-      <v-col cols="12" sm="4">
-        <v-select
-          v-model="typeFilter"
-          :items="courtTypes"
-          label="Tipo de cancha"
-          clearable
-          hide-details
-        />
-      </v-col>
-      <v-col cols="12" sm="3">
-        <v-select
-          v-model="sortBy"
-          :items="sortOptions"
-          label="Ordenar por"
-          hide-details
-        />
-      </v-col>
-    </v-row>
+    <div class="explore-toolbar">
+      <div class="explore-search">
+        <span class="mdi mdi-magnify" />
+        <input v-model="search" type="text" placeholder="¿Dónde quieres jugar?" />
+      </div>
 
-    <!-- Estado de carga -->
-    <LoadingState v-if="loading" :count="3" :sm="6" :lg="4" />
+      <v-select v-model="typeFilter" :items="courtTypes" label="Tipo" clearable hide-details density="comfortable" class="explore-pill" />
+      <v-select v-model="sortBy" :items="sortOptions" label="Precio" hide-details density="comfortable" class="explore-pill" />
+      <v-btn class="explore-filter-btn" prepend-icon="mdi-tune-variant">Filtros</v-btn>
+    </div>
 
-    <!-- Estado de error -->
-    <ErrorState
-      v-else-if="fetchError"
-      message="No pudimos cargar las canchas. Verifica tu conexión e intenta de nuevo."
-      @retry="loadCourts"
-    />
+    <LoadingState v-if="loading" :count="6" :sm="6" :lg="4" />
+    <ErrorState v-else-if="fetchError" message="No pudimos cargar las canchas." @retry="loadCourts" />
 
-    <!-- Lista de canchas -->
-    <v-row v-else>
-      <v-col v-for="court in filteredCourts" :key="court.id" cols="12" sm="6" lg="4">
-        <v-card rounded="lg" hover class="h-100 d-flex flex-column">
-          <div
-            class="d-flex align-center justify-center"
-            style="height:140px; background: linear-gradient(135deg,#e8f5e9,#c8e6c9)"
-          >
-            <v-icon size="64" color="success" aria-hidden="true">mdi-soccer-field</v-icon>
-          </div>
-          <v-card-text class="pa-4 flex-1-1">
-            <div class="d-flex align-center justify-space-between mb-1">
-              <h3 class="text-subtitle-2 font-weight-bold">{{ court.name }}</h3>
-              <v-chip color="primary" size="x-small" variant="tonal">
-                {{ courtTypeLabel(court.type) }}
-              </v-chip>
-            </div>
-            <p class="text-caption text-medium-emphasis mb-2">
-              <v-icon size="12" aria-hidden="true">mdi-store</v-icon> {{ court.business?.name }}
-              <template v-if="court.business?.city">
-                · <v-icon size="12" aria-hidden="true">mdi-map-marker</v-icon> {{ court.business.city }}
-              </template>
-            </p>
-            <p class="text-body-2 text-medium-emphasis mb-3 line-clamp-2">
-              {{ court.description || 'Cancha disponible para reservar' }}
-            </p>
-            <div class="d-flex align-center justify-space-between">
-              <div class="text-h6 font-weight-bold text-primary">
-                ${{ Number(court.pricePerHour).toLocaleString('es-CO') }}
-                <span class="text-caption font-weight-regular text-medium-emphasis">/hora</span>
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                <v-icon size="14" aria-hidden="true">mdi-account-group</v-icon>
-                {{ court.capacity }} jugadores
-              </div>
-            </div>
-          </v-card-text>
-          <v-divider />
-          <v-card-actions class="pa-3">
-            <v-btn
-              :to="`/client/courts/${court.id}`"
-              color="primary"
-              variant="tonal"
-              block
-              prepend-icon="mdi-calendar-plus"
-            >
-              Ver disponibilidad
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
+    <div v-else-if="filteredCourts.length" class="explore-grid">
+      <CourtCard v-for="court in filteredCourts" :key="court.id" :court="court" :to="`/client/courts/${court.id}`" />
+    </div>
 
-      <!-- Estado vacío -->
-      <v-col v-if="filteredCourts.length === 0" cols="12">
-        <EmptyState
-          icon="mdi-soccer-field"
-          title="Sin canchas disponibles"
-          :description="search || typeFilter ? 'No se encontraron canchas con los filtros aplicados.' : 'Aún no hay canchas disponibles. Vuelve pronto.'"
-        >
-          <template v-if="search || typeFilter" #action>
-            <v-btn variant="tonal" color="primary" @click="search = ''; typeFilter = null">
-              Limpiar filtros
-            </v-btn>
-          </template>
-        </EmptyState>
-      </v-col>
-    </v-row>
-  </div>
+    <EmptyState
+      v-else
+      icon="mdi-soccer-field"
+      title="Sin canchas disponibles"
+      :description="search || typeFilter ? 'No encontramos canchas con esos filtros.' : 'Aún no hay canchas publicadas.'"
+    >
+      <template v-if="search || typeFilter" #action>
+        <v-btn variant="tonal" color="primary" @click="clearFilters">Limpiar filtros</v-btn>
+      </template>
+    </EmptyState>
+
+    <div v-if="filteredCourts.length" class="explore-more-wrap">
+      <button class="explore-more">Cargar más canchas</button>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
-
-const { apiFetch } = useApi()
+definePageMeta({ layout: 'client', middleware: 'auth' })
+const { apiList } = useApi()
 const courts = ref<any[]>([])
 const loading = ref(false)
 const search = ref('')
@@ -133,45 +55,116 @@ const courtTypes = [
   { title: 'Fútbol 8', value: 'football_8' },
   { title: 'Fútbol 11', value: 'football_11' },
   { title: 'Futsal', value: 'futsal' },
-  { title: 'Fútbol Playa', value: 'beach_soccer' },
-  { title: 'Mini Fútbol', value: 'mini_football' },
 ]
 
 const sortOptions = [
   { title: 'Nombre', value: 'name' },
-  { title: 'Precio (menor)', value: 'price_asc' },
-  { title: 'Precio (mayor)', value: 'price_desc' },
+  { title: 'Precio menor', value: 'price_asc' },
+  { title: 'Precio mayor', value: 'price_desc' },
 ]
-
-const courtTypeLabel = (type: string) => courtTypes.find(t => t.value === type)?.title ?? type
 
 const filteredCourts = computed(() => {
   let result = [...courts.value]
   if (search.value) {
     const q = search.value.toLowerCase()
-    result = result.filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      c.business?.name?.toLowerCase().includes(q)
-    )
+    result = result.filter(c => c.name.toLowerCase().includes(q) || c.business?.name?.toLowerCase().includes(q))
   }
-  if (typeFilter.value) {
-    result = result.filter(c => c.type === typeFilter.value)
-  }
+  if (typeFilter.value) result = result.filter(c => c.type === typeFilter.value)
   if (sortBy.value === 'name') result.sort((a, b) => a.name.localeCompare(b.name))
   if (sortBy.value === 'price_asc') result.sort((a, b) => a.pricePerHour - b.pricePerHour)
   if (sortBy.value === 'price_desc') result.sort((a, b) => b.pricePerHour - a.pricePerHour)
   return result
 })
 
+const clearFilters = () => { search.value = ''; typeFilter.value = null }
 const fetchError = ref(false)
-
 const loadCourts = async () => {
   loading.value = true
   fetchError.value = false
-  try { courts.value = await apiFetch<any[]>('/courts') }
+  try { courts.value = await apiList<any>('/courts') }
   catch { fetchError.value = true }
   finally { loading.value = false }
 }
-
 onMounted(loadCourts)
 </script>
+
+<style scoped>
+.explore-page { padding-bottom: 14px; }
+.explore-head h1 {
+  color: #e9edf2;
+  font-size: clamp(2rem, 2.8vw, 3rem);
+  line-height: 1.1;
+}
+.explore-head p {
+  margin-top: 8px;
+  color: #aeb8c3;
+  font-size: clamp(1rem, 1.2vw, 1.45rem);
+}
+
+.explore-toolbar {
+  margin-top: 22px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 28px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(180deg, #1a2027, #171d24);
+}
+.explore-search {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 19px;
+  background: #262d35;
+  padding: 12px 16px;
+}
+.explore-search .mdi { color: #8f99a3; font-size: 1.25rem; }
+.explore-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  color: #e7ecf2;
+  background: transparent;
+  font-size: clamp(.95rem,1.05vw,1.2rem);
+}
+.explore-pill { max-width: 170px; }
+.explore-pill :deep(.v-field) {
+  border-radius: 999px !important;
+  background: #2a3138 !important;
+}
+.explore-filter-btn {
+  border-radius: 999px !important;
+  background: #6be08f !important;
+  color: #0f2016 !important;
+  font-weight: 800;
+}
+
+.explore-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.explore-more-wrap { display: flex; justify-content: center; margin-top: 18px; }
+.explore-more {
+  border: 1px solid rgba(111,230,140,.5);
+  border-radius: 999px;
+  padding: 12px 28px;
+  color: #75e79b;
+  background: transparent;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 1100px) { .explore-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) {
+  .explore-toolbar { flex-wrap: wrap; border-radius: 18px; padding: 12px; }
+  .explore-search { min-width: 100%; }
+  .explore-pill { max-width: none; flex: 1; min-width: 120px; }
+  .explore-filter-btn { width: 100%; }
+  .explore-grid { grid-template-columns: 1fr; }
+}
+</style>

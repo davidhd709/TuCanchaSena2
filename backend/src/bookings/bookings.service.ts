@@ -27,6 +27,9 @@ const toMinutes = (hhmm: string) => {
   return h * 60 + m;
 };
 
+/** Minutos que una reserva pendiente bloquea el horario antes de vencer. */
+const BOOKING_HOLD_MINUTES = 30;
+
 @Injectable()
 export class BookingsService {
   constructor(
@@ -92,9 +95,12 @@ export class BookingsService {
   }
 
   async availableSlots(courtId: string, dateStr: string) {
+    // Libera horarios cuyo bloqueo temporal de 30 min ya venció.
+    await this.expireStale();
+
     const court = await this.prisma.court.findUnique({
       where: { id: courtId },
-      include: { availability: true },
+      include: { availability: true, business: { include: { schedules: true } } },
     });
     if (!court) {
       throw new NotFoundException('Cancha no encontrada');
@@ -102,6 +108,21 @@ export class BookingsService {
 
     const date = new Date(`${dateStr}T00:00:00`);
     const dayOfWeek = DAYS[date.getDay()];
+
+    // La disponibilidad real depende del negocio: si está inactivo, la cancha
+    // en mantenimiento, o el negocio cerrado ese día → no hay slots.
+    const bizSchedule = court.business.schedules.find((s) => s.dayOfWeek === dayOfWeek);
+    if (
+      !court.business.isActive ||
+      court.status !== 'available' ||
+      !court.isActive ||
+      !bizSchedule ||
+      !bizSchedule.isOpen
+    ) {
+      return { date: dateStr, dayOfWeek, courtId, slots: [] as any[] };
+    }
+    const bizOpen = toMinutes(bizSchedule.openTime);
+    const bizClose = toMinutes(bizSchedule.closeTime);
 
     const dayAvailability = court.availability.filter(
       (a) => a.dayOfWeek === dayOfWeek && a.isAvailable
@@ -117,8 +138,9 @@ export class BookingsService {
 
     const slots: any[] = [];
     for (const av of dayAvailability) {
-      const start = toMinutes(av.startTime);
-      const end = toMinutes(av.endTime);
+      // Horario más restrictivo: intersección entre cancha y negocio.
+      const start = Math.max(toMinutes(av.startTime), bizOpen);
+      const end = Math.min(toMinutes(av.endTime), bizClose);
       const price = av.pricePerHour ? Number(av.pricePerHour) : Number(court.pricePerHour);
 
       for (let m = start; m + 60 <= end; m += 60) {
@@ -144,15 +166,21 @@ export class BookingsService {
   }
 
   async create(dto: CreateBookingDto, userId: string, file?: UploadInput) {
+    // Libera horarios cuyo bloqueo temporal de 30 min ya venció.
+    await this.expireStale();
+
     const court = await this.prisma.court.findUnique({
       where: { id: dto.courtId },
-      include: { availability: true },
+      include: { availability: true, business: { include: { schedules: true } } },
     });
     if (!court) {
       throw new NotFoundException('Cancha no encontrada');
     }
     if (court.status !== 'available' || !court.isActive) {
       throw new BadRequestException('Esta cancha no está disponible');
+    }
+    if (!court.business.isActive) {
+      throw new BadRequestException('El negocio no está disponible');
     }
 
     const startMin = toMinutes(dto.startTime);
@@ -163,6 +191,15 @@ export class BookingsService {
 
     const date = new Date(`${dto.date}T00:00:00`);
     const dayOfWeek = DAYS[date.getDay()];
+
+    // El negocio debe estar abierto ese día y el horario debe caber en su franja.
+    const bizSchedule = court.business.schedules.find((s) => s.dayOfWeek === dayOfWeek);
+    if (!bizSchedule || !bizSchedule.isOpen) {
+      throw new BadRequestException('El negocio está cerrado ese día');
+    }
+    if (toMinutes(bizSchedule.openTime) > startMin || toMinutes(bizSchedule.closeTime) < endMin) {
+      throw new BadRequestException('El horario está fuera del horario de atención del negocio');
+    }
 
     const fits = court.availability.some(
       (a) =>
@@ -213,6 +250,8 @@ export class BookingsService {
           paymentProof: proofUrl,
           notes: dto.notes,
           totalPrice,
+          // Bloqueo temporal: el horario queda reservado 30 min mientras se valida el pago.
+          expiresAt: new Date(Date.now() + BOOKING_HOLD_MINUTES * 60_000),
         },
         include: { court: true },
       });
@@ -222,18 +261,20 @@ export class BookingsService {
   async confirm(id: string, currentUser: { sub: string; role: string }) {
     const booking = await this.findOne(id);
     await this.assertBusinessAccess(booking, currentUser);
+    // Pago validado: la reserva ya no vence.
     return this.prisma.booking.update({
       where: { id },
-      data: { status: 'confirmed' },
+      data: { status: 'confirmed', expiresAt: null },
     });
   }
 
   async reject(id: string, dto: RejectBookingDto, currentUser: { sub: string; role: string }) {
     const booking = await this.findOne(id);
     await this.assertBusinessAccess(booking, currentUser);
+    // Rechazada (estado propio, distinto de cancelada) → el horario vuelve a estar libre.
     return this.prisma.booking.update({
       where: { id },
-      data: { status: 'cancelled', cancellationReason: dto.cancellationReason },
+      data: { status: 'rejected', cancellationReason: dto.cancellationReason, expiresAt: null },
     });
   }
 
@@ -266,6 +307,18 @@ export class BookingsService {
     return this.prisma.booking.update({
       where: { id },
       data: { status: 'cancelled' },
+    });
+  }
+
+  /**
+   * Expiración lazy: marca como `expired` las reservas pendientes cuyo bloqueo
+   * temporal de 30 min ya venció, liberando el horario. Se llama en los caminos
+   * que dependen de la disponibilidad (crear reserva, ver slots).
+   */
+  private async expireStale() {
+    await this.prisma.booking.updateMany({
+      where: { status: 'pending', expiresAt: { lt: new Date() } },
+      data: { status: 'expired' },
     });
   }
 

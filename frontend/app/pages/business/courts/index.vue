@@ -1,143 +1,127 @@
 <template>
   <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Mis Canchas</h1>
-        <p class="text-body-2 text-medium-emphasis">Administra las canchas y sus horarios</p>
-      </div>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate" :disabled="!selectedBusinessId">
-        Nueva Cancha
+    <PageHeader
+      tag="Negocio"
+      title="Mis Canchas"
+      subtitle="Administra las canchas de tu negocio, sus precios y horarios"
+    >
+      <template v-if="hasBusiness" #action>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">
+          Nueva cancha
+        </v-btn>
+      </template>
+    </PageHeader>
+
+    <LoadingState v-if="loading" :count="3" :sm="6" :lg="4" />
+
+    <!-- Sin negocio: redirigir a crearlo -->
+    <div v-else-if="!hasBusiness" class="bc-empty">
+      <div class="bc-empty-icon"><span class="mdi mdi-stadium-variant" /></div>
+      <h3 class="brand-heading bc-empty-title">Primero crea tu negocio</h3>
+      <p class="bc-empty-text">
+        Las canchas pertenecen a un negocio. Crea tu negocio para poder publicar canchas.
+      </p>
+      <v-btn to="/business" color="primary" prepend-icon="mdi-store">
+        Ir a Mi Negocio
       </v-btn>
     </div>
 
-    <!-- Business selector -->
-    <v-select
-      v-if="businesses.length > 0"
-      v-model="selectedBusinessId"
-      :items="businesses.map(b => ({ title: b.name, value: b.id }))"
-      label="Negocio"
-      prepend-inner-icon="mdi-store"
-      class="mb-5"
-      style="max-width: 360px"
-      hide-details
-    />
+    <!-- Con negocio pero sin canchas -->
+    <div v-else-if="courts.length === 0" class="bc-empty">
+      <div class="bc-empty-icon"><span class="mdi mdi-soccer-field" /></div>
+      <h3 class="brand-heading bc-empty-title">Aún no tienes canchas</h3>
+      <p class="bc-empty-text">
+        Crea tu primera cancha para empezar a recibir reservas. Define su tipo, precio y horarios.
+      </p>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">Crear primera cancha</v-btn>
+    </div>
 
-    <v-alert
-      v-if="!selectedBusinessId && !loading"
-      type="warning"
-      variant="tonal"
-      rounded="lg"
-      class="mb-4"
-    >
-      No tienes negocios registrados. Contacta al administrador.
-    </v-alert>
+    <!-- Grid de canchas -->
+    <div v-else class="bc-grid">
+      <div v-for="court in courts" :key="court.id" class="bc-card">
+        <div class="bc-card-media">
+          <img
+            v-if="court.images?.[0]"
+            :src="court.images[0]"
+            :alt="court.name"
+            class="bc-card-img"
+          />
+          <div v-else class="bc-card-img bc-card-img--ph">
+            <span class="mdi mdi-soccer-field" />
+          </div>
+          <span class="bc-card-status" :class="statusClass(court.status)">
+            <span class="bc-card-status-dot" />
+            {{ statusLabel(court.status) }}
+          </span>
+        </div>
 
-    <v-row>
-      <v-col v-for="court in courts" :key="court.id" cols="12" sm="6" lg="4">
-        <v-card rounded="lg" hover>
-          <v-card-text class="pa-5">
-            <div class="d-flex align-center mb-3">
-              <v-avatar color="success" variant="tonal" size="44" rounded="lg" class="mr-3">
-                <v-icon>mdi-soccer-field</v-icon>
-              </v-avatar>
-              <div class="flex-1-1">
-                <div class="text-subtitle-2 font-weight-bold">{{ court.name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ courtTypeLabel(court.type) }}</div>
-              </div>
-            </div>
+        <div class="bc-card-body">
+          <div class="bc-card-top">
+            <h3 class="bc-card-name line-clamp-1">{{ court.name }}</h3>
+            <span class="bc-card-type">{{ courtTypeLabel(court.type) }}</span>
+          </div>
 
-            <!-- Pricing -->
-            <div class="d-flex align-center gap-2 mb-2">
-              <v-chip size="small" color="primary" variant="tonal">
-                <v-icon start size="13">mdi-currency-usd</v-icon>
-                ${{ Number(court.pricePerHour).toLocaleString('es-CO') }}/hr base
-              </v-chip>
-              <v-chip
-                v-if="hasCustomSlotPrices(court)"
-                size="small"
-                color="warning"
-                variant="tonal"
+          <div class="bc-card-stats">
+            <span class="bc-stat">
+              <span class="mdi mdi-cash" />
+              ${{ Number(court.pricePerHour).toLocaleString('es-CO') }}/hr
+            </span>
+            <span class="bc-stat">
+              <span class="mdi mdi-account-group-outline" />
+              {{ court.capacity ?? '—' }} jug.
+            </span>
+            <span v-if="hasCustomSlotPrices(court)" class="bc-stat is-accent">
+              <span class="mdi mdi-tag-outline" />
+              Precios especiales
+            </span>
+          </div>
+
+          <div class="bc-card-slots">
+            <span class="bc-slots-label">Horarios configurados</span>
+            <div v-if="court.availability?.length" class="bc-slots-chips">
+              <span
+                v-for="a in groupedAvailability(court.availability).slice(0, 5)"
+                :key="a.day"
+                class="bc-slot-chip"
               >
-                <v-icon start size="13">mdi-tag</v-icon>
-                Precios especiales
-              </v-chip>
+                {{ dayShort(a.day) }}
+              </span>
+              <span
+                v-if="groupedAvailability(court.availability).length > 5"
+                class="bc-slot-chip is-more"
+              >
+                +{{ groupedAvailability(court.availability).length - 5 }}
+              </span>
             </div>
+            <span v-else class="bc-slots-none">Sin horarios definidos</span>
+          </div>
 
-            <v-row dense class="text-body-2 mb-2">
-              <v-col cols="6">
-                <v-icon size="14" color="primary">mdi-account-group</v-icon>
-                {{ court.capacity ?? '—' }} jugadores
-              </v-col>
-              <v-col cols="6">
-                <v-icon size="14" :color="court.status === 'available' ? 'success' : 'warning'">mdi-circle</v-icon>
-                {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
-              </v-col>
-            </v-row>
-
-            <!-- Availability summary -->
-            <div>
-              <p class="text-caption text-medium-emphasis mb-1">Slots configurados:</p>
-              <div class="d-flex flex-wrap gap-1">
-                <template v-if="court.availability && court.availability.length > 0">
-                  <v-chip
-                    v-for="a in groupedAvailability(court.availability).slice(0, 4)"
-                    :key="a.day"
-                    size="x-small"
-                    :color="a.hasCustomPrice ? 'warning' : 'success'"
-                    variant="tonal"
-                  >
-                    {{ dayShort(a.day) }}: {{ a.count }} slot{{ a.count > 1 ? 's' : '' }}
-                  </v-chip>
-                  <v-chip
-                    v-if="groupedAvailability(court.availability).length > 4"
-                    size="x-small"
-                    variant="tonal"
-                  >
-                    +{{ groupedAvailability(court.availability).length - 4 }} días
-                  </v-chip>
-                </template>
-                <span v-else class="text-caption text-medium-emphasis">Sin horarios definidos</span>
-              </div>
-            </div>
-          </v-card-text>
-
-          <v-divider />
-          <v-card-actions class="pa-3">
+          <div class="bc-card-actions">
             <v-btn
               variant="tonal"
               color="primary"
               size="small"
-              prepend-icon="mdi-clock-edit"
+              prepend-icon="mdi-clock-edit-outline"
               @click="openAvailability(court)"
             >
               Horarios
             </v-btn>
             <v-spacer />
-            <v-btn icon="mdi-pencil" variant="text" size="small" @click="openEdit(court)" />
-            <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="openDelete(court)" />
-          </v-card-actions>
-        </v-card>
-      </v-col>
+            <v-btn icon="mdi-pencil-outline" variant="text" size="small" @click="openEdit(court)" />
+            <v-btn icon="mdi-delete-outline" variant="text" color="error" size="small" @click="openDelete(court)" />
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <v-col v-if="loading" cols="12" class="text-center py-10">
-        <v-progress-circular indeterminate color="primary" />
-      </v-col>
-      <v-col v-if="!loading && courts.length === 0 && selectedBusinessId" cols="12">
-        <v-alert type="info" variant="tonal" rounded="lg">
-          No tienes canchas registradas en este negocio. ¡Crea la primera!
-        </v-alert>
-      </v-col>
-    </v-row>
-
-    <!-- ─── Court Form Dialog ─────────────────────────────────────────────── -->
+    <!-- ─── Court Form Dialog ─── -->
     <v-dialog v-model="formDialog" max-width="820" scrollable>
-      <v-card rounded="lg">
+      <v-card rounded="xl">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          {{ editMode ? 'Editar Cancha' : 'Nueva Cancha' }}
+          {{ editMode ? 'Editar cancha' : 'Nueva cancha' }}
         </v-card-title>
         <v-divider />
-        <v-card-text class="pa-5" style="max-height: 80vh">
+        <v-card-text class="pa-5">
           <v-form ref="formRef">
             <v-text-field
               v-model="form.name"
@@ -145,7 +129,6 @@
               :rules="[r.required]"
               class="mb-2"
             />
-
             <v-select
               v-model="form.type"
               label="Tipo de cancha"
@@ -153,20 +136,13 @@
               :rules="[r.required]"
               class="mb-2"
             />
-
             <p class="text-caption text-medium-emphasis mb-1 mt-1">Descripción</p>
             <ClientOnly>
               <RichTextEditor v-model="form.description" class="mb-4" />
               <template #fallback>
-                <v-textarea
-                  v-model="form.description"
-                  label="Descripción"
-                  rows="3"
-                  class="mb-4"
-                />
+                <v-textarea v-model="form.description" label="Descripción" rows="3" class="mb-4" />
               </template>
             </ClientOnly>
-
             <v-row dense>
               <v-col cols="6">
                 <v-text-field
@@ -188,12 +164,35 @@
                 />
               </v-col>
             </v-row>
-
             <v-select
               v-model="form.status"
               label="Estado"
-              :items="[{title:'Disponible',value:'available'},{title:'No disponible',value:'unavailable'}]"
-              class="mt-2"
+              :items="[
+                { title: 'Disponible', value: 'available' },
+                { title: 'No disponible', value: 'unavailable' },
+                { title: 'En mantenimiento', value: 'maintenance' },
+              ]"
+              class="mt-2 mb-3"
+            />
+            <v-select
+              v-model="form.amenities"
+              :items="COURT_AMENITY_OPTIONS"
+              label="Características de la cancha"
+              multiple
+              chips
+              closable-chips
+              prepend-inner-icon="mdi-soccer-field"
+              class="mb-3"
+            />
+            <v-combobox
+              v-model="form.images"
+              label="URLs de fotos de la cancha (Enter para agregar)"
+              multiple
+              chips
+              closable-chips
+              prepend-inner-icon="mdi-image-multiple-outline"
+              hint="Pega la URL de cada foto de la cancha."
+              persistent-hint
             />
           </v-form>
         </v-card-text>
@@ -208,23 +207,19 @@
       </v-card>
     </v-dialog>
 
-    <!-- ─── Availability Dialog ───────────────────────────────────────────── -->
+    <!-- ─── Availability Dialog ─── -->
     <v-dialog v-model="availabilityDialog" max-width="780" scrollable>
-      <v-card rounded="lg">
+      <v-card rounded="xl">
         <v-card-title class="pa-5 pb-3">
           <div>
-            <div class="text-subtitle-1 font-weight-bold">
-              Horarios: {{ selectedCourt?.name }}
-            </div>
+            <div class="text-subtitle-1 font-weight-bold">Horarios: {{ selectedCourt?.name }}</div>
             <div class="text-caption text-medium-emphasis">
               Los slots deben estar dentro del horario de apertura del negocio
             </div>
           </div>
         </v-card-title>
         <v-divider />
-
-        <v-card-text class="pa-5" style="max-height: 70vh">
-          <!-- :key fuerza remount cada vez que se abre el diálogo, evitando loops reactivos -->
+        <v-card-text class="pa-5">
           <CourtAvailabilityEditor
             v-if="availabilityDialog && selectedCourt"
             :key="availabilityEditorKey"
@@ -233,7 +228,6 @@
             :court-base-price="selectedCourt.pricePerHour"
           />
         </v-card-text>
-
         <v-divider />
         <v-card-actions class="pa-4">
           <v-btn variant="text" prepend-icon="mdi-broom" color="error" @click="availabilitySlots = []">
@@ -242,7 +236,7 @@
           <v-spacer />
           <v-btn variant="text" @click="availabilityDialog = false">Cancelar</v-btn>
           <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveAvailability">
-            Guardar Horarios
+            Guardar horarios
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -250,13 +244,13 @@
 
     <!-- Delete Dialog -->
     <v-dialog v-model="deleteDialog" max-width="420">
-      <v-card rounded="lg">
+      <v-card rounded="xl">
         <v-card-text class="pa-6 text-center">
-          <v-icon size="56" color="error" class="mb-3">mdi-soccer-field</v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">Eliminar Cancha</h3>
+          <v-icon size="52" color="error" class="mb-3">mdi-soccer-field</v-icon>
+          <h3 class="text-subtitle-1 font-weight-bold mb-2">Eliminar cancha</h3>
           <p class="text-body-2 text-medium-emphasis">
             ¿Eliminar <strong>{{ selectedCourt?.name }}</strong>?
-            Se eliminarán también todos sus horarios y reservas asociadas.
+            Se eliminarán también sus horarios y reservas asociadas.
           </p>
         </v-card-text>
         <v-card-actions class="pa-4 pt-0">
@@ -276,13 +270,12 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'], ssr: false })
 
-const { apiFetch } = useApi()
+const { apiFetch, apiList } = useApi()
 
 // ── State ──────────────────────────────────────────────────────────────────
-const businesses = ref<any[]>([])
+const myBusiness = ref<any>(null)
 const courts = ref<any[]>([])
 const loading = ref(false)
-const selectedBusinessId = ref<string | null>(null)
 
 const formDialog = ref(false)
 const availabilityDialog = ref(false)
@@ -293,10 +286,11 @@ const actionLoading = ref(false)
 const formRef = ref()
 const snackbar = reactive({ show: false, text: '', color: 'success' })
 
-// Availability editor state
 const availabilitySlots = ref<any[]>([])
 const currentBusinessSchedules = ref<any[]>([])
-const availabilityEditorKey = ref(0)  // incrementar para forzar remount
+const availabilityEditorKey = ref(0)
+
+const hasBusiness = computed(() => !!myBusiness.value)
 
 // ── Form ───────────────────────────────────────────────────────────────────
 const form = reactive({
@@ -306,9 +300,15 @@ const form = reactive({
   pricePerHour: 50000,
   capacity: 10,
   status: 'available',
+  images: [] as string[],
+  amenities: [] as string[],
 })
 
-// ── Constants ──────────────────────────────────────────────────────────────
+const COURT_AMENITY_OPTIONS = [
+  'Iluminación LED', 'Cancha cubierta', 'Césped sintético nuevo', 'Vestidores',
+  'Hidratación', 'Arbitraje', 'Graderías', 'Marcador electrónico',
+]
+
 const courtTypes = [
   { title: 'Fútbol 5', value: 'football_5' },
   { title: 'Fútbol 7', value: 'football_7' },
@@ -327,6 +327,15 @@ const r = {
 // ── Helpers ────────────────────────────────────────────────────────────────
 const courtTypeLabel = (type: string) => courtTypes.find(t => t.value === type)?.title ?? type
 
+const STATUS_LABELS: Record<string, string> = {
+  available: 'Disponible',
+  unavailable: 'No disponible',
+  maintenance: 'En mantenimiento',
+}
+const statusLabel = (s: string) => STATUS_LABELS[s] ?? s
+const statusClass = (s: string) =>
+  s === 'available' ? 'is-available' : s === 'maintenance' ? 'is-maintenance' : 'is-unavailable'
+
 const dayShort = (d: string) => {
   const m: Record<string, string> = {
     monday: 'Lun', tuesday: 'Mar', wednesday: 'Mié',
@@ -341,9 +350,8 @@ const hasCustomSlotPrices = (court: any) =>
 const groupedAvailability = (availability: any[]) => {
   const map: Record<string, any> = {}
   for (const a of availability) {
-    if (!map[a.dayOfWeek]) map[a.dayOfWeek] = { day: a.dayOfWeek, count: 0, hasCustomPrice: false }
+    if (!map[a.dayOfWeek]) map[a.dayOfWeek] = { day: a.dayOfWeek, count: 0 }
     map[a.dayOfWeek].count++
-    if (a.pricePerHour !== null && a.pricePerHour !== undefined) map[a.dayOfWeek].hasCustomPrice = true
   }
   const order = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
   return order.filter(d => map[d]).map(d => map[d])
@@ -359,6 +367,7 @@ const openCreate = () => {
   Object.assign(form, {
     name: '', type: '', description: '',
     pricePerHour: 50000, capacity: 10, status: 'available',
+    images: [], amenities: [],
   })
   formDialog.value = true
 }
@@ -373,6 +382,8 @@ const openEdit = (court: any) => {
     pricePerHour: Number(court.pricePerHour),
     capacity: court.capacity ?? 10,
     status: court.status ?? 'available',
+    images: [...(court.images ?? [])],
+    amenities: [...(court.amenities ?? [])],
   })
   formDialog.value = true
 }
@@ -388,6 +399,7 @@ const saveCourt = async () => {
         body: {
           name: form.name, type: form.type, description: form.description,
           pricePerHour: form.pricePerHour, status: form.status,
+          images: form.images, amenities: form.amenities,
         },
       })
       const idx = courts.value.findIndex(c => c.id === selectedCourt.value.id)
@@ -397,7 +409,8 @@ const saveCourt = async () => {
       const payload = {
         name: form.name, type: form.type, description: form.description,
         pricePerHour: form.pricePerHour, capacity: form.capacity,
-        status: form.status, businessId: selectedBusinessId.value,
+        status: form.status, businessId: myBusiness.value.id,
+        images: form.images, amenities: form.amenities,
       }
       const created = await apiFetch<any>('/courts', { method: 'POST', body: payload })
       courts.value.unshift({ ...created, availability: [] })
@@ -413,38 +426,29 @@ const saveCourt = async () => {
 
 const openAvailability = async (court: any) => {
   selectedCourt.value = court
-
-  // Horarios del negocio (restricciones)
-  const biz = businesses.value.find(b => b.id === selectedBusinessId.value)
-  currentBusinessSchedules.value = biz?.schedules ?? []
-
-  // Cargar disponibilidad existente
+  currentBusinessSchedules.value = myBusiness.value?.schedules ?? []
   try {
     const existing = await apiFetch<any[]>(`/courts/${court.id}/availability`)
     availabilitySlots.value = existing.map(a => ({
       dayOfWeek: a.dayOfWeek,
       startTime: a.startTime.slice(0, 5),
-      endTime:   a.endTime.slice(0, 5),
+      endTime: a.endTime.slice(0, 5),
       isAvailable: a.isAvailable,
       pricePerHour: a.pricePerHour !== null ? Number(a.pricePerHour) : null,
     }))
   } catch {
     availabilitySlots.value = []
   }
-
-  // Incrementar key ANTES de mostrar el diálogo → el componente remonta con los datos frescos
   availabilityEditorKey.value++
   availabilityDialog.value = true
 }
 
 const saveAvailability = async () => {
-  // Client-side validation: check for errors in slots
   const hasErrors = availabilitySlots.value.some((s: any) => s._error)
   if (hasErrors) {
     notify('Corrige los errores en los slots antes de guardar', 'error')
     return
   }
-
   actionLoading.value = true
   try {
     const body = {
@@ -458,16 +462,12 @@ const saveAvailability = async () => {
           : {}),
       })),
     }
-
     const updated = await apiFetch<any>(
       `/courts/${selectedCourt.value.id}/availability`,
-      { method: 'POST', body }
+      { method: 'POST', body },
     )
-
-    // Update court in list
     const idx = courts.value.findIndex(c => c.id === selectedCourt.value.id)
     if (idx !== -1) courts.value[idx] = updated
-
     availabilityDialog.value = false
     notify('Horarios guardados correctamente')
   } catch (e: any) {
@@ -497,26 +497,174 @@ const deleteCourt = async () => {
 }
 
 // ── Load ───────────────────────────────────────────────────────────────────
-const loadCourts = async () => {
-  if (!selectedBusinessId.value) return
+onMounted(async () => {
   loading.value = true
   try {
-    courts.value = await apiFetch<any[]>(`/courts/by-business/${selectedBusinessId.value}`)
-  } finally {
-    loading.value = false
-  }
-}
-
-watch(selectedBusinessId, loadCourts)
-
-onMounted(async () => {
-  try {
-    businesses.value = await apiFetch<any[]>('/businesses/my-businesses')
-    if (businesses.value.length > 0) {
-      selectedBusinessId.value = businesses.value[0].id
+    const list = await apiList<any>('/businesses/my-businesses')
+    myBusiness.value = list[0] ?? null
+    if (myBusiness.value) {
+      courts.value = await apiList<any>(`/courts/by-business/${myBusiness.value.id}`)
     }
   } catch (e) {
     console.error(e)
+  } finally {
+    loading.value = false
   }
 })
 </script>
+
+<style scoped>
+/* ─── Grid de canchas ─── */
+.bc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.bc-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.bc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(47, 161, 138, 0.22);
+}
+
+.bc-card-media { position: relative; height: 150px; overflow: hidden; }
+.bc-card-img { width: 100%; height: 100%; object-fit: cover; }
+.bc-card-img--ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.22), transparent 55%),
+    linear-gradient(135deg, #1e2b35, #0f141c);
+}
+.bc-card-img--ph .mdi { font-size: 2.8rem; color: rgba(47, 161, 138, 0.5); }
+.bc-card-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 100px;
+  background: rgba(6, 8, 16, 0.8);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-soft);
+}
+.bc-card-status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.bc-card-status.is-available { color: var(--green-bright); }
+.bc-card-status.is-available .bc-card-status-dot { background: var(--green-primary); }
+.bc-card-status.is-unavailable { color: #f87171; }
+.bc-card-status.is-unavailable .bc-card-status-dot { background: #ef4444; }
+.bc-card-status.is-maintenance { color: #60a5fa; }
+.bc-card-status.is-maintenance .bc-card-status-dot { background: #3b82f6; }
+
+.bc-card-body { display: flex; flex-direction: column; padding: 15px 16px 16px; flex: 1; }
+.bc-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bc-card-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+.bc-card-type {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--green-soft);
+  color: var(--green-bright);
+}
+
+.bc-card-stats { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 10px; }
+.bc-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.bc-stat .mdi { font-size: 0.95rem; color: var(--green-primary); }
+.bc-stat.is-accent { color: #4ade80; }
+.bc-stat.is-accent .mdi { color: #4ade80; }
+
+.bc-card-slots { margin-top: 12px; }
+.bc-slots-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  margin-bottom: 5px;
+}
+.bc-slots-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.bc-slot-chip {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+}
+.bc-slot-chip.is-more { color: var(--green-bright); }
+.bc-slots-none { font-size: 0.76rem; color: var(--text-faint); }
+
+.bc-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* ─── Estado vacío ─── */
+.bc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+}
+.bc-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.bc-empty-icon .mdi { font-size: 2.2rem; color: var(--green-primary); }
+.bc-empty-title { font-size: 1.1rem; margin-bottom: 8px; }
+.bc-empty-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 960px) {
+  .bc-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .bc-grid { grid-template-columns: 1fr; }
+}
+</style>

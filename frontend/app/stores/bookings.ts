@@ -35,8 +35,6 @@ export interface CreateBookingPayload {
 
 interface BookingsState {
   myBookings: Booking[]
-  allBookings: Booking[]
-  loading: boolean
   creating: boolean
   error: string | null
 }
@@ -44,52 +42,11 @@ interface BookingsState {
 export const useBookingsStore = defineStore('bookings', {
   state: (): BookingsState => ({
     myBookings: [],
-    allBookings: [],
-    loading: false,
     creating: false,
     error: null,
   }),
 
-  getters: {
-    pendingBookings: (state) => state.myBookings.filter((b) => b.status === 'pending'),
-    confirmedBookings: (state) => state.myBookings.filter((b) => b.status === 'confirmed'),
-  },
-
   actions: {
-    /** Reservas del cliente autenticado */
-    async fetchMyBookings(force = false) {
-      if (!force && this.myBookings.length > 0) return
-
-      const { apiFetch } = useApi()
-      this.loading = true
-      this.error = null
-      try {
-        this.myBookings = await apiFetch<Booking[]>('/bookings/mine')
-      } catch (e: any) {
-        this.error = useApiError(e)
-        throw e
-      } finally {
-        this.loading = false
-      }
-    },
-
-    /** Todas las reservas (admin / business) */
-    async fetchAllBookings(force = false) {
-      if (!force && this.allBookings.length > 0) return
-
-      const { apiFetch } = useApi()
-      this.loading = true
-      this.error = null
-      try {
-        this.allBookings = await apiFetch<Booking[]>('/bookings')
-      } catch (e: any) {
-        this.error = useApiError(e)
-        throw e
-      } finally {
-        this.loading = false
-      }
-    },
-
     /** Crea una reserva con comprobante de pago (multipart/form-data) */
     async createBooking(payload: CreateBookingPayload): Promise<Booking> {
       const { apiFetch } = useApi()
@@ -102,8 +59,8 @@ export const useBookingsStore = defineStore('bookings', {
         formData.append('startTime',     payload.startTime)
         formData.append('endTime',       payload.endTime)
         formData.append('paymentMethod', payload.paymentMethod)
-        if (payload.notes)         formData.append('notes', payload.notes)
-        if (payload.paymentProof)  formData.append('paymentProof', payload.paymentProof)
+        if (payload.notes)        formData.append('notes', payload.notes)
+        if (payload.paymentProof) formData.append('paymentProof', payload.paymentProof)
 
         const booking = await apiFetch<Booking>('/bookings', {
           method: 'POST',
@@ -118,24 +75,6 @@ export const useBookingsStore = defineStore('bookings', {
         throw e
       } finally {
         this.creating = false
-      }
-    },
-
-    /** Actualiza el estado de una reserva (admin/business) */
-    async updateStatus(bookingId: string, status: BookingStatus) {
-      const { apiFetch } = useApi()
-      try {
-        const updated = await apiFetch<Booking>(`/bookings/${bookingId}/status`, {
-          method: 'PATCH',
-          body: { status },
-        })
-        // Actualiza en la lista local si existe
-        const idx = this.allBookings.findIndex((b) => b.id === bookingId)
-        if (idx !== -1) this.allBookings[idx] = updated
-        return updated
-      } catch (e: any) {
-        this.error = useApiError(e)
-        throw e
       }
     },
   },

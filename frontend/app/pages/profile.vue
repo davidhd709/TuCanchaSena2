@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-h5 font-weight-bold mb-6">Mi Perfil</h1>
+    <PageHeader tag="Cuenta" title="Mi Perfil" subtitle="Gestiona tu información personal" />
 
     <v-row>
       <!-- Avatar & role card -->
@@ -107,10 +107,14 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ middleware: 'auth' })
 
 const authStore = useAuthStore()
 const { apiFetch } = useApi()
+
+// El perfil adopta el layout según el rol (marketplace para cliente, gestión para admin/business).
+authStore.hydrate()
+setPageLayout(authStore.isAdmin || authStore.isBusiness ? 'dashboard' : 'client')
 
 const formRef = ref()
 const passwordFormRef = ref()

@@ -1,15 +1,16 @@
 <template>
   <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Negocios</h1>
-        <p class="text-body-2 text-medium-emphasis">Gestión de negocios registrados</p>
-      </div>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">
-        Nuevo Negocio
-      </v-btn>
-    </div>
+    <PageHeader
+      tag="Administración"
+      title="Negocios"
+      subtitle="Gestión de negocios registrados"
+    >
+      <template #action>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">
+          Nuevo Negocio
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <!-- Cards grid -->
     <v-row>
@@ -18,7 +19,7 @@
         :key="biz.id"
         cols="12" sm="6" lg="4"
       >
-        <v-card rounded="lg" hover>
+        <v-card rounded="lg" hover class="admin-biz-card">
           <v-card-text class="pa-5">
             <div class="d-flex align-center mb-3">
               <v-avatar color="primary" variant="tonal" size="48" rounded="lg" class="mr-3">
@@ -86,13 +87,13 @@
 
     <!-- ─── Create / Edit Dialog ────────────────────────────────────────── -->
     <v-dialog v-model="formDialog" max-width="680" scrollable>
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
           {{ editMode ? 'Editar Negocio' : 'Crear Nuevo Negocio' }}
         </v-card-title>
         <v-divider />
 
-        <v-card-text class="pa-5" style="max-height:75vh">
+        <v-card-text class="pa-5">
           <v-form ref="formRef">
 
             <!-- Section: Datos básicos -->
@@ -207,7 +208,7 @@
 
     <!-- Delete confirm -->
     <v-dialog v-model="deleteDialog" max-width="420">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-text class="pa-6 text-center">
           <v-icon size="56" color="error" class="mb-3">mdi-store-remove</v-icon>
           <h3 class="text-subtitle-1 font-weight-bold mb-2">Desactivar Negocio</h3>
@@ -235,7 +236,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'] })
 
-const { apiFetch } = useApi()
+const { apiFetch, apiList } = useApi()
 
 // ── State ──────────────────────────────────────────────────────────────────
 const businesses = ref<any[]>([])
@@ -410,9 +411,32 @@ const deleteBusiness = async () => {
 onMounted(async () => {
   loading.value = true
   try {
-    businesses.value = await apiFetch<any[]>('/businesses')
+    businesses.value = await apiList<any>('/businesses')
   } finally {
     loading.value = false
   }
 })
 </script>
+
+<style scoped>
+.admin-biz-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+.admin-dialog-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+:deep(.v-card-text .text-subtitle-2) {
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+:deep(.v-chip) {
+  font-weight: 700;
+}
+:deep(.v-card-actions) {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+</style>

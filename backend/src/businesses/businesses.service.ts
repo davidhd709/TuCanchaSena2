@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto, ScheduleDto, UpdateBusinessDto } from './dto/business.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -18,6 +23,7 @@ export class BusinessesService {
         include: {
           schedules: true,
           owner: { select: { id: true, firstName: true, lastName: true, email: true } },
+          _count: { select: { courts: true } },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -45,10 +51,25 @@ export class BusinessesService {
     return business;
   }
 
-  async create(dto: CreateBusinessDto) {
+  async create(dto: CreateBusinessDto, currentUser: { sub: string; role: string }) {
+    // El dueño (rol business) solo puede crear SU negocio y uno solo.
+    let ownerId = dto.ownerId;
+    if (currentUser.role === 'business') {
+      ownerId = currentUser.sub;
+      const existing = await this.prisma.business.findFirst({
+        where: { ownerId: currentUser.sub, isActive: true },
+      });
+      if (existing) {
+        throw new BadRequestException('Ya tienes un negocio registrado');
+      }
+    }
+    if (!ownerId) {
+      throw new BadRequestException('ownerId es requerido');
+    }
+
     return this.prisma.business.create({
       data: {
-        ownerId: dto.ownerId,
+        ownerId,
         name: dto.name,
         description: dto.description,
         phone: dto.phone,
@@ -56,6 +77,9 @@ export class BusinessesService {
         address: dto.address,
         latitude: dto.latitude,
         longitude: dto.longitude,
+        images: dto.images ?? [],
+        amenities: dto.amenities ?? [],
+        policies: dto.policies,
         schedules: dto.schedules
           ? { create: dto.schedules.map((s) => this.scheduleData(s)) }
           : undefined,

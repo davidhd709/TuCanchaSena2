@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       title: 'Canchas Sintéticas — Reserva tu cancha y juega como un profesional',
       meta: [
         { name: 'description', content: 'Plataforma de reserva de canchas sintéticas de fútbol. Encuentra y reserva la cancha perfecta para tu partido.' },
-        { name: 'theme-color', content: '#0a0e1a' },
+        { name: 'theme-color', content: '#f6f1e7' },
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       ],
@@ -40,7 +40,7 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap',
         },
       ],
     },

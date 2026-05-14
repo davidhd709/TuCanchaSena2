@@ -9,6 +9,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -34,6 +35,9 @@ export class CreateCourtDto {
   @IsNumber() @Type(() => Number) @Min(0) pricePerHour: number;
   @IsOptional() @IsInt() @Type(() => Number) @Min(1) capacity?: number;
   @IsOptional() @IsIn(COURT_STATUS) status?: (typeof COURT_STATUS)[number];
+  @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) amenities?: string[];
+  @IsOptional() @IsNumber() @Type(() => Number) @Min(0) @Max(5) rating?: number;
 }
 
 export class UpdateCourtDto {
@@ -43,6 +47,9 @@ export class UpdateCourtDto {
   @IsOptional() @IsNumber() @Type(() => Number) @Min(0) pricePerHour?: number;
   @IsOptional() @IsInt() @Type(() => Number) @Min(1) capacity?: number;
   @IsOptional() @IsIn(COURT_STATUS) status?: (typeof COURT_STATUS)[number];
+  @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) amenities?: string[];
+  @IsOptional() @IsNumber() @Type(() => Number) @Min(0) @Max(5) rating?: number;
 }
 
 export class AvailabilitySlotDto {

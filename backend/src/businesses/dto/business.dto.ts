@@ -39,8 +39,10 @@ export class ScheduleDto {
 }
 
 export class CreateBusinessDto {
+  // Opcional: el admin lo envía; el dueño (rol business) lo recibe forzado a su propio id.
+  @IsOptional()
   @IsString()
-  ownerId: string;
+  ownerId?: string;
 
   @IsString()
   name: string;
@@ -67,6 +69,10 @@ export class CreateBusinessDto {
   @Type(() => Number)
   longitude: number;
 
+  @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) amenities?: string[];
+  @IsOptional() @IsString() policies?: string;
+
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -83,6 +89,9 @@ export class UpdateBusinessDto {
   @IsOptional() @IsNumber() @Type(() => Number) latitude?: number;
   @IsOptional() @IsNumber() @Type(() => Number) longitude?: number;
   @IsOptional() @IsBoolean() isActive?: boolean;
+  @IsOptional() @IsArray() @IsString({ each: true }) images?: string[];
+  @IsOptional() @IsArray() @IsString({ each: true }) amenities?: string[];
+  @IsOptional() @IsString() policies?: string;
 
   @IsOptional()
   @IsArray()

@@ -4,6 +4,7 @@ import { CreateBusinessDto, UpdateBusinessDto } from './dto/business.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
@@ -12,8 +13,9 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class BusinessesController {
   constructor(private businesses: BusinessesService) {}
 
+  // Público: el cliente explora negocios deportivos (solo activos).
+  @Public()
   @Get()
-  @Roles('admin')
   findAll(@Query() pagination: PaginationDto) {
     return this.businesses.findAll(pagination);
   }
@@ -24,15 +26,17 @@ export class BusinessesController {
     return this.businesses.findByOwner(user.sub);
   }
 
+  // Público: perfil del negocio (galería, servicios, horarios, canchas).
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.businesses.findOne(id);
   }
 
   @Post()
-  @Roles('admin')
-  create(@Body() dto: CreateBusinessDto) {
-    return this.businesses.create(dto);
+  @Roles('admin', 'business')
+  create(@Body() dto: CreateBusinessDto, @CurrentUser() user: JwtUser) {
+    return this.businesses.create(dto, user);
   }
 
   @Patch(':id')

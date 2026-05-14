@@ -1,19 +1,20 @@
 <template>
   <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Software / Landing</h1>
-        <p class="text-body-2 text-medium-emphasis">Gestión de módulos del software</p>
-      </div>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateDialog">
-        Nuevo Software
-      </v-btn>
-    </div>
+    <PageHeader
+      tag="Administración"
+      title="Software / Landing"
+      subtitle="Gestión de módulos del software"
+    >
+      <template #action>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateDialog">
+          Nuevo Software
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <v-row>
       <v-col v-for="sw in softwareList" :key="sw.id" cols="12" sm="6" lg="4">
-        <v-card rounded="lg" hover>
+        <v-card rounded="lg" hover class="admin-sw-card">
           <v-img
             v-if="sw.imagenes && sw.imagenes.length > 0"
             :src="sw.imagenes[0]"
@@ -21,8 +22,8 @@
             cover
             class="rounded-t-lg"
           />
-          <div v-else class="d-flex align-center justify-center bg-grey-lighten-4 rounded-t-lg" style="height:160px">
-            <v-icon size="56" color="grey-lighten-1">mdi-image-outline</v-icon>
+          <div v-else class="d-flex align-center justify-center rounded-t-lg sw-placeholder" style="height:160px">
+            <v-icon size="56" color="primary" style="opacity:0.4">mdi-image-outline</v-icon>
           </div>
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between mb-2">
@@ -54,7 +55,7 @@
 
     <!-- Create/Edit Dialog -->
     <v-dialog v-model="formDialog" max-width="560">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
           {{ editMode ? 'Editar Software' : 'Crear Software' }}
         </v-card-title>
@@ -91,7 +92,7 @@
 
     <!-- Delete Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">Eliminar Software</v-card-title>
         <v-card-text>¿Eliminar <strong>{{ selectedSw?.nombre }}</strong>?</v-card-text>
         <v-card-actions class="pa-4 pt-0">
@@ -186,3 +187,28 @@ onMounted(async () => {
   finally { loading.value = false }
 })
 </script>
+
+<style scoped>
+.sw-placeholder {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.2), transparent 55%),
+    linear-gradient(135deg, #1e2b35, #0f141c);
+  border-bottom: 1px solid var(--border-soft);
+}
+.admin-sw-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+.admin-dialog-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+:deep(.v-chip) {
+  font-weight: 700;
+}
+:deep(.v-card-actions) {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+</style>

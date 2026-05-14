@@ -61,6 +61,8 @@ export class CourtsService {
         pricePerHour: dto.pricePerHour,
         capacity: dto.capacity ?? 10,
         status: dto.status ?? 'available',
+        images: dto.images ?? [],
+        amenities: dto.amenities ?? [],
       },
       include: { availability: true },
     });

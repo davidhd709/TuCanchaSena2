@@ -166,6 +166,30 @@
 
         <!-- Panel lateral -->
         <v-col cols="12" md="5">
+          <!-- Cuenta regresiva del bloqueo de 30 min -->
+          <v-card v-if="isHolding" rounded="lg" class="mb-4 countdown-card">
+            <v-card-text class="pa-5 text-center">
+              <v-icon size="28" color="warning" class="mb-1">mdi-timer-sand</v-icon>
+              <div class="text-caption text-medium-emphasis font-weight-bold text-uppercase">
+                Horario bloqueado
+              </div>
+              <div class="countdown-value">{{ countdownLabel }}</div>
+              <p class="text-caption text-medium-emphasis mt-1">
+                El negocio tiene este tiempo para validar tu pago. Si no lo hace, el horario se libera.
+              </p>
+            </v-card-text>
+          </v-card>
+
+          <v-alert
+            v-else-if="holdJustExpired"
+            type="warning"
+            variant="tonal"
+            rounded="lg"
+            class="mb-4"
+          >
+            El bloqueo de 30 minutos venció. El horario volvió a estar disponible.
+          </v-alert>
+
           <!-- Total pagado -->
           <v-card rounded="lg" color="primary" variant="tonal" class="mb-4">
             <v-card-text class="pa-5 text-center">
@@ -273,7 +297,7 @@
  * Muestra todos los datos de la reserva con su estado actual (principalmente 'pending'
  * justo después de crearla).
  */
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'client', middleware: 'auth' })
 
 const route = useRoute()
 const router = useRouter()
@@ -346,6 +370,36 @@ const isPdfProof = computed(() =>
   booking.value?.paymentProofUrl?.toLowerCase().endsWith('.pdf'),
 )
 
+// —— Bloqueo temporal de 30 min: cuenta regresiva ——
+const now = ref(Date.now())
+let _ticker: ReturnType<typeof setInterval> | undefined
+
+onMounted(() => {
+  _ticker = setInterval(() => { now.value = Date.now() }, 1000)
+})
+onUnmounted(() => { if (_ticker) clearInterval(_ticker) })
+
+const expiresAtMs = computed(() =>
+  booking.value?.expiresAt ? new Date(booking.value.expiresAt).getTime() : null,
+)
+const msLeft = computed(() =>
+  expiresAtMs.value ? Math.max(0, expiresAtMs.value - now.value) : 0,
+)
+/** Reserva pendiente con bloqueo de 30 min todavía corriendo. */
+const isHolding = computed(
+  () => booking.value?.status === 'pending' && !!expiresAtMs.value && msLeft.value > 0,
+)
+/** El bloqueo ya venció pero el backend aún no la marcó como vencida. */
+const holdJustExpired = computed(
+  () => booking.value?.status === 'pending' && !!expiresAtMs.value && msLeft.value <= 0,
+)
+const countdownLabel = computed(() => {
+  const total = Math.floor(msLeft.value / 1000)
+  const mm = String(Math.floor(total / 60)).padStart(2, '0')
+  const ss = String(total % 60).padStart(2, '0')
+  return `${mm}:${ss}`
+})
+
 // Hero dinámico según status
 type StatusConfig = { heroClass: string; heroIcon: string; heroTitle: string; heroSubtitle: string }
 
@@ -379,6 +433,12 @@ const statusConfigs: Record<string, StatusConfig> = {
     heroIcon: 'mdi-trophy-outline',
     heroTitle: '¡Partido completado!',
     heroSubtitle: 'Esperamos que hayas disfrutado la cancha.',
+  },
+  expired: {
+    heroClass: 'hero-expired',
+    heroIcon: 'mdi-timer-off-outline',
+    heroTitle: 'Reserva vencida',
+    heroSubtitle: 'Pasaron los 30 minutos sin confirmación. El horario volvió a estar disponible.',
   },
 }
 
@@ -417,7 +477,7 @@ const confirmCancel = async () => {
   min-height: 100px;
 }
 .hero-pending {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 .hero-confirmed {
   background: linear-gradient(135deg, #10b981, #059669);
@@ -427,5 +487,20 @@ const confirmCancel = async () => {
 }
 .hero-cancelled {
   background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+.hero-expired {
+  background: linear-gradient(135deg, #475569, #334155);
+}
+
+.countdown-card {
+  border-color: rgba(34, 197, 94, 0.36) !important;
+}
+.countdown-value {
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #86efac;
+  line-height: 1.1;
+  letter-spacing: 1px;
 }
 </style>

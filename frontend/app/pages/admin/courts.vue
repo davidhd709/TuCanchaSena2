@@ -1,23 +1,23 @@
 <template>
   <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Canchas</h1>
-        <p class="text-body-2 text-medium-emphasis">Todas las canchas registradas en el sistema</p>
-      </div>
-      <v-spacer />
-      <v-text-field
-        v-model="search"
-        placeholder="Buscar..."
-        prepend-inner-icon="mdi-magnify"
-        clearable
-        hide-details
-        style="max-width:260px"
-        class="mr-3"
-      />
-    </div>
+    <PageHeader
+      tag="Administración"
+      title="Canchas"
+      subtitle="Todas las canchas registradas en el sistema"
+    >
+      <template #action>
+        <v-text-field
+          v-model="search"
+          placeholder="Buscar..."
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          hide-details
+          style="max-width:260px"
+        />
+      </template>
+    </PageHeader>
 
-    <v-card rounded="lg">
+    <v-card rounded="lg" class="admin-shell-card">
       <v-data-table
         :headers="headers"
         :items="filteredCourts"
@@ -54,7 +54,7 @@
     </v-card>
 
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">Eliminar Cancha</v-card-title>
         <v-card-text>¿Eliminar <strong>{{ selectedCourt?.name }}</strong>?</v-card-text>
         <v-card-actions class="pa-4 pt-0">
@@ -72,7 +72,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'] })
 
-const { apiFetch } = useApi()
+const { apiFetch, apiList } = useApi()
 const courts = ref<any[]>([])
 const loading = ref(false)
 const search = ref('')
@@ -128,7 +128,34 @@ const deleteCourt = async () => {
 
 onMounted(async () => {
   loading.value = true
-  try { courts.value = await apiFetch<any[]>('/courts') }
+  try { courts.value = await apiList<any>('/courts') }
   finally { loading.value = false }
 })
 </script>
+
+<style scoped>
+.admin-shell-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+.admin-dialog-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+:deep(.v-data-table .v-table__wrapper table tbody tr:hover) {
+  background: rgba(111, 230, 140, 0.04);
+}
+:deep(.v-data-table .v-table__wrapper table tbody td) {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+:deep(.v-data-table .v-table__wrapper table thead th) {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.08em;
+}
+:deep(.v-chip) {
+  font-weight: 700;
+}
+</style>

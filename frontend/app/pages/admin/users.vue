@@ -1,19 +1,20 @@
 <template>
   <div>
-    <div class="d-flex align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Usuarios</h1>
-        <p class="text-body-2 text-medium-emphasis">Gestión completa de usuarios del sistema</p>
-      </div>
-      <v-spacer />
-      <v-btn color="primary" prepend-icon="mdi-account-plus" @click="openCreate">
-        Nuevo Usuario
-      </v-btn>
-    </div>
+    <PageHeader
+      tag="Administración"
+      title="Usuarios"
+      subtitle="Gestión completa de usuarios del sistema"
+    >
+      <template #action>
+        <v-btn color="primary" prepend-icon="mdi-account-plus" @click="openCreate">
+          Nuevo Usuario
+        </v-btn>
+      </template>
+    </PageHeader>
 
-    <v-card rounded="lg">
+    <v-card rounded="lg" class="admin-shell-card">
       <!-- Filters -->
-      <v-card-text class="pb-0">
+      <v-card-text class="pb-0 admin-toolbar">
         <v-row dense>
           <v-col cols="12" sm="6">
             <v-text-field
@@ -146,7 +147,7 @@
 
     <!-- ─── Create / Edit Dialog ────────────────────────────────────────── -->
     <v-dialog v-model="formDialog" max-width="520">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
           {{ editMode ? 'Editar Usuario' : 'Crear Usuario' }}
         </v-card-title>
@@ -227,7 +228,7 @@
 
     <!-- ─── Suspend Confirm Dialog ──────────────────────────────────────── -->
     <v-dialog v-model="suspendDialog" max-width="420">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-text class="pa-6 text-center">
           <v-icon
             size="56"
@@ -264,7 +265,7 @@
 
     <!-- ─── Delete Confirm Dialog ───────────────────────────────────────── -->
     <v-dialog v-model="deleteDialog" max-width="420">
-      <v-card rounded="lg">
+      <v-card rounded="lg" class="admin-dialog-card">
         <v-card-text class="pa-6 text-center">
           <v-icon size="56" color="error" class="mb-4">mdi-account-remove</v-icon>
           <h3 class="text-subtitle-1 font-weight-bold mb-2">Eliminar Usuario</h3>
@@ -525,3 +526,41 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.admin-shell-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+.admin-toolbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+  padding-bottom: 14px !important;
+}
+.admin-dialog-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a2027, #161c23) !important;
+  border-radius: 20px !important;
+}
+:deep(.v-data-table .v-table__wrapper table tbody tr:hover) {
+  background: rgba(111, 230, 140, 0.04);
+}
+:deep(.v-data-table .v-table__wrapper table tbody td) {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+:deep(.v-data-table .v-table__wrapper table thead th) {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.08em;
+}
+:deep(.v-chip) {
+  font-weight: 700;
+}
+:deep(.v-btn) {
+  letter-spacing: 0.01em;
+}
+:deep(.v-btn:hover) {
+  transform: translateY(-1px);
+}
+</style>

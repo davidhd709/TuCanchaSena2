@@ -19,6 +19,7 @@ export class CourtsController {
     return this.courts.findAll(pagination);
   }
 
+  @Public()
   @Get('by-business/:businessId')
   findByBusiness(@Param('businessId') businessId: string) {
     return this.courts.findByBusiness(businessId);

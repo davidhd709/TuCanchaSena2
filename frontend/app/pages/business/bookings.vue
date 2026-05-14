@@ -1,23 +1,23 @@
 <template>
   <div>
     <!-- ── Header ──────────────────────────────────────────────────────────── -->
-    <div class="d-flex align-center mb-5 flex-wrap gap-3">
-      <div>
-        <h1 class="text-h5 font-weight-bold">Reservas</h1>
-        <p class="text-body-2 text-medium-emphasis">Vista semanal de tus canchas</p>
-      </div>
-      <v-spacer />
-      <v-select
-        v-if="businesses.length > 1"
-        v-model="selectedBusinessId"
-        :items="businesses.map(b => ({ title: b.name, value: b.id }))"
-        label="Negocio"
-        prepend-inner-icon="mdi-store"
-        hide-details
-        density="compact"
-        style="max-width: 260px"
-      />
-    </div>
+    <PageHeader
+      tag="Negocio"
+      title="Reservas"
+      subtitle="Calendario de movimiento y detalle de las reservas de tus canchas"
+    >
+      <template #action>
+        <v-select
+          v-model="selectedCourtId"
+          :items="courtOptions"
+          label="Filtrar por cancha"
+          prepend-inner-icon="mdi-soccer-field"
+          hide-details
+          density="compact"
+          style="max-width: 280px"
+        />
+      </template>
+    </PageHeader>
 
     <!-- ── Week navigation ─────────────────────────────────────────────────── -->
     <div class="d-flex align-center gap-2 mb-4 flex-wrap">
@@ -38,13 +38,14 @@
     </div>
 
     <!-- ── Status legend ───────────────────────────────────────────────────── -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
+    <div class="cal-legend d-flex flex-wrap gap-2 mb-4">
       <v-chip
         v-for="s in statusLegend"
         :key="s.value"
         :color="s.color"
+        class="cal-legend-chip"
         size="small"
-        variant="tonal"
+        variant="flat"
         density="compact"
       >
         {{ s.label }}
@@ -61,7 +62,7 @@
           v-for="day in weekDays"
           :key="day.iso"
           class="cal-day-header flex-1-1 text-center pa-2"
-          :class="{ 'bg-primary-lighten': day.isToday }"
+          :class="{ 'cal-day-header--today': day.isToday }"
         >
           <div class="text-caption text-medium-emphasis text-uppercase">{{ day.dayName }}</div>
           <div class="mt-1 d-flex justify-center">
@@ -90,8 +91,7 @@
             <div
               v-for="h in gridHours"
               :key="h"
-              class="text-caption text-right pr-2"
-              style="position: absolute; line-height: 1; color: rgba(0,0,0,.45)"
+              class="text-caption text-right pr-2 cal-time-label"
               :style="{ top: `${(h - START_HOUR) * HOUR_HEIGHT - 8}px`, width: '52px' }"
             >
               {{ String(h).padStart(2, '0') }}:00
@@ -104,21 +104,21 @@
             :key="day.iso"
             class="cal-day-col flex-1-1"
             :class="{ 'cal-today-bg': day.isToday }"
-            :style="`position: relative; border-left: 1px solid rgba(0,0,0,.08); min-width: 80px`"
+            style="position: relative; min-width: 80px"
           >
             <!-- Full-hour lines -->
             <div
               v-for="h in gridHours"
               :key="'h' + h"
               :style="`position: absolute; top: ${(h - START_HOUR) * HOUR_HEIGHT}px; left: 0; right: 0;
-                       border-top: 1px solid rgba(0,0,0,${h % 2 === 0 ? '.1' : '.05'})`"
+                       border-top: 1px solid rgba(255,255,255,${h % 2 === 0 ? '.08' : '.04'})`"
             />
             <!-- Half-hour dashed lines -->
             <div
               v-for="h in gridHours"
               :key="'hh' + h"
               :style="`position: absolute; top: ${(h - START_HOUR) * HOUR_HEIGHT + HOUR_HEIGHT / 2}px; left: 0; right: 0;
-                       border-top: 1px dashed rgba(0,0,0,.06)`"
+                       border-top: 1px dashed rgba(255,255,255,.045)`"
             />
 
             <!-- Booking blocks -->
@@ -162,14 +162,60 @@
       </div>
     </v-card>
 
-    <!-- Sin reservas -->
-    <div v-if="!loading && bookings.length === 0" class="mt-4">
+    <!-- ── Reservas en cards (detalle para toma de decisiones) ─────────────── -->
+    <section class="bk-list">
+      <h2 class="bk-list-title">
+        Reservas de la semana
+        <span class="bk-list-count">{{ displayBookings.length }}</span>
+      </h2>
+
+      <div v-if="displayBookings.length" class="bk-cards">
+        <button
+          v-for="b in sortedDisplayBookings"
+          :key="b.id"
+          type="button"
+          class="bk-card"
+          @click="openDetail(b)"
+        >
+          <div class="bk-card-head">
+            <div class="bk-card-court">
+              <span class="mdi mdi-soccer-field" />
+              {{ b.court?.name ?? 'Cancha' }}
+            </div>
+            <BookingStatusChip :status="b.status" />
+          </div>
+          <div class="bk-card-client">
+            <span class="mdi mdi-account-outline" />
+            {{ b.client?.firstName }} {{ b.client?.lastName }}
+          </div>
+          <div class="bk-card-rows">
+            <span class="bk-card-row">
+              <span class="mdi mdi-calendar-outline" /> {{ formatDate(b.date) }}
+            </span>
+            <span class="bk-card-row">
+              <span class="mdi mdi-clock-outline" />
+              {{ b.startTime?.slice(0,5) }}–{{ b.endTime?.slice(0,5) }}
+            </span>
+          </div>
+          <div class="bk-card-foot">
+            <span class="bk-card-total">${{ Number(b.totalPrice ?? 0).toLocaleString('es-CO') }}</span>
+            <span v-if="b.paymentProofUrl" class="bk-card-proof">
+              <span class="mdi mdi-image-check-outline" /> Comprobante
+            </span>
+            <span v-else class="bk-card-proof is-missing">
+              <span class="mdi mdi-image-off-outline" /> Sin comprobante
+            </span>
+          </div>
+        </button>
+      </div>
+
       <EmptyState
+        v-else-if="!loading"
         icon="mdi-calendar-blank-outline"
         title="Sin reservas esta semana"
-        description="No hay reservas registradas para este negocio en el período seleccionado."
+        :description="selectedCourtId ? 'Esta cancha no tiene reservas en el período seleccionado.' : 'No hay reservas registradas en el período seleccionado.'"
       />
-    </div>
+    </section>
 
     <!-- ── Booking detail dialog ────────────────────────────────────────── -->
     <v-dialog v-model="detailDialog" max-width="480" aria-labelledby="booking-detail-title">
@@ -381,9 +427,31 @@ const END_HOUR    = 23   // 23:00 (exclusive – last line at 23:00)
 
 // ── State ──────────────────────────────────────────────────────────────────
 const businesses        = ref<any[]>([])
+const courts            = ref<any[]>([])
 const bookings          = ref<any[]>([])
 const loading           = ref(false)
 const selectedBusinessId = ref<string | null>(null)
+const selectedCourtId   = ref<string | null>(null)
+
+// Selector "por cancha creada" — incluye opción "todas".
+const courtOptions = computed(() => [
+  { title: 'Todas las canchas', value: null },
+  ...courts.value.map((c) => ({ title: c.name, value: c.id })),
+])
+
+// Reservas mostradas: filtradas por la cancha seleccionada (o todas).
+const displayBookings = computed(() =>
+  selectedCourtId.value
+    ? bookings.value.filter((b) => b.courtId === selectedCourtId.value)
+    : bookings.value,
+)
+const sortedDisplayBookings = computed(() =>
+  [...displayBookings.value].sort(
+    (a, b) =>
+      (a.date as string).localeCompare(b.date) ||
+      (a.startTime as string).localeCompare(b.startTime),
+  ),
+)
 
 const detailDialog   = ref(false)
 const selectedBooking = ref<any>(null)
@@ -458,7 +526,7 @@ const currentTimeTop = computed(() => {
 
 // ── Lane assignment (handles overlapping bookings per day) ─────────────────
 function laidOutBookings (iso: string): any[] {
-  const dayBookings = bookings.value.filter(b => b.date === iso)
+  const dayBookings = displayBookings.value.filter(b => b.date === iso)
   if (!dayBookings.length) return []
 
   const sorted = dayBookings
@@ -512,7 +580,7 @@ function bookingBlockStyle (b: any): Record<string, string> {
 
 // ── Status legend ──────────────────────────────────────────────────────────
 const statusLegend = [
-  { value: 'pending',   label: 'Pendiente',  color: 'warning'   },
+  { value: 'pending',   label: 'Pendiente',  color: 'primary'   },
   { value: 'confirmed', label: 'Confirmada', color: 'success'   },
   { value: 'completed', label: 'Completada', color: 'info'      },
   { value: 'cancelled', label: 'Cancelada',  color: 'error'     },
@@ -615,11 +683,14 @@ const confirmCancelBooking = async () => {
 }
 
 // ── Load data ──────────────────────────────────────────────────────────────
+const { apiList } = useApi()
+
 const loadBookings = async () => {
   if (!selectedBusinessId.value) return
   loading.value = true
   try {
-    bookings.value = await apiFetch<any[]>(`/bookings/business/${selectedBusinessId.value}`)
+    bookings.value = await apiList<any>(`/bookings/business/${selectedBusinessId.value}`)
+    courts.value = await apiList<any>(`/courts/by-business/${selectedBusinessId.value}`)
   } catch (e) {
     bookings.value = []
   } finally {
@@ -633,9 +704,9 @@ onMounted(async () => {
   // Tick timer for current-time indicator
   _timer = setInterval(() => { currentTime.value = new Date() }, 60_000)
 
-  // Load businesses
+  // Load my business (singular)
   try {
-    businesses.value = await apiFetch<any[]>('/businesses/my-businesses')
+    businesses.value = await apiList<any>('/businesses/my-businesses')
     if (businesses.value.length > 0) selectedBusinessId.value = businesses.value[0].id
   } catch (e) { console.error(e) }
 
@@ -658,22 +729,42 @@ onUnmounted(() => clearInterval(_timer))
   flex-shrink: 0;
 }
 
+.cal-time-label {
+  position: absolute;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
 .cal-header {
-  border-bottom: 1px solid rgba(0, 0, 0, .1);
-  background: rgba(0, 0, 0, .02);
+  border-bottom: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(27, 33, 42, .96), rgba(23, 28, 35, .96));
 }
 
 .cal-day-header {
   min-width: 80px;
-  border-left: 1px solid rgba(0, 0, 0, .06);
+  border-left: 1px solid var(--border-soft);
 }
 
 .cal-today-bg {
-  background: rgba(var(--v-theme-primary), .04);
+  background: linear-gradient(180deg, rgba(47, 161, 138, .12), rgba(47, 161, 138, .04));
 }
 
-.bg-primary-lighten {
-  background: rgba(var(--v-theme-primary), .06) !important;
+.cal-day-header--today {
+  background: linear-gradient(180deg, rgba(47, 161, 138, .2), rgba(47, 161, 138, .08)) !important;
+  box-shadow: inset 0 -1px 0 rgba(88, 214, 141, .2);
+}
+
+.cal-legend {
+  row-gap: 8px;
+}
+
+.cal-legend-chip {
+  min-height: 28px !important;
+  padding-inline: 10px !important;
+  border: 1px solid rgba(47, 161, 138, .22) !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em;
 }
 
 /* ── Booking blocks ──────────────────────────────────────────────────────── */
@@ -695,30 +786,30 @@ onUnmounted(() => clearInterval(_timer))
 }
 
 .booking-pending {
-  background: rgba(255, 152, 0, .18);
-  border-left-color: #FB8C00;
-  color: #E65100;
+  background: rgba(34, 197, 94, .2);
+  border-left-color: #22c55e;
+  color: #bbf7d0;
 }
 .booking-confirmed {
-  background: rgba(67, 160, 71, .18);
-  border-left-color: #43A047;
-  color: #1B5E20;
+  background: rgba(47, 161, 138, .2);
+  border-left-color: var(--green-bright);
+  color: #86efac;
 }
 .booking-completed {
-  background: rgba(30, 136, 229, .18);
-  border-left-color: #1E88E5;
-  color: #0D47A1;
+  background: rgba(59, 130, 246, .2);
+  border-left-color: #3b82f6;
+  color: #93c5fd;
 }
 .booking-cancelled {
-  background: rgba(117, 117, 117, .14);
-  border-left-color: #9E9E9E;
-  color: #757575;
+  background: rgba(148, 163, 184, .16);
+  border-left-color: #94a3b8;
+  color: #cbd5e1;
   opacity: .7;
 }
 .booking-no_show {
-  background: rgba(142, 36, 170, .14);
-  border-left-color: #8E24AA;
-  color: #6A1B9A;
+  background: rgba(168, 85, 247, .18);
+  border-left-color: #a855f7;
+  color: #d8b4fe;
 }
 
 .booking-title {
@@ -733,5 +824,116 @@ onUnmounted(() => clearInterval(_timer))
   font-size: 10px !important;
   opacity: .75;
   margin-top: 1px;
+}
+
+/* ── Reservas en cards ───────────────────────────────────────────────────── */
+.bk-list { margin-top: 28px; }
+.bk-list-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+.bk-list-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: var(--green-soft);
+  color: var(--green-bright);
+}
+.bk-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.bk-card {
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.bk-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(47, 161, 138, 0.22);
+}
+.bk-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bk-card-court {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 0;
+}
+.bk-card-court .mdi { color: var(--green-primary); font-size: 1rem; flex-shrink: 0; }
+.bk-card-client {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+.bk-card-client .mdi { font-size: 0.95rem; }
+.bk-card-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 8px;
+}
+.bk-card-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.bk-card-row .mdi { font-size: 0.95rem; color: var(--green-primary); }
+.bk-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+.bk-card-total {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.bk-card-proof {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--green-bright);
+}
+.bk-card-proof.is-missing { color: var(--text-faint); }
+.bk-card-proof .mdi { font-size: 0.9rem; }
+
+@media (max-width: 960px) {
+  .bk-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .bk-cards { grid-template-columns: 1fr; }
 }
 </style>

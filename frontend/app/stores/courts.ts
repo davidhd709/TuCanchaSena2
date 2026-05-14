@@ -8,7 +8,12 @@ export interface Court {
   capacity: number
   pricePerHour: number
   isActive: boolean
+  status?: string
   businessId: string
+  images?: string[]
+  amenities?: string[]
+  rating?: number | null
+  ratingCount?: number
   business?: {
     id: string
     name: string
@@ -26,7 +31,6 @@ export interface CourtAvailability {
 }
 
 interface CourtsState {
-  courts: Court[]
   currentCourt: Court | null
   loading: boolean
   error: string | null
@@ -34,33 +38,12 @@ interface CourtsState {
 
 export const useCourtsStore = defineStore('courts', {
   state: (): CourtsState => ({
-    courts: [],
     currentCourt: null,
     loading: false,
     error: null,
   }),
 
-  getters: {
-    activeCourts: (state) => state.courts.filter((c) => c.isActive),
-  },
-
   actions: {
-    async fetchCourts(force = false) {
-      if (!force && this.courts.length > 0) return
-
-      const { apiFetch } = useApi()
-      this.loading = true
-      this.error = null
-      try {
-        this.courts = await apiFetch<Court[]>('/courts')
-      } catch (e: any) {
-        this.error = useApiError(e)
-        throw e
-      } finally {
-        this.loading = false
-      }
-    },
-
     async fetchCourt(id: string) {
       const { apiFetch } = useApi()
       this.loading = true
@@ -74,10 +57,6 @@ export const useCourtsStore = defineStore('courts', {
       } finally {
         this.loading = false
       }
-    },
-
-    clearCurrentCourt() {
-      this.currentCourt = null
     },
   },
 })

@@ -104,30 +104,42 @@
           <p class="section-desc">Instalaciones modernas con césped sintético de alto rendimiento, iluminación LED y vestuarios completos.</p>
         </div>
 
-        <div class="courts-grid">
+        <!-- Cargando -->
+        <div v-if="courtsLoading" class="courts-loading">
+          <span class="mdi mdi-loading mdi-spin"></span>
+          Cargando canchas...
+        </div>
+
+        <!-- Grid de canchas reales -->
+        <div v-else-if="courts.length > 0" class="courts-grid">
           <div
             v-for="(court, i) in courts"
-            :key="court.name"
+            :key="court.id"
             class="court-card"
             :style="`animation-delay: ${i * 0.12}s`"
           >
             <div class="court-img-wrap">
-              <img :src="court.img" :alt="court.name" class="court-img" loading="lazy" />
+              <div class="court-img-placeholder">
+                <span class="mdi mdi-soccer-field"></span>
+              </div>
               <div class="court-img-overlay"></div>
-              <span class="court-badge">{{ court.badge }}</span>
+              <span class="court-badge">
+                {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
+              </span>
             </div>
             <div class="court-info">
               <div class="court-meta">
                 <span class="mdi mdi-map-marker-outline court-loc-icon"></span>
-                <span class="court-location">{{ court.location }}</span>
+                <span class="court-location">{{ court.business.name }}</span>
               </div>
               <h3 class="court-name">{{ court.name }}</h3>
               <div class="court-tags">
-                <span v-for="tag in court.tags" :key="tag" class="court-tag">{{ tag }}</span>
+                <span class="court-tag">{{ courtTypeLabel(court.type) }}</span>
+                <span class="court-tag">{{ court.capacity }} jugadores</span>
               </div>
               <div class="court-footer">
                 <div class="court-price">
-                  <span class="price-amount">{{ court.price }}</span>
+                  <span class="price-amount">${{ Number(court.pricePerHour).toLocaleString('es-CO') }}</span>
                   <span class="price-unit">/hora</span>
                 </div>
                 <NuxtLink to="/auth/login" class="court-btn" :id="`court-reserve-${i}`">
@@ -137,6 +149,12 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Sin canchas -->
+        <div v-else class="courts-empty">
+          <span class="mdi mdi-soccer-field"></span>
+          <p>Pronto publicaremos canchas disponibles. ¡Vuelve pronto!</p>
         </div>
 
         <div class="courts-cta">
@@ -240,7 +258,9 @@
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-brand">
-          <img src="/logo-2.png" alt="TuCancha" class="footer-logo-img" />
+          <NuxtLink to="/" aria-label="TuCancha — Inicio">
+            <img src="/logo-2.png" alt="TuCancha" class="footer-logo-img" />
+          </NuxtLink>
         </div>
         <p class="footer-copy">© {{ new Date().getFullYear() }} TuCancha · Pasión por el fútbol · Todos los derechos reservados</p>
         <div class="footer-links">
@@ -266,39 +286,64 @@ if (authStore.isAuthenticated) {
 const scrolled = ref(false)
 const menuOpen = ref(false)
 
-onMounted(() => {
+// ─── Canchas reales desde el backend ───────────────
+const { apiList } = useApi()
+type HomeCourt = {
+  id: string
+  name: string
+  type: string
+  capacity: number
+  status: string
+  pricePerHour: number
+  business: { name: string }
+}
+
+const courts = ref<HomeCourt[]>([])
+const courtsLoading = ref(true)
+
+const COURT_TYPES: Record<string, string> = {
+  football_5: 'Fútbol 5',
+  football_7: 'Fútbol 7',
+  football_8: 'Fútbol 8',
+  football_11: 'Fútbol 11',
+  futsal: 'Futsal',
+  beach_soccer: 'Fútbol Playa',
+  mini_football: 'Mini Fútbol',
+}
+const courtTypeLabel = (type: string) => COURT_TYPES[type] ?? type
+
+onMounted(async () => {
   window.addEventListener('scroll', () => {
     scrolled.value = window.scrollY > 60
   })
+  try {
+    // Solo canchas reales de BD, activas/disponibles y con datos mínimos válidos.
+    const dbCourts = await apiList<any>('/courts')
+    courts.value = dbCourts
+      .filter((c: any) =>
+        c &&
+        typeof c.id === 'string' &&
+        typeof c.name === 'string' &&
+        typeof c.business?.name === 'string' &&
+        Number.isFinite(Number(c.pricePerHour)) &&
+        c.status === 'available',
+      )
+      .slice(0, 6)
+      .map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        type: c.type,
+        capacity: Number(c.capacity ?? 0),
+        status: c.status,
+        pricePerHour: Number(c.pricePerHour),
+        business: { name: c.business.name },
+      }))
+  } catch {
+    courts.value = []
+  } finally {
+    courtsLoading.value = false
+  }
 })
-
-// ─── Courts data ───────────────────────────────────
-const courts = [
-  {
-    name: 'Cancha El Estadio',
-    location: 'Centro · Bogotá',
-    img: '/court-1.png',
-    badge: 'Disponible',
-    price: '$80.000',
-    tags: ['Fútbol 5', 'Iluminación LED', 'Vestuarios'],
-  },
-  {
-    name: 'Cancha La Colina',
-    location: 'Norte · Medellín',
-    img: '/court-2.png',
-    badge: 'Popular ⚡',
-    price: '$65.000',
-    tags: ['Fútbol 7', 'Cubierta', 'Parking'],
-  },
-  {
-    name: 'Cancha Sunset',
-    location: 'Occidente · Cali',
-    img: '/court-3.png',
-    badge: 'Nueva',
-    price: '$70.000',
-    tags: ['Fútbol 5', 'Exterior', '24 hrs'],
-  },
-]
 
 // ─── Steps ─────────────────────────────────────────
 const steps = [
@@ -340,7 +385,7 @@ const features = [
     icon: 'mdi-map-marker-radius',
     title: 'Cerca de ti',
     desc: 'Canchas en todo el país, geolocalización incluida.',
-    color: 'rgba(34,197,94,0.12)',
+    color: 'rgba(47, 161, 138, 0.12)',
   },
   {
     icon: 'mdi-shield-check',
@@ -362,9 +407,9 @@ const features = [
    BASE & RESET
 ════════════════════════════════════════════ */
 .home-page {
-  font-family: 'Poppins', sans-serif;
-  background: #060810;
-  color: #e2e8f0;
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
   overflow-x: hidden;
 }
 
@@ -392,7 +437,7 @@ const features = [
   -webkit-backdrop-filter: blur(20px);
   padding: 12px 0;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.35);
 }
 
 .nav-inner {
@@ -426,32 +471,32 @@ const features = [
   gap: 32px;
 }
 .nav-link {
-  color: #94a3b8;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 500;
   transition: color 0.2s;
 }
-.nav-link:hover { color: #22c55e; }
+.nav-link:hover { color: #166534; }
 
 .nav-cta {
   padding: 9px 22px;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: #fff;
+  background: linear-gradient(135deg, #166534, #14532d);
+  color: var(--white);
   text-decoration: none;
   border-radius: 10px;
   font-size: 0.87rem;
   font-weight: 600;
   transition: all 0.25s;
-  box-shadow: 0 4px 14px rgba(34,197,94,0.3);
+  box-shadow: 0 4px 14px rgba(22,101,52,0.24);
 }
-.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); filter: brightness(1.08); }
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(22,101,52,0.3); filter: brightness(1.08); }
 
 .hamburger {
   display: none;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--white);
   font-size: 1.5rem;
   cursor: pointer;
 }
@@ -487,10 +532,10 @@ const features = [
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(6,8,16,0.75) 0%,
-    rgba(6,8,16,0.55) 40%,
-    rgba(6,8,16,0.85) 80%,
-    rgba(6,8,16,1) 100%
+    rgba(7,10,14,0.78) 0%,
+    rgba(10,13,18,0.62) 40%,
+    rgba(9,12,17,0.88) 80%,
+    rgba(8,11,16,0.98) 100%
   );
   z-index: 1;
 }
@@ -504,7 +549,7 @@ const features = [
 }
 .hero-blob-1 {
   width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(34,197,94,0.18), transparent 65%);
+  background: radial-gradient(circle, rgba(47, 161, 138, 0.18), transparent 65%);
   top: 10%; left: -120px;
   animation: float 8s ease-in-out infinite;
 }
@@ -520,10 +565,10 @@ const features = [
   inset: 0;
   z-index: 2;
   background-image:
-    linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(47, 161, 138, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 161, 138, 0.06) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4) 30%, rgba(0,0,0,0.4) 70%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.35) 30%, rgba(0,0,0,0.35) 70%, transparent);
 }
 
 .hero-content {
@@ -545,8 +590,8 @@ const features = [
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  background: rgba(34,197,94,0.12);
-  border: 1px solid rgba(34,197,94,0.28);
+  background: rgba(47, 161, 138, 0.12);
+  border: 1px solid rgba(47, 161, 138, 0.28);
   border-radius: 100px;
   color: #4ade80;
   font-size: 0.78rem;
@@ -555,15 +600,15 @@ const features = [
 }
 
 .hero-title {
-  font-family: 'Montserrat', 'Poppins', sans-serif;
+  font-family: 'Sora', 'Manrope', sans-serif;
   font-size: clamp(2.2rem, 5.5vw, 3.8rem);
   font-weight: 900;
   line-height: 1.1;
-  color: #fff;
+  color: var(--white);
   letter-spacing: -1px;
 }
 .hero-title-accent {
-  background: linear-gradient(135deg, #22c55e 0%, #86efac 50%, #facc15 100%);
+  background: linear-gradient(135deg, #166534 0%, #86efac 50%, #facc15 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -571,7 +616,7 @@ const features = [
 
 .hero-subtitle {
   font-size: clamp(0.95rem, 2vw, 1.1rem);
-  color: #94a3b8;
+  color: var(--text-muted);
   line-height: 1.7;
   max-width: 520px;
 }
@@ -589,19 +634,19 @@ const features = [
   align-items: center;
   gap: 8px;
   padding: 16px 36px;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: #fff;
+  background: linear-gradient(135deg, #166534, #14532d);
+  color: var(--white);
   text-decoration: none;
   border-radius: 14px;
   font-size: 1rem;
   font-weight: 700;
   transition: all 0.25s;
-  box-shadow: 0 6px 28px rgba(34,197,94,0.35);
+  box-shadow: 0 6px 28px rgba(47, 161, 138, 0.35);
   letter-spacing: 0.2px;
 }
 .btn-hero-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 36px rgba(34,197,94,0.5);
+  box-shadow: 0 12px 36px rgba(47, 161, 138, 0.5);
   filter: brightness(1.1);
 }
 
@@ -612,7 +657,7 @@ const features = [
   padding: 15px 32px;
   background: rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
-  color: #fff;
+  color: var(--white);
   text-decoration: none;
   border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: 14px;
@@ -622,7 +667,7 @@ const features = [
 }
 .btn-hero-secondary:hover {
   background: rgba(255,255,255,0.11);
-  border-color: rgba(34,197,94,0.5);
+  border-color: rgba(47, 161, 138, 0.5);
   color: #4ade80;
   transform: translateY(-2px);
 }
@@ -639,7 +684,7 @@ const features = [
   padding: 20px 36px;
 }
 .stat-item { text-align: center; padding: 0 24px; }
-.stat-value { display: block; font-size: 1.65rem; font-weight: 800; color: #22c55e; line-height: 1; }
+.stat-value { display: block; font-size: 1.65rem; font-weight: 800; color: #166534; line-height: 1; }
 .stat-label { font-size: 0.75rem; color: #64748b; margin-top: 4px; display: block; }
 .stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.1); }
 
@@ -684,25 +729,25 @@ const features = [
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #22c55e;
+  color: #166534;
   margin-bottom: 14px;
 }
 .section-heading {
-  font-family: 'Montserrat', 'Poppins', sans-serif;
+  font-family: 'Sora', 'Manrope', sans-serif;
   font-size: clamp(1.7rem, 3vw, 2.5rem);
   font-weight: 800;
-  color: #f1f5f9;
+  color: var(--text-primary);
   line-height: 1.2;
   margin-bottom: 14px;
   letter-spacing: -0.5px;
 }
-.text-green { color: #22c55e; }
+.text-green { color: #166534; }
 .section-desc { color: #64748b; font-size: 0.97rem; line-height: 1.7; max-width: 520px; margin: 0 auto; }
 
 /* ═══════════════════════════════════════════
    CANCHAS SECTION
 ════════════════════════════════════════════ */
-.canchas-section { background: #060810; }
+.canchas-section { background: var(--bg-app); }
 
 .courts-grid {
   display: grid;
@@ -721,24 +766,56 @@ const features = [
 }
 .court-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.2);
-  border-color: rgba(34,197,94,0.2);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(47, 161, 138, 0.2);
+  border-color: rgba(47, 161, 138, 0.2);
 }
 
 .court-img-wrap { position: relative; height: 200px; overflow: hidden; }
-.court-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-.court-card:hover .court-img { transform: scale(1.06); }
+.court-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.22), transparent 55%),
+    linear-gradient(135deg, #1e2b35, #0f141c);
+  transition: transform 0.5s ease;
+}
+.court-card:hover .court-img-placeholder { transform: scale(1.06); }
+.court-img-placeholder .mdi { font-size: 3.6rem; color: rgba(47, 161, 138, 0.5); }
 .court-img-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(15,20,32,0.85) 0%, transparent 60%);
 }
+
+.courts-loading {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95rem;
+  padding: 48px 0;
+}
+.courts-loading .mdi { font-size: 1.3rem; color: #166534; vertical-align: -2px; }
+
+.courts-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 56px 24px;
+}
+.courts-empty .mdi {
+  font-size: 3rem;
+  color: rgba(22,101,52,0.3);
+  display: block;
+  margin-bottom: 12px;
+}
+.courts-empty p { font-size: 0.92rem; }
 .court-badge {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(34,197,94,0.9);
-  color: #fff;
+  background: rgba(47, 161, 138, 0.9);
+  color: var(--white);
   font-size: 0.72rem;
   font-weight: 700;
   padding: 5px 12px;
@@ -749,9 +826,9 @@ const features = [
 
 .court-info { padding: 20px; }
 .court-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
-.court-loc-icon { font-size: 0.85rem; color: #22c55e; }
+.court-loc-icon { font-size: 0.85rem; color: #166534; }
 .court-location { font-size: 0.77rem; color: #64748b; }
-.court-name { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin-bottom: 10px; }
+.court-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
 .court-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
 .court-tag {
   font-size: 0.7rem;
@@ -760,12 +837,12 @@ const features = [
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 100px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .court-footer { display: flex; align-items: center; justify-content: space-between; }
 .court-price { display: flex; align-items: baseline; gap: 3px; }
-.price-amount { font-size: 1.1rem; font-weight: 800; color: #22c55e; }
+.price-amount { font-size: 1.1rem; font-weight: 800; color: #166534; }
 .price-unit { font-size: 0.75rem; color: #64748b; }
 
 .court-btn {
@@ -773,15 +850,15 @@ const features = [
   align-items: center;
   gap: 5px;
   padding: 8px 18px;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: #fff;
+  background: linear-gradient(135deg, #166534, #14532d);
+  color: var(--white);
   text-decoration: none;
   border-radius: 10px;
   font-size: 0.82rem;
   font-weight: 600;
   transition: all 0.25s;
 }
-.court-btn:hover { transform: translateY(-1px); filter: brightness(1.1); box-shadow: 0 6px 18px rgba(34,197,94,0.35); }
+.court-btn:hover { transform: translateY(-1px); filter: brightness(1.1); box-shadow: 0 6px 18px rgba(47, 161, 138, 0.35); }
 
 .courts-cta { text-align: center; margin-top: 48px; }
 .btn-outline-green {
@@ -789,21 +866,21 @@ const features = [
   align-items: center;
   gap: 8px;
   padding: 14px 32px;
-  border: 2px solid rgba(34,197,94,0.4);
-  color: #22c55e;
+  border: 2px solid rgba(22,101,52,0.3);
+  color: #166534;
   text-decoration: none;
   border-radius: 12px;
   font-size: 0.92rem;
   font-weight: 600;
   transition: all 0.25s;
 }
-.btn-outline-green:hover { background: rgba(34,197,94,0.07); border-color: #22c55e; transform: translateY(-2px); }
+.btn-outline-green:hover { background: rgba(47, 161, 138, 0.1); border-color: #166534; transform: translateY(-2px); }
 
 /* ═══════════════════════════════════════════
    HOW IT WORKS
 ════════════════════════════════════════════ */
 .how-section {
-  background: linear-gradient(180deg, #060810 0%, #0a1118 50%, #060810 100%);
+  background: linear-gradient(180deg, #111720 0%, #0a1118 50%, #121922 100%);
 }
 
 .steps-grid {
@@ -821,7 +898,7 @@ const features = [
   left: calc(16.66% + 24px);
   right: calc(16.66% + 24px);
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(22,101,52,0.24), transparent);
   z-index: 0;
 }
 
@@ -839,7 +916,7 @@ const features = [
 }
 .step-card:hover {
   background: rgba(255,255,255,0.05);
-  border-color: rgba(34,197,94,0.2);
+  border-color: rgba(47, 161, 138, 0.2);
   transform: translateY(-4px);
   box-shadow: 0 16px 40px rgba(0,0,0,0.35);
 }
@@ -847,17 +924,17 @@ const features = [
 .step-number {
   font-size: 0.7rem;
   font-weight: 700;
-  color: rgba(34,197,94,0.4);
+  color: rgba(22,101,52,0.3);
   letter-spacing: 2px;
   margin-bottom: 16px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 .step-icon-wrap {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05));
-  border: 1px solid rgba(34,197,94,0.2);
+  background: linear-gradient(135deg, rgba(47, 161, 138, 0.15), rgba(47, 161, 138, 0.08));
+  border: 1px solid rgba(47, 161, 138, 0.2);
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -866,18 +943,18 @@ const features = [
   transition: all 0.3s;
 }
 .step-card:hover .step-icon-wrap {
-  background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(34,197,94,0.08));
-  box-shadow: 0 0 24px rgba(34,197,94,0.2);
+  background: linear-gradient(135deg, rgba(47, 161, 138, 0.25), rgba(47, 161, 138, 0.08));
+  box-shadow: 0 0 24px rgba(47, 161, 138, 0.2);
 }
-.step-icon { font-size: 1.8rem; color: #22c55e; }
+.step-icon { font-size: 1.8rem; color: #166534; }
 
-.step-title { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin-bottom: 10px; }
+.step-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
 .step-desc { font-size: 0.87rem; color: #64748b; line-height: 1.65; }
 
 /* ═══════════════════════════════════════════
    BENEFITS
 ════════════════════════════════════════════ */
-.benefits-section { background: #060810; }
+.benefits-section { background: var(--bg-app); }
 
 .benefits-inner {
   display: grid;
@@ -900,26 +977,26 @@ const features = [
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
-.benefit-check { color: #22c55e; font-size: 1.1rem; flex-shrink: 0; }
+.benefit-check { color: #166534; font-size: 1.1rem; flex-shrink: 0; }
 
 .btn-green-solid {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 14px 30px;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: #fff;
+  background: linear-gradient(135deg, #166534, #14532d);
+  color: var(--white);
   text-decoration: none;
   border-radius: 12px;
   font-size: 0.92rem;
   font-weight: 700;
   transition: all 0.25s;
-  box-shadow: 0 4px 20px rgba(34,197,94,0.28);
+  box-shadow: 0 4px 20px rgba(47, 161, 138, 0.28);
   margin-top: 32px;
 }
-.btn-green-solid:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(34,197,94,0.42); filter: brightness(1.08); }
+.btn-green-solid:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(47, 161, 138, 0.42); filter: brightness(1.08); }
 
 .features-grid {
   display: grid;
@@ -937,7 +1014,7 @@ const features = [
   opacity: 0;
 }
 .feat-card:hover {
-  border-color: rgba(34,197,94,0.18);
+  border-color: rgba(47, 161, 138, 0.18);
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(0,0,0,0.3);
 }
@@ -951,8 +1028,8 @@ const features = [
   justify-content: center;
   margin-bottom: 14px;
 }
-.feat-icon { font-size: 1.4rem; color: #22c55e; }
-.feat-title { font-size: 0.9rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px; }
+.feat-icon { font-size: 1.4rem; color: #166534; }
+.feat-title { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
 .feat-desc { font-size: 0.78rem; color: #64748b; line-height: 1.55; }
 
 /* ═══════════════════════════════════════════
@@ -987,15 +1064,15 @@ const features = [
   align-items: center;
   gap: 20px;
 }
-.cta-icon { font-size: 3rem; color: #22c55e; margin-bottom: 4px; }
+.cta-icon { font-size: 3rem; color: #166534; margin-bottom: 4px; }
 .cta-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 900;
-  color: #fff;
+  color: var(--white);
   letter-spacing: -1px;
 }
-.cta-subtitle { color: #94a3b8; font-size: 1rem; }
+.cta-subtitle { color: var(--text-muted); font-size: 1rem; }
 .cta-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
 
 .btn-cta-primary {
@@ -1003,16 +1080,16 @@ const features = [
   align-items: center;
   gap: 8px;
   padding: 15px 34px;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: #fff;
+  background: linear-gradient(135deg, #166534, #14532d);
+  color: var(--white);
   text-decoration: none;
   border-radius: 13px;
   font-size: 0.97rem;
   font-weight: 700;
   transition: all 0.25s;
-  box-shadow: 0 6px 24px rgba(34,197,94,0.35);
+  box-shadow: 0 6px 24px rgba(47, 161, 138, 0.35);
 }
-.btn-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(34,197,94,0.5); filter: brightness(1.08); }
+.btn-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(47, 161, 138, 0.5); filter: brightness(1.08); }
 
 .btn-cta-secondary {
   display: inline-flex;
@@ -1021,7 +1098,7 @@ const features = [
   padding: 14px 30px;
   background: rgba(255,255,255,0.07);
   backdrop-filter: blur(10px);
-  color: #fff;
+  color: var(--white);
   text-decoration: none;
   border: 1.5px solid rgba(255,255,255,0.2);
   border-radius: 13px;
@@ -1029,7 +1106,7 @@ const features = [
   font-weight: 600;
   transition: all 0.25s;
 }
-.btn-cta-secondary:hover { border-color: rgba(34,197,94,0.5); color: #4ade80; transform: translateY(-2px); }
+.btn-cta-secondary:hover { border-color: rgba(47, 161, 138, 0.5); color: #4ade80; transform: translateY(-2px); }
 
 /* ═══════════════════════════════════════════
    FOOTER
@@ -1059,7 +1136,7 @@ const features = [
 .footer-copy { font-size: 0.75rem; color: #334155; flex: 1; text-align: center; }
 .footer-links { display: flex; gap: 20px; }
 .footer-link { font-size: 0.75rem; color: #334155; text-decoration: none; transition: color 0.2s; }
-.footer-link:hover { color: #22c55e; }
+.footer-link:hover { color: #166534; }
 
 /* ═══════════════════════════════════════════
    RESPONSIVE
