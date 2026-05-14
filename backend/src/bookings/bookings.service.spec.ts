@@ -26,7 +26,7 @@ import { PrismaService } from '../prisma/prisma.service'
 // MOCKS
 // ─────────────────────────────────────────────────────────────────
 
-const mockPrismaService = {
+const mockPrismaService: any = {
   booking: {
     findMany: jest.fn(),
     findFirst: jest.fn(),
@@ -40,6 +40,7 @@ const mockPrismaService = {
   business: {
     findUnique: jest.fn(),
   },
+  $transaction: jest.fn((callback) => callback(mockPrismaService)),
 }
 
 const mockConfigService = {
