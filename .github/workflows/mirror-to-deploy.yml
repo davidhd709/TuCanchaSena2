@@ -26,8 +26,11 @@ jobs:
           MIRROR_SSH_KEY: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$MIRROR_SSH_KEY" > ~/.ssh/mirror_key
+          # tr -d '\r' limpia retornos de carro que se cuelan al pegar el secret.
+          printf '%s\n' "$MIRROR_SSH_KEY" | tr -d '\r' > ~/.ssh/mirror_key
           chmod 600 ~/.ssh/mirror_key
+          # Falla temprano y claro si la llave quedó mal formada.
+          ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
           ssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts
 
       - name: Push main al repo de deploy
