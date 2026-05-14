@@ -1,0 +1,43 @@
+name: Mirror to deploy repo
+
+# Cuando el workflow "CI" termina verde sobre main, espeja ese commit exacto
+# al repo conectado a Railway (tucanchasena-tech/tucanchasena1), que dispara el deploy.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  mirror:
+    # Solo si el CI pasó y corrió sobre main.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del commit que pasó el CI
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Configurar deploy key
+        env:
+          # El secret guarda la llave privada codificada en base64 (una sola línea,
+          # inmune a problemas de copia/pegado). Aquí se decodifica.
+          MIRROR_SSH_KEY_B64: ${{ secrets.MIRROR_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$MIRROR_SSH_KEY_B64" | base64 -d > ~/.ssh/mirror_key
+          chmod 600 ~/.ssh/mirror_key
+          # Falla temprano y claro si la llave quedó mal formada.
+          ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
+          ssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts
+
+      - name: Push main al repo de deploy
+        env:
+          GIT_SSH_COMMAND: "ssh -i ~/.ssh/mirror_key -o IdentitiesOnly=yes"
+        run: |
+          git push --force \
+            git@github.com:tucanchasena-tech/tucanchasena1.git \
+            HEAD:main

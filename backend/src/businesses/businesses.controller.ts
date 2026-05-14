@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto, UpdateBusinessDto } from './dto/business.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('businesses')
@@ -13,8 +14,8 @@ export class BusinessesController {
 
   @Get()
   @Roles('admin')
-  findAll() {
-    return this.businesses.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.businesses.findAll(pagination);
   }
 
   @Get('my-businesses')
