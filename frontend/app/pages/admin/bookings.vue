@@ -47,8 +47,17 @@
             size="small"
             :href="item.paymentProofUrl"
             target="_blank"
+            aria-label="Ver comprobante de pago"
           />
           <span v-else class="text-caption text-medium-emphasis">—</span>
+        </template>
+        <template #no-data>
+          <EmptyState
+            icon="mdi-calendar-remove-outline"
+            title="Sin reservas registradas"
+            description="Aún no hay reservas en el sistema."
+            class="my-4"
+          />
         </template>
       </v-data-table>
     </v-card>
@@ -85,9 +94,15 @@ const filteredBookings = computed(() => {
   return bookings.value.filter(b => b.status === statusFilter.value)
 })
 
-onMounted(async () => {
+const fetchError = ref(false)
+
+const loadBookings = async () => {
   loading.value = true
+  fetchError.value = false
   try { bookings.value = await apiFetch<any[]>('/bookings') }
+  catch { fetchError.value = true }
   finally { loading.value = false }
-})
+}
+
+onMounted(loadBookings)
 </script>

@@ -228,3 +228,43 @@ Ambos proyectos tienen `nixpacks.toml` y `railway.json`. No se necesita Docker.
 
 - El rol `bussines` mantiene la grafía original del frontend. Si quieres corregirlo a `business`, actualiza el enum en `backend/prisma/schema.prisma`, los `class-validator` `@IsIn` y los chequeos de `role` en el frontend (`stores/auth.ts`, páginas, middleware).
 - Los archivos de `paymentProof` se guardan en `backend/uploads/` y se sirven en `/uploads/<archivo>`. En Railway se pierden entre deploys salvo que añadas un volumen persistente montado en `/app/uploads` o uses S3/Cloudinary.
+
+---
+
+## UI reutilizable, copy ES y accesibilidad (Paquete 5 — MVP-1)
+
+### Nuevos componentes en `frontend/app/components/ui/`
+
+| Componente | Props | Uso |
+|---|---|---|
+| `EmptyState.vue` | `icon`, `iconColor`, `title`, `description` + slot `#action` | Listas vacías con CTA opcional |
+| `ErrorState.vue` | `message` + evento `@retry` | Error de carga con botón Reintentar |
+| `LoadingState.vue` | `count`, `cols`, `sm`, `lg`, `type` | Skeleton de tarjetas mientras carga |
+
+### Nuevo composable `frontend/app/composables/useCopy.ts`
+
+Centraliza textos en español para validaciones, roles, estados de reserva, acciones y errores.
+Evita duplicar strings en cada página.
+
+```ts
+const copy = useCopy()
+copy.validation.required   // 'Este campo es requerido'
+copy.roles.business        // 'Negocio'
+copy.bookingStatus.pending // 'Pendiente'
+```
+
+### 3 páginas con peor UX — mejoradas
+
+| # | Página | Problema original | Mejora aplicada |
+|---|---|---|---|
+| 1 | `client/courts/index.vue` | Spinner desnudo sin skeleton, estado vacío con `v-alert` genérico sin CTA, sin estado de error | `LoadingState` con skeleton de tarjetas, `EmptyState` con botón "Limpiar filtros", `ErrorState` con retry |
+| 2 | `admin/bookings.vue` | Sin estado vacío alguno en la tabla, botón de comprobante sin `aria-label` | Slot `#no-data` con `EmptyState`, `aria-label="Ver comprobante de pago"` en botón icono |
+| 3 | `business/bookings.vue` | Botones de navegación del calendario sin `aria-label`, bloques de reserva no accesibles por teclado, estado vacío con `v-alert` genérico | `aria-label` en chevrons, `role="button" tabindex="0"` + keyboard handler en booking-blocks, `EmptyState` |
+
+### Accesibilidad aplicada en toda la app
+
+- `aria-label` explícito en todos los botones de icono sin texto visible
+- `aria-hidden="true"` en iconos decorativos
+- `role="button"` + `tabindex="0"` + handler `@keydown.enter.space` en elementos clickeables no nativos
+- `aria-labelledby` en el dialog de detalle de reserva (`business/bookings.vue`)
+- `:focus-visible` con color de marca en todos los elementos interactivos (ver `assets/main.css`)

@@ -60,7 +60,7 @@ Objetivo: la app se despliega en Railway, un cliente puede completar una reserva
 - Validar env al arranque en `main.ts`: abortar si `JWT_SECRET < 32` chars o falta; en `NODE_ENV=production` rechazar `CORS_ORIGIN=*` o vacío.
 - Rate limit con `@nestjs/throttler` en `POST /api/auth/login` y `POST /api/auth/register`: 5 req/min/IP.
 
-### Paquete 2 — Migración `bussines → business` full-stack (P2)
+### Paquete 2 — Migración `bussines → business` full-stack (P2) (angie)
 
 - Migración Prisma: `ALTER TYPE "UserRole" RENAME VALUE 'bussines' TO 'business'`.
 - Backend: `@IsIn(['admin','business','client'])` en DTOs, comparaciones de `role` en guards, `bookings.service.ts`, `courts.controller.ts`, seed.
@@ -69,14 +69,14 @@ Objetivo: la app se despliega en Railway, un cliente puede completar una reserva
 - Actualizar seed para que cree usuarios con `business`.
 - Merge rápido y temprano para evitar conflictos con 3 y 4.
 
-### Paquete 3 — Plugin `$fetch` + stores migrados (P3)
+### Paquete 3 — Plugin `$fetch` + stores migrados (P3) (said)
 
 - `plugins/api.client.ts` con `$fetch.create` interceptado: inyecta `Authorization` desde `useAuthStore`, 401 → logout + redirect a `/auth/login`, 5xx → toast genérico, propaga el resto del error con tipos.
 - Composable `useApiError(err)` que mapea errores comunes a mensajes en español.
 - Sistema de toasts compartido (snackbar global Vuetify) expuesto vía `useToast`.
 - Repasar los stores existentes (`stores/bookings.ts`, `stores/courts.ts`, `stores/businesses.ts`) para que llamen al `$fetch` interceptado en vez de `fetch` directo. Manejar `loading`, `error` y caché simple.
 
-### Paquete 4 — Flujo de reserva del cliente (P4)
+### Paquete 4 — Flujo de reserva del cliente (P4) (edwin)
 
 - `pages/client/courts/[courtId]/book.vue` end-to-end: selector de fecha (`v-date-picker`), render de slots disponibles consumiendo `GET /api/bookings/availability`, subida de comprobante con preview, paso de confirmación final.
 - Componentes nuevos en `frontend/app/components/booking/`: `BookingDateTimePicker.vue`, `BookingPaymentUpload.vue`, `BookingConfirmation.vue`.
@@ -91,7 +91,7 @@ Objetivo: la app se despliega en Railway, un cliente puede completar una reserva
 - Accesibilidad mínima: `aria-label` en iconos sin texto, foco visible (`:focus-visible` en tema Vuetify), navegación por teclado en el dialog de reserva y en los menús de aprobación.
 - Lista priorizada en `README.md` o issue tracker de las 3 páginas con peor UX actual y qué se mejoró.
 
-### Paquete 6 — Testing backend automatizado (P6)
+### Paquete 6 — Testing backend automatizado (P6) (katty)
 
 - Instalar `jest`, `ts-jest`, `@nestjs/testing` y dejar `npm test` verde en backend.
 - Reparar `auth.service.spec.ts` y `bookings.service.spec.ts` tras el cambio a `prisma.$transaction` y los tipos de `auth.service`.
@@ -99,7 +99,7 @@ Objetivo: la app se despliega en Railway, un cliente puede completar una reserva
 - Cobertura de happy path para `auth.service` (register, login, me) y `bookings.service` (create, approve, reject, cancel).
 - `npm test` se ejecuta en menos de 30s y es ejecutable sin red (BD en memoria con mocks de Prisma o testcontainers locales).
 
-### Paquete 7 — Smoke E2E + Playwright + qa-smoke.md (P7)
+### Paquete 7 — Smoke E2E + Playwright + qa-smoke.md (P7) (oscar)
 
 - `qa-smoke.md` con checklist E2E manual: registro cliente → login → reserva → aprobación negocio → cancelación. Crear el archivo **después** de correr el flujo, no antes.
 - Setup de Playwright en `frontend/tests/e2e/` con un test del flujo crítico (registro → reserva → estado pending). El test arranca el backend y frontend buildados.
