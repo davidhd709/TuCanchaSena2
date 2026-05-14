@@ -36,6 +36,18 @@ Object.defineProperty(window, 'matchMedia', {
  * jsdom sí los implementa, pero a veces es útil resetearlos entre tests.
  */
 beforeEach(() => {
+  vi.stubGlobal('localStorage', {
+    clear: vi.fn(),
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+  })
+  vi.stubGlobal('sessionStorage', {
+    clear: vi.fn(),
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+  })
   localStorage.clear()
   sessionStorage.clear()
 })
