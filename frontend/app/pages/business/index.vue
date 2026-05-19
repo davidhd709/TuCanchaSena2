@@ -481,9 +481,9 @@ onMounted(loadBusiness)
 }
 .mn-status-dot { width: 7px; height: 7px; border-radius: 50%; }
 .mn-status.is-on { color: var(--green-bright); }
-.mn-status.is-on .mn-status-dot { background: var(--green-primary); }
-.mn-status.is-off { color: #f87171; }
-.mn-status.is-off .mn-status-dot { background: #ef4444; }
+.mn-status.is-on .mn-status-dot { background: var(--green-bright); }
+.mn-status.is-off { color: #fca5a5; }
+.mn-status.is-off .mn-status-dot { background: var(--accent-error); }
 .mn-biz-desc {
   font-size: 0.88rem;
   color: var(--text-muted);
@@ -600,28 +600,9 @@ onMounted(loadBusiness)
   margin-bottom: 12px;
 }
 
-.mn-form-card {
-  background: linear-gradient(180deg, #1a212c, #151b24) !important;
-}
 .mn-form-grid {
   display: grid;
   gap: 12px;
-}
-.mn-form-actions {
-  position: sticky;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(21, 27, 36, 0.72), rgba(21, 27, 36, 0.95));
-  backdrop-filter: blur(6px);
-}
-:deep(.mn-form-card .v-field) {
-  border-color: rgba(47, 161, 138, 0.28) !important;
-}
-:deep(.mn-form-card .v-field:hover) {
-  border-color: rgba(47, 161, 138, 0.4) !important;
-}
-:deep(.mn-form-card .v-field--focused) {
-  border-color: rgba(47, 161, 138, 0.6) !important;
-  box-shadow: 0 0 0 3px rgba(47, 161, 138, 0.18) !important;
 }
 
 @media (max-width: 880px) {

@@ -26,11 +26,11 @@ const props = withDefaults(
 )
 
 const ACCENT: Record<string, { bg: string; fg: string }> = {
-  primary: { bg: 'rgba(47, 161, 138, 0.14)', fg: '#4ade80' },
-  success: { bg: 'rgba(47, 161, 138, 0.14)', fg: '#4ade80' },
-  warning: { bg: 'rgba(47,161,138,0.14)', fg: '#6ee7b7' },
-  info: { bg: 'rgba(59,130,246,0.14)', fg: '#60a5fa' },
-  error: { bg: 'rgba(239,68,68,0.14)', fg: '#f87171' },
+  primary: { bg: 'var(--green-soft)', fg: 'var(--green-bright)' },
+  success: { bg: 'var(--accent-success-soft)', fg: '#86efac' },
+  warning: { bg: 'var(--accent-warning-soft)', fg: 'var(--accent-warning)' },
+  info: { bg: 'var(--accent-info-soft)', fg: '#93c5fd' },
+  error: { bg: 'var(--accent-error-soft)', fg: '#fca5a5' },
 }
 
 const accentStyle = computed(() => {

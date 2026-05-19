@@ -540,10 +540,10 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.22), transparent 55%),
-    linear-gradient(135deg, #1e2b35, #0f141c);
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
 }
-.bc-card-img--ph .mdi { font-size: 2.8rem; color: rgba(47, 161, 138, 0.5); }
+.bc-card-img--ph .mdi { font-size: 2.8rem; color: rgba(52, 198, 146, 0.55); }
 .bc-card-status {
   position: absolute;
   top: 10px;
@@ -554,18 +554,18 @@ onMounted(async () => {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 5px 10px;
-  border-radius: 100px;
-  background: rgba(6, 8, 16, 0.8);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(12, 16, 20, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-medium);
 }
 .bc-card-status-dot { width: 6px; height: 6px; border-radius: 50%; }
 .bc-card-status.is-available { color: var(--green-bright); }
-.bc-card-status.is-available .bc-card-status-dot { background: var(--green-primary); }
-.bc-card-status.is-unavailable { color: #f87171; }
-.bc-card-status.is-unavailable .bc-card-status-dot { background: #ef4444; }
-.bc-card-status.is-maintenance { color: #60a5fa; }
-.bc-card-status.is-maintenance .bc-card-status-dot { background: #3b82f6; }
+.bc-card-status.is-available .bc-card-status-dot { background: var(--green-bright); }
+.bc-card-status.is-unavailable { color: #fca5a5; }
+.bc-card-status.is-unavailable .bc-card-status-dot { background: var(--accent-error); }
+.bc-card-status.is-maintenance { color: #93c5fd; }
+.bc-card-status.is-maintenance .bc-card-status-dot { background: var(--accent-info); }
 
 .bc-card-body { display: flex; flex-direction: column; padding: 15px 16px 16px; flex: 1; }
 .bc-card-top {
@@ -593,9 +593,9 @@ onMounted(async () => {
   font-size: 0.78rem;
   color: var(--text-muted);
 }
-.bc-stat .mdi { font-size: 0.95rem; color: var(--green-primary); }
-.bc-stat.is-accent { color: #4ade80; }
-.bc-stat.is-accent .mdi { color: #4ade80; }
+.bc-stat .mdi { font-size: 0.95rem; color: var(--green-bright); }
+.bc-stat.is-accent { color: var(--green-bright); }
+.bc-stat.is-accent .mdi { color: var(--green-bright); }
 
 .bc-card-slots { margin-top: 12px; }
 .bc-slots-label {

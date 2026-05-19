@@ -848,31 +848,38 @@ onUnmounted(() => clearInterval(_timer))
   z-index: 4 !important;
 }
 
+/* Colores de bloque alineados con BookingStatusChip (mismo "idioma" visual). */
 .booking-pending {
-  background: rgba(34, 197, 94, .2);
-  border-left-color: #22c55e;
-  color: #bbf7d0;
+  background: var(--accent-warning-soft);
+  border-left-color: var(--accent-warning);
+  color: #f5d28a;
 }
 .booking-confirmed {
-  background: rgba(47, 161, 138, .2);
+  background: var(--green-soft);
   border-left-color: var(--green-bright);
   color: #86efac;
 }
 .booking-completed {
-  background: rgba(59, 130, 246, .2);
-  border-left-color: #3b82f6;
+  background: var(--accent-info-soft);
+  border-left-color: var(--accent-info);
   color: #93c5fd;
 }
-.booking-cancelled {
-  background: rgba(148, 163, 184, .16);
-  border-left-color: #94a3b8;
-  color: #cbd5e1;
-  opacity: .7;
+.booking-cancelled,
+.booking-rejected {
+  background: var(--accent-error-soft);
+  border-left-color: var(--accent-error);
+  color: #fca5a5;
+  opacity: .8;
 }
 .booking-no_show {
-  background: rgba(168, 85, 247, .18);
-  border-left-color: #a855f7;
-  color: #d8b4fe;
+  background: var(--accent-neutral-soft);
+  border-left-color: var(--accent-neutral);
+  color: #cbd5e1;
+}
+.booking-expired {
+  background: rgba(100, 116, 139, .18);
+  border-left-color: #64748b;
+  color: #94a3b8;
 }
 
 .booking-title {
