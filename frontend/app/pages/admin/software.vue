@@ -199,24 +199,19 @@ onMounted(async () => {
 <style scoped>
 .sw-placeholder {
   background:
-    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.2), transparent 55%),
-    linear-gradient(135deg, #1e2b35, #0f141c);
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
   border-bottom: 1px solid var(--border-soft);
 }
 .admin-sw-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, #1a2027, #161c23) !important;
-  border-radius: 20px !important;
-}
-.admin-dialog-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, #1a2027, #161c23) !important;
-  border-radius: 20px !important;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card) !important;
+  border-radius: var(--radius-lg) !important;
 }
 :deep(.v-chip) {
   font-weight: 700;
 }
 :deep(.v-card-actions) {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--border-soft);
 }
 </style>

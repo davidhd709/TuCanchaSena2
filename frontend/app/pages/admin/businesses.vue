@@ -420,14 +420,9 @@ onMounted(async () => {
 
 <style scoped>
 .admin-biz-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, #1a2027, #161c23) !important;
-  border-radius: 20px !important;
-}
-.admin-dialog-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, #1a2027, #161c23) !important;
-  border-radius: 20px !important;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card) !important;
+  border-radius: var(--radius-lg) !important;
 }
 :deep(.v-card-text .text-subtitle-2) {
   font-size: 1rem;
@@ -437,6 +432,6 @@ onMounted(async () => {
   font-weight: 700;
 }
 :deep(.v-card-actions) {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--border-soft);
 }
 </style>

@@ -110,12 +110,12 @@ onMounted(loadBookings)
 
 <style scoped>
 .admin-shell-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, #1a2027, #161c23) !important;
-  border-radius: 20px !important;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card) !important;
+  border-radius: var(--radius-lg) !important;
 }
 :deep(.v-data-table .v-table__wrapper table tbody tr:hover) {
-  background: rgba(111, 230, 140, 0.04);
+  background: var(--green-soft);
 }
 :deep(.v-data-table .v-table__wrapper table tbody td) {
   padding-top: 10px !important;
