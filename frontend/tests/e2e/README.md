@@ -89,6 +89,33 @@ condiciones de carrera al consumir slots de una misma cancha.
 Los artefactos van a `frontend/test-results/` y `frontend/playwright-report/`,
 ambos ignorados por git. No subir traces, screenshots ni videos al repo.
 
+## QA visual sobre build estable (no HMR)
+
+Para revisión visual del rediseño (en lugar de `npm run dev`, que tiene HMR
+y puede mostrar flickering / re-renders intermedios), corre el build de
+producción local:
+
+```bash
+cd frontend
+npm run build            # genera .output/
+npm run preview          # alias de `nuxt preview` — sirve el build en :3000
+```
+
+`preview` sirve los chunks finales de Nitro/Vite tal como van a producción:
+sin HMR, sin source-maps inline, con tree-shaking aplicado. Es lo que debes
+abrir en el navegador para validar:
+
+- Responsivo en `360 / 390 / 768 / 1024 / 1440` (DevTools → Toggle device).
+- Pantalla de pago: bloque de confianza visible antes del CTA.
+- Detalle de negocio: acordeones se ven claramente como expansión en móvil.
+- Hero home: CTA principal + 3 beneficios sobre el primer pliegue en 360/390.
+- Panel business → Reservas: botones Confirmar/Rechazar tocables en cards
+  pending (mínimo 44 px de alto en móvil).
+
+Para reproducir botones inline Confirmar/Rechazar en QA: crea una reserva
+desde el cliente y sube comprobante; quedará `pending` y aparecerá en el
+panel del business.
+
 ## Limitaciones conocidas
 
 - Si corres la suite varias veces sin re-seedear la DB, los slots del día `+1`

@@ -1008,12 +1008,17 @@ onUnmounted(() => clearInterval(_timer))
 }
 .bk-card-quick {
   display: flex;
-  gap: 8px;
-  padding: 10px 16px 14px;
+  gap: 10px;
+  padding: 12px 16px 16px;
   border-top: 1px solid var(--border-soft);
   background: rgba(15, 20, 26, 0.4);
 }
-.bk-card-quick .v-btn { flex: 1; }
+.bk-card-quick .v-btn {
+  flex: 1;
+  min-height: 40px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
 
 /* Wrapper colapsable del calendario en móvil. */
 .cal-wrapper > summary { list-style: none; }
@@ -1041,6 +1046,18 @@ onUnmounted(() => clearInterval(_timer))
 @media (max-width: 600px) {
   .bk-cards { grid-template-columns: 1fr; }
   .cal-wrapper-toggle { display: inline-flex; }
+
+  /* Acciones rápidas más tocables en móvil: altura mínima 44px (target táctil),
+     gap mayor y separación clara del cuerpo de la card. */
+  .bk-card-quick {
+    padding: 14px 14px 16px;
+    gap: 12px;
+  }
+  .bk-card-quick .v-btn { min-height: 44px; font-size: .92rem; }
+  .bk-card.is-pending {
+    border-color: rgba(47, 161, 138, 0.45);
+    box-shadow: 0 0 0 2px rgba(47, 161, 138, 0.16), var(--shadow-sm);
+  }
 }
 
 /* Desktop/tablet: el calendario siempre visible, sin toggle. */

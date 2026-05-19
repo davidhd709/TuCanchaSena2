@@ -409,6 +409,58 @@ onMounted(loadBusiness)
 .biz-collapsible[open] > summary .biz-collapsible-caret { transform: rotate(180deg); }
 .biz-panel-section + .biz-panel-divider { margin-block: 12px; }
 
+/* Móvil: los <details> se ven claramente como "expansion panels" con borde,
+   fondo sutil, padding y caret destacado. Solo cambia su presentación en móvil;
+   desktop conserva el reset del media query de abajo. */
+@media (max-width: 880px) {
+  .biz-collapsible {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 0;
+    margin-bottom: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .biz-collapsible[open] {
+    border-color: rgba(47, 161, 138, 0.35);
+    box-shadow: 0 1px 0 rgba(47, 161, 138, 0.08) inset;
+  }
+  .biz-collapsible > summary {
+    padding: 14px 16px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+  }
+  .biz-collapsible > summary:focus-visible {
+    outline: 2px solid var(--green-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
+  }
+  .biz-collapsible-head { margin-bottom: 0 !important; }
+  .biz-collapsible[open] > summary { border-bottom: 1px solid var(--border-soft); }
+  .biz-collapsible[open] > *:not(summary) { padding: 14px 16px 16px; }
+  .biz-collapsible-caret {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    background: rgba(47, 161, 138, 0.12);
+    color: var(--green-bright);
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  /* En móvil el panel de horarios/contacto pierde su contorno propio porque
+     cada sección interna ya es una card colapsable. */
+  .biz-panel {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  .biz-panel-divider { display: none; }
+}
+
 /* Responsive */
 @media (max-width: 880px) {
   .biz-grid { grid-template-columns: 1fr; gap: 24px; }

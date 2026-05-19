@@ -83,6 +83,32 @@
 
               <v-alert v-if="genericError" type="error" variant="tonal" rounded="lg" class="mb-3">{{ genericError }}</v-alert>
 
+              <!-- Bloque de confianza destacado, justo antes del CTA. -->
+              <aside class="pay-trust-card" aria-label="Garantías de tu reserva">
+                <h3 class="pay-trust-title">
+                  <span class="mdi mdi-shield-check-outline" />
+                  Tu reserva está protegida
+                </h3>
+                <ul class="pay-trust-list">
+                  <li>
+                    <span class="mdi mdi-check-circle" />
+                    Tu comprobante será revisado por el negocio.
+                  </li>
+                  <li>
+                    <span class="mdi mdi-check-circle" />
+                    La reserva queda pendiente mientras se valida el pago.
+                  </li>
+                  <li>
+                    <span class="mdi mdi-check-circle" />
+                    Si el pago no es aprobado, el horario se libera automáticamente.
+                  </li>
+                  <li>
+                    <span class="mdi mdi-check-circle" />
+                    Conserva tu comprobante hasta la confirmación.
+                  </li>
+                </ul>
+              </aside>
+
               <v-btn type="submit" color="primary" block size="large" :loading="flowState === 'submitting'" :disabled="!canSubmit">
                 Enviar comprobante
               </v-btn>
@@ -284,6 +310,47 @@ const submitBooking = async () => {
   color: #8a96a3;
 }
 .pay-trust .mdi { color: #6ee7b7; font-size: 1rem; }
+
+/* Card de confianza prominente antes del CTA. */
+.pay-trust-card {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(47, 161, 138, 0.14), rgba(15, 20, 26, 0.85));
+  border: 1px solid rgba(47, 161, 138, 0.32);
+}
+.pay-trust-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .95rem;
+  font-weight: 800;
+  color: #e8edf3;
+  margin: 0 0 10px;
+}
+.pay-trust-title .mdi { color: #6ee7b7; font-size: 1.3rem; }
+.pay-trust-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pay-trust-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #c8ced6;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+.pay-trust-list .mdi {
+  flex-shrink: 0;
+  color: #6ee7b7;
+  font-size: 1.05rem;
+  margin-top: 1px;
+}
 
 /* Resumen móvil compacto al tope (visible solo en móvil — ver media query). */
 .pay-summary-mobile {

@@ -48,13 +48,24 @@
             <span class="mdi mdi-soccer"></span>
             Plataforma #1 de canchas sintéticas
           </span>
+          <!-- Título: versión larga para desktop, versión corta solo móvil. -->
           <h1 class="hero-title">
-            Reserva tu cancha y<br>
-            <span class="hero-title-accent">juega como un profesional!</span>
+            <span class="hero-title-desktop">
+              Reserva tu cancha y<br>
+              <span class="hero-title-accent">juega como un profesional!</span>
+            </span>
+            <span class="hero-title-mobile">
+              Reserva tu cancha
+            </span>
           </h1>
           <p class="hero-subtitle">
-            Encuentra las mejores canchas sintéticas cerca de ti.
-            Reserva en segundos, juega sin complicaciones.
+            <span class="hero-subtitle-desktop">
+              Encuentra las mejores canchas sintéticas cerca de ti.
+              Reserva en segundos, juega sin complicaciones.
+            </span>
+            <span class="hero-subtitle-mobile">
+              Encuentra y reserva canchas sintéticas en minutos.
+            </span>
           </p>
           <div class="hero-actions">
             <NuxtLink to="/auth/register" class="btn-hero-primary" id="hero-cta-register">
@@ -66,6 +77,22 @@
               ¿Cómo funciona?
             </a>
           </div>
+
+          <!-- Beneficios rápidos — visibles solo en móvil para reforzar la propuesta de valor. -->
+          <ul class="hero-perks" aria-label="Por qué reservar con TuCancha">
+            <li>
+              <span class="mdi mdi-clock-fast" />
+              Reserva en minutos
+            </li>
+            <li>
+              <span class="mdi mdi-shield-check-outline" />
+              Negocios verificados
+            </li>
+            <li>
+              <span class="mdi mdi-bank-transfer" />
+              Pago por transferencia con comprobante
+            </li>
+          </ul>
         </div>
 
         <!-- Stats bar -->
@@ -1149,6 +1176,14 @@ const features = [
   .features-grid { grid-template-columns: 1fr 1fr; }
 }
 
+/* Variantes desktop/móvil de título y subtítulo:
+   por default mostramos la versión "desktop" y ocultamos la móvil. */
+.hero-title-mobile,
+.hero-subtitle-mobile { display: none; }
+
+/* Beneficios rápidos — solo se muestran en móvil. */
+.hero-perks { display: none; }
+
 @media (max-width: 680px) {
   .nav-links {
     display: none;
@@ -1171,11 +1206,61 @@ const features = [
     min-height: auto;
     padding: 90px 20px 32px;
   }
-  .hero-content { gap: 28px; max-width: 100%; }
+  .hero-content { gap: 22px; max-width: 100%; }
   .hero-text { gap: 14px; }
-  .hero-title { font-size: clamp(1.7rem, 7vw, 2.3rem); line-height: 1.15; }
+  .hero-title { font-size: clamp(1.9rem, 8vw, 2.4rem); line-height: 1.15; }
   .hero-subtitle { font-size: .95rem; line-height: 1.5; }
   .hero-badge { font-size: .72rem; padding: 4px 12px; }
+
+  /* Cambio de copy: versión corta móvil. */
+  .hero-title-desktop,
+  .hero-subtitle-desktop { display: none; }
+  .hero-title-mobile,
+  .hero-subtitle-mobile { display: inline; }
+
+  /* CTA secundario "¿Cómo funciona?" pasa a enlace discreto bajo el primario. */
+  .hero-actions { gap: 10px; }
+  .btn-hero-secondary {
+    background: transparent !important;
+    border: none !important;
+    color: #b8c0ca !important;
+    padding: 4px 0 !important;
+    font-size: .85rem !important;
+    font-weight: 600 !important;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    opacity: .9;
+  }
+  .btn-hero-secondary:hover { opacity: 1; color: #6ee7b7 !important; }
+
+  /* Beneficios rápidos. */
+  .hero-perks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 14px 16px;
+    margin: 0;
+    background: rgba(47, 161, 138, 0.08);
+    border: 1px solid rgba(47, 161, 138, 0.22);
+    border-radius: 16px;
+    text-align: left;
+    width: 100%;
+  }
+  .hero-perks li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #e8edf3;
+    font-size: .92rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .hero-perks .mdi {
+    font-size: 1.2rem;
+    color: #6ee7b7;
+    flex-shrink: 0;
+  }
 
   /* Stats compactos en fila — más abajo del CTA, con divisores horizontales. */
   .hero-stats {
@@ -1196,13 +1281,16 @@ const features = [
 @media (max-width: 480px) {
   .courts-grid { grid-template-columns: 1fr; }
   .hero-actions { flex-direction: column; width: 100%; }
-  .btn-hero-primary,
-  .btn-hero-secondary { width: 100%; justify-content: center; }
+  .btn-hero-primary { width: 100%; justify-content: center; }
+  /* En 480 el enlace secundario queda centrado debajo del CTA. */
+  .btn-hero-secondary { width: auto; justify-content: center; }
 }
 
 @media (max-width: 390px) {
   .hero { padding: 80px 16px 24px; }
-  .hero-title { font-size: 1.55rem; }
+  .hero-title { font-size: 1.75rem; }
   .hero-subtitle { font-size: .88rem; }
+  .hero-perks { padding: 12px 14px; }
+  .hero-perks li { font-size: .88rem; }
 }
 </style>
