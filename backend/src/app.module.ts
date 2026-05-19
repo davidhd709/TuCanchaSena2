@@ -18,7 +18,14 @@ import { UploadsModule } from './uploads/uploads.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+    // Rate limit por IP. Configurable por env para que el E2E pueda subirlo
+    // (cada corrida de Playwright hace decenas de requests por minuto).
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: Number(process.env.THROTTLER_LIMIT ?? 100),
+      },
+    ]),
     PrismaModule,
     UploadsModule,
     AuthModule,

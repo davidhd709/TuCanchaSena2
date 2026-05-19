@@ -14,7 +14,10 @@
     "start": "node .output/server/index.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:cov": "vitest run --coverage"
+    "test:cov": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install --with-deps chromium"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

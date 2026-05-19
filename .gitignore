@@ -10,13 +10,20 @@ node_modules
 
 mis-tareas-backend.md
 plan-mvp.md
-README.md
+/README.md
 qa-smoke.md
 skills-lock.json
 TuCancha_Contexto.md
 
 # Playwright MCP artifacts
 .playwright-mcp/
+
+# Playwright E2E artifacts (frontend/tests/e2e)
+test-results/
+playwright-report/
+playwright/.cache/
+**/test-results/
+**/playwright-report/
 
 # Local test artifacts
 proof-demo.pdf

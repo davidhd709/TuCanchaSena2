@@ -36,11 +36,16 @@ function validateEnv(config: ConfigService) {
 function resolveCorsOrigins(config: ConfigService): string[] {
   const raw = config.get<string>('CORS_ORIGIN');
   const isProd = config.get<string>('NODE_ENV') === 'production';
-  if (raw && raw.trim() !== '') {
-    return raw.split(',').map((o) => o.trim()).filter(Boolean);
+  const fromEnv = raw && raw.trim() !== ''
+    ? raw.split(',').map((o) => o.trim()).filter(Boolean)
+    : [];
+  if (isProd) {
+    // `validateEnv` ya aborta si está vacío en producción; aquí no extendemos.
+    return fromEnv;
   }
-  // En prod `validateEnv` ya aborta si no hay CORS_ORIGIN; aquí solo cubre dev.
-  return isProd ? [] : DEV_CORS_DEFAULTS;
+  // En dev: siempre garantizamos que Nuxt en :3000/:3001 y 127.0.0.1 funcionen,
+  // independientemente de lo que cada developer tenga en su .env.
+  return Array.from(new Set([...fromEnv, ...DEV_CORS_DEFAULTS]));
 }
 
 async function bootstrap() {
