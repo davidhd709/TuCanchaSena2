@@ -260,168 +260,159 @@
       />
     </section>
 
-    <!-- ── Booking detail dialog ────────────────────────────────────────── -->
-    <v-dialog v-model="detailDialog" max-width="480" aria-labelledby="booking-detail-title">
-      <v-card v-if="selectedBooking" rounded="lg">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3 d-flex align-center gap-2">
-          <v-icon color="primary" aria-hidden="true">mdi-calendar-check</v-icon>
-          <span id="booking-detail-title">Detalle de Reserva</span>
-          <v-spacer />
-          <BookingStatusChip :status="selectedBooking.status" />
-        </v-card-title>
-        <v-divider />
-
-        <v-card-text class="pa-5">
-          <v-row dense class="row-gap-3">
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Cancha</div>
-              <div class="text-body-2 font-weight-medium">{{ selectedBooking.court?.name }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Fecha</div>
-              <div class="text-body-2 font-weight-medium">{{ formatDate(selectedBooking.date) }}</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Horario</div>
-              <div class="text-body-2 font-weight-medium">
-                {{ selectedBooking.startTime?.slice(0, 5) }} – {{ selectedBooking.endTime?.slice(0, 5) }}
-              </div>
-            </v-col>
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Duración</div>
-              <div class="text-body-2 font-weight-medium">{{ selectedBooking.durationHours }}h</div>
-            </v-col>
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Cliente</div>
-              <div class="text-body-2 font-weight-medium">
-                {{ selectedBooking.client?.firstName }} {{ selectedBooking.client?.lastName }}
-              </div>
-            </v-col>
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Total</div>
-              <div class="text-body-2 font-weight-bold text-success">
-                ${{ Number(selectedBooking.totalPrice ?? 0).toLocaleString('es-CO') }}
-              </div>
-            </v-col>
-            <v-col cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Método de pago</div>
-              <div class="text-body-2 font-weight-medium">
-                {{ selectedBooking.paymentMethod === 'nequi' ? 'Nequi' : 'Transferencia' }}
-              </div>
-            </v-col>
-            <v-col v-if="selectedBooking.paymentProof" cols="6">
-              <div class="text-caption text-medium-emphasis mb-1">Comprobante</div>
-              <v-btn
-                size="x-small"
-                variant="tonal"
-                color="primary"
-                prepend-icon="mdi-image"
-                :href="selectedBooking.paymentProof"
-                target="_blank"
-              >
-                Ver imagen
-              </v-btn>
-            </v-col>
-            <v-col v-if="selectedBooking.notes" cols="12">
-              <div class="text-caption text-medium-emphasis mb-1">Notas del cliente</div>
-              <div class="text-body-2">{{ selectedBooking.notes }}</div>
-            </v-col>
-            <v-col v-if="selectedBooking.cancellationReason" cols="12">
-              <div class="text-caption text-medium-emphasis mb-1">Motivo de cancelación</div>
-              <div class="text-body-2 text-error">{{ selectedBooking.cancellationReason }}</div>
-            </v-col>
-          </v-row>
-        </v-card-text>
-
+    <!-- ── Booking detail dialog (AppModalShell) ────────────────────────── -->
+    <AppModalShell
+      v-model="detailDialog"
+      title="Detalle de Reserva"
+      :width="480"
+    >
+      <template v-if="selectedBooking" #tag>
+        <BookingStatusChip :status="selectedBooking.status" />
+      </template>
+      <template v-if="selectedBooking" #body>
+        <v-row dense class="row-gap-3">
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Cancha</div>
+            <div class="text-body-2 font-weight-medium">{{ selectedBooking.court?.name }}</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Fecha</div>
+            <div class="text-body-2 font-weight-medium">{{ formatDate(selectedBooking.date) }}</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Horario</div>
+            <div class="text-body-2 font-weight-medium">
+              {{ selectedBooking.startTime?.slice(0, 5) }} – {{ selectedBooking.endTime?.slice(0, 5) }}
+            </div>
+          </v-col>
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Duración</div>
+            <div class="text-body-2 font-weight-medium">{{ selectedBooking.durationHours }}h</div>
+          </v-col>
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Cliente</div>
+            <div class="text-body-2 font-weight-medium">
+              {{ selectedBooking.client?.firstName }} {{ selectedBooking.client?.lastName }}
+            </div>
+          </v-col>
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Total</div>
+            <div class="text-body-2 font-weight-bold text-success">
+              ${{ Number(selectedBooking.totalPrice ?? 0).toLocaleString('es-CO') }}
+            </div>
+          </v-col>
+          <v-col cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Método de pago</div>
+            <div class="text-body-2 font-weight-medium">
+              {{ selectedBooking.paymentMethod === 'nequi' ? 'Nequi' : 'Transferencia' }}
+            </div>
+          </v-col>
+          <v-col v-if="selectedBooking.paymentProof" cols="6">
+            <div class="text-caption text-medium-emphasis mb-1">Comprobante</div>
+            <v-btn
+              size="x-small"
+              variant="tonal"
+              color="primary"
+              prepend-icon="mdi-image"
+              :href="selectedBooking.paymentProof"
+              target="_blank"
+            >
+              Ver imagen
+            </v-btn>
+          </v-col>
+          <v-col v-if="selectedBooking.notes" cols="12">
+            <div class="text-caption text-medium-emphasis mb-1">Notas del cliente</div>
+            <div class="text-body-2">{{ selectedBooking.notes }}</div>
+          </v-col>
+          <v-col v-if="selectedBooking.cancellationReason" cols="12">
+            <div class="text-caption text-medium-emphasis mb-1">Motivo de cancelación</div>
+            <div class="text-body-2 text-error">{{ selectedBooking.cancellationReason }}</div>
+          </v-col>
+        </v-row>
+      </template>
+      <template v-if="selectedBooking" #footer>
         <!-- Actions: pending -->
         <template v-if="selectedBooking.status === 'pending'">
-          <v-divider />
-          <v-card-actions class="pa-4 gap-2 flex-wrap">
-            <v-btn
-              color="success" variant="flat" size="small" prepend-icon="mdi-check"
-              :loading="actionLoading === 'confirm'"
-              @click="confirmBooking"
-            >
-              Confirmar
-            </v-btn>
-            <v-btn
-              color="error" variant="tonal" size="small" prepend-icon="mdi-close"
-              @click="openReject"
-            >
-              Rechazar
-            </v-btn>
-            <v-spacer />
-            <v-btn variant="text" size="small" @click="detailDialog = false">Cerrar</v-btn>
-          </v-card-actions>
+          <v-btn
+            color="success" variant="flat" size="small" prepend-icon="mdi-check"
+            :loading="actionLoading === 'confirm'"
+            @click="confirmBooking"
+          >
+            Confirmar
+          </v-btn>
+          <v-btn
+            color="error" variant="tonal" size="small" prepend-icon="mdi-close"
+            @click="openReject"
+          >
+            Rechazar
+          </v-btn>
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="detailDialog = false">Cerrar</v-btn>
         </template>
-
         <!-- Actions: confirmed -->
         <template v-else-if="selectedBooking.status === 'confirmed'">
-          <v-divider />
-          <v-card-actions class="pa-4 gap-2 flex-wrap">
-            <v-btn
-              color="info" variant="flat" size="small" prepend-icon="mdi-flag-checkered"
-              :loading="actionLoading === 'complete'"
-              @click="completeBooking"
-            >
-              Completar
-            </v-btn>
-            <v-btn
-              color="secondary" variant="tonal" size="small" prepend-icon="mdi-account-off"
-              :loading="actionLoading === 'noshow'"
-              @click="noShowBooking"
-            >
-              No Show
-            </v-btn>
-            <v-spacer />
-            <v-btn
-              color="error" variant="text" size="small"
-              @click="cancelDialog = true"
-            >
-              Cancelar
-            </v-btn>
-          </v-card-actions>
+          <v-btn
+            color="info" variant="flat" size="small" prepend-icon="mdi-flag-checkered"
+            :loading="actionLoading === 'complete'"
+            @click="completeBooking"
+          >
+            Completar
+          </v-btn>
+          <v-btn
+            color="secondary" variant="tonal" size="small" prepend-icon="mdi-account-off"
+            :loading="actionLoading === 'noshow'"
+            @click="noShowBooking"
+          >
+            No Show
+          </v-btn>
+          <v-spacer />
+          <v-btn
+            color="error" variant="text" size="small"
+            @click="cancelDialog = true"
+          >
+            Cancelar
+          </v-btn>
         </template>
-
         <!-- No actions for terminal states -->
         <template v-else>
-          <v-divider />
-          <v-card-actions class="pa-4">
-            <v-spacer />
-            <v-btn variant="text" @click="detailDialog = false">Cerrar</v-btn>
-          </v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="detailDialog = false">Cerrar</v-btn>
         </template>
-      </v-card>
-    </v-dialog>
+      </template>
+    </AppModalShell>
 
-    <!-- ── Cancel confirm dialog ──────────────────────────────────────────── -->
-    <v-dialog v-model="cancelDialog" max-width="420">
-      <v-card rounded="lg">
-        <v-card-text class="pa-6 text-center">
-          <v-icon size="52" color="error" class="mb-3">mdi-calendar-remove</v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">¿Cancelar reserva?</h3>
+    <!-- ── Cancel confirm dialog (AppModalShell) ────────────────────────── -->
+    <AppModalShell
+      v-model="cancelDialog"
+      title="¿Cancelar reserva?"
+      subtitle="Esta acción no se puede deshacer."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-calendar-remove</v-icon>
           <p class="text-body-2 text-medium-emphasis">
-            Esta acción no se puede deshacer. La reserva de
+            La reserva de
             <strong>{{ selectedBooking?.client?.firstName }} {{ selectedBooking?.client?.lastName }}</strong>
             en <strong>{{ selectedBooking?.court?.name }}</strong>
             ({{ selectedBooking?.date }} · {{ selectedBooking?.startTime?.slice(0,5) }}–{{ selectedBooking?.endTime?.slice(0,5) }})
             quedará como cancelada.
           </p>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
-          <v-btn
-            color="error"
-            variant="flat"
-            :loading="actionLoading === 'cancel'"
-            @click="confirmCancelBooking"
-          >
-            Sí, cancelar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
+        <v-btn
+          color="error"
+          variant="flat"
+          :loading="actionLoading === 'cancel'"
+          @click="confirmCancelBooking"
+        >
+          Sí, cancelar
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <!-- ── Reject dialog (AppModalShell) ───────────────────────────────────── -->
     <AppModalShell

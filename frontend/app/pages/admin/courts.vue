@@ -53,17 +53,26 @@
       </v-data-table>
     </v-card>
 
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">Eliminar Cancha</v-card-title>
-        <v-card-text>¿Eliminar <strong>{{ selectedCourt?.name }}</strong>?</v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="tonal" :loading="actionLoading" @click="deleteCourt">Eliminar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppModalShell
+      v-model="deleteDialog"
+      title="Eliminar cancha"
+      subtitle="Esta acción no se puede deshacer."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-soccer-field</v-icon>
+          <p class="text-body-2 text-medium-emphasis">
+            Vas a eliminar <strong>{{ selectedCourt?.name }}</strong>.
+          </p>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
+        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteCourt">Eliminar</v-btn>
+      </template>
+    </AppModalShell>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg">{{ snackbar.text }}</v-snackbar>
   </div>

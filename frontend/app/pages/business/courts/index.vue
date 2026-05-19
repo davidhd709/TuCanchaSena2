@@ -206,58 +206,56 @@
     </AppModalShell>
 
     <!-- ─── Availability Dialog ─── -->
-    <v-dialog v-model="availabilityDialog" max-width="780" scrollable>
-      <v-card rounded="xl">
-        <v-card-title class="pa-5 pb-3">
-          <div>
-            <div class="text-subtitle-1 font-weight-bold">Horarios: {{ selectedCourt?.name }}</div>
-            <div class="text-caption text-medium-emphasis">
-              Los slots deben estar dentro del horario de apertura del negocio
-            </div>
-          </div>
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-5">
-          <CourtAvailabilityEditor
-            v-if="availabilityDialog && selectedCourt"
-            :key="availabilityEditorKey"
-            v-model="availabilitySlots"
-            :business-schedules="currentBusinessSchedules"
-            :court-base-price="selectedCourt.pricePerHour"
-          />
-        </v-card-text>
-        <v-divider />
-        <v-card-actions class="pa-4">
-          <v-btn variant="text" prepend-icon="mdi-broom" color="error" @click="availabilitySlots = []">
-            Limpiar todo
-          </v-btn>
-          <v-spacer />
-          <v-btn variant="text" @click="availabilityDialog = false">Cancelar</v-btn>
-          <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveAvailability">
-            Guardar horarios
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <AppModalShell
+      v-model="availabilityDialog"
+      :title="`Horarios: ${selectedCourt?.name ?? ''}`"
+      subtitle="Los slots deben estar dentro del horario de apertura del negocio."
+      :width="780"
+    >
+      <template #tag>Disponibilidad</template>
+      <template #body>
+        <CourtAvailabilityEditor
+          v-if="availabilityDialog && selectedCourt"
+          :key="availabilityEditorKey"
+          v-model="availabilitySlots"
+          :business-schedules="currentBusinessSchedules"
+          :court-base-price="selectedCourt.pricePerHour"
+        />
+      </template>
+      <template #footer>
+        <v-btn variant="text" prepend-icon="mdi-broom" color="error" @click="availabilitySlots = []">
+          Limpiar todo
+        </v-btn>
+        <v-spacer />
+        <v-btn variant="text" @click="availabilityDialog = false">Cancelar</v-btn>
+        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveAvailability">
+          Guardar horarios
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <!-- Delete Dialog -->
-    <v-dialog v-model="deleteDialog" max-width="420">
-      <v-card rounded="xl">
-        <v-card-text class="pa-6 text-center">
-          <v-icon size="52" color="error" class="mb-3">mdi-soccer-field</v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">Eliminar cancha</h3>
+    <AppModalShell
+      v-model="deleteDialog"
+      title="Eliminar cancha"
+      subtitle="Esta acción no se puede deshacer."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-soccer-field</v-icon>
           <p class="text-body-2 text-medium-emphasis">
-            ¿Eliminar <strong>{{ selectedCourt?.name }}</strong>?
-            Se eliminarán también sus horarios y reservas asociadas.
+            Vas a eliminar <strong>{{ selectedCourt?.name }}</strong>.
+            También se eliminarán sus horarios y reservas asociadas.
           </p>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteCourt">Eliminar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
+        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteCourt">Eliminar</v-btn>
+      </template>
+    </AppModalShell>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
       {{ snackbar.text }}

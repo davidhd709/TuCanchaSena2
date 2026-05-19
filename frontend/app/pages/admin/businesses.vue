@@ -85,16 +85,16 @@
       </v-col>
     </v-row>
 
-    <!-- ─── Create / Edit Dialog ────────────────────────────────────────── -->
-    <v-dialog v-model="formDialog" max-width="680" scrollable>
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          {{ editMode ? 'Editar Negocio' : 'Crear Nuevo Negocio' }}
-        </v-card-title>
-        <v-divider />
-
-        <v-card-text class="pa-5">
-          <v-form ref="formRef">
+    <!-- ─── Create / Edit Dialog (AppModalShell) ────────────────────────── -->
+    <AppModalShell
+      v-model="formDialog"
+      :title="editMode ? 'Editar negocio' : 'Crear nuevo negocio'"
+      :subtitle="editMode ? 'Actualiza los datos públicos del negocio.' : 'Asigna el propietario y completa la información.'"
+      :width="680"
+    >
+      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
+      <template #body>
+        <v-form ref="formRef">
 
             <!-- Section: Datos básicos -->
             <p class="text-caption font-weight-bold text-medium-emphasis text-uppercase mb-3">
@@ -193,39 +193,39 @@
             <BusinessScheduleEditor :key="scheduleEditorKey" v-model="form.schedules" />
 
           </v-form>
-        </v-card-text>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
+        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveBusiness">
+          {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
+        </v-btn>
+      </template>
+    </AppModalShell>
 
-        <v-divider />
-        <v-card-actions class="pa-4">
-          <v-spacer />
-          <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-          <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveBusiness">
-            {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Delete confirm -->
-    <v-dialog v-model="deleteDialog" max-width="420">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-text class="pa-6 text-center">
-          <v-icon size="56" color="error" class="mb-3">mdi-store-remove</v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">Desactivar Negocio</h3>
+    <!-- Delete confirm (AppModalShell) -->
+    <AppModalShell
+      v-model="deleteDialog"
+      title="Desactivar negocio"
+      subtitle="El negocio dejará de ser visible pero sus reservas se conservan."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-store-remove</v-icon>
           <p class="text-body-2 text-medium-emphasis">
-            ¿Desactivar <strong>{{ selectedBiz?.name }}</strong>?
+            Vas a desactivar <strong>{{ selectedBiz?.name }}</strong>.
             Sus canchas y reservas activas seguirán existiendo pero el negocio no será visible.
           </p>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteBusiness">
-            Desactivar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
+        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteBusiness">
+          Desactivar
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
       {{ snackbar.text }}

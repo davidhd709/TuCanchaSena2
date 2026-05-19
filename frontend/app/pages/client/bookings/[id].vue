@@ -260,27 +260,31 @@
     </template>
 
     <!-- Dialog confirmar cancelación -->
-    <v-dialog v-model="cancelDialog" max-width="420">
-      <v-card rounded="xl">
-        <v-card-text class="pa-6 text-center">
-          <v-icon size="56" color="error" class="mb-4">mdi-calendar-remove</v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">¿Cancelar esta reserva?</h3>
+    <AppModalShell
+      v-model="cancelDialog"
+      title="¿Cancelar esta reserva?"
+      subtitle="El horario se liberará y otros clientes podrán reservarlo."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-calendar-remove</v-icon>
           <p class="text-body-2 text-medium-emphasis mb-2">
-            Estás a punto de cancelar tu reserva en
+            Vas a cancelar tu reserva en
             <strong>{{ booking?.court?.name }}</strong>
             el <strong>{{ formattedDate }}</strong>.
           </p>
           <p class="text-caption text-error">Esta acción no se puede deshacer.</p>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
-          <v-btn color="error" variant="flat" :loading="cancelling" @click="confirmCancel">
-            Sí, cancelar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
+        <v-btn color="error" variant="flat" :loading="cancelling" @click="confirmCancel">
+          Sí, cancelar
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <!-- Snackbar -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" timeout="4000">

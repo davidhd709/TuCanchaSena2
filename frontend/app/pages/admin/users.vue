@@ -145,145 +145,145 @@
       </v-data-table>
     </v-card>
 
-    <!-- ─── Create / Edit Dialog ────────────────────────────────────────── -->
-    <v-dialog v-model="formDialog" max-width="520">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          {{ editMode ? 'Editar Usuario' : 'Crear Usuario' }}
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-5">
-          <v-form ref="formRef">
-            <v-row>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="form.firstName"
-                  label="Nombre"
-                  prepend-inner-icon="mdi-account-outline"
-                  :rules="[r.required]"
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="form.lastName"
-                  label="Apellido"
-                  :rules="[r.required]"
-                />
-              </v-col>
-            </v-row>
+    <!-- ─── Create / Edit Dialog (AppModalShell) ────────────────────────── -->
+    <AppModalShell
+      v-model="formDialog"
+      :title="editMode ? 'Editar usuario' : 'Crear usuario'"
+      :subtitle="editMode ? 'Actualiza los datos del usuario.' : 'Crea una cuenta y asigna su rol.'"
+      :width="520"
+    >
+      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
+      <template #body>
+        <v-form ref="formRef">
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                v-model="form.firstName"
+                label="Nombre"
+                prepend-inner-icon="mdi-account-outline"
+                :rules="[r.required]"
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-model="form.lastName"
+                label="Apellido"
+                :rules="[r.required]"
+              />
+            </v-col>
+          </v-row>
 
-            <v-text-field
-              v-model="form.email"
-              label="Correo electrónico"
-              type="email"
-              prepend-inner-icon="mdi-email-outline"
-              :rules="[r.required, r.email]"
-              :disabled="editMode"
-              class="mb-1"
-            />
+          <v-text-field
+            v-model="form.email"
+            label="Correo electrónico"
+            type="email"
+            prepend-inner-icon="mdi-email-outline"
+            :rules="[r.required, r.email]"
+            :disabled="editMode"
+            class="mb-1"
+          />
 
-            <v-text-field
-              v-model="form.phone"
-              label="Teléfono (opcional)"
-              prepend-inner-icon="mdi-phone-outline"
-              class="mb-1"
-            />
+          <v-text-field
+            v-model="form.phone"
+            label="Teléfono (opcional)"
+            prepend-inner-icon="mdi-phone-outline"
+            class="mb-1"
+          />
 
-            <v-select
-              v-model="form.role"
-              label="Rol"
-              :items="roleOptions"
-              prepend-inner-icon="mdi-account-key-outline"
-              :rules="[r.required]"
-              class="mb-1"
-            />
+          <v-select
+            v-model="form.role"
+            label="Rol"
+            :items="roleOptions"
+            prepend-inner-icon="mdi-account-key-outline"
+            :rules="[r.required]"
+            class="mb-1"
+          />
 
-            <v-text-field
-              v-if="!editMode"
-              v-model="form.password"
-              label="Contraseña"
-              :type="showPwd ? 'text' : 'password'"
-              prepend-inner-icon="mdi-lock-outline"
-              :append-inner-icon="showPwd ? 'mdi-eye-off' : 'mdi-eye'"
-              :rules="[r.required, r.minLength]"
-              @click:append-inner="showPwd = !showPwd"
-            />
-          </v-form>
-        </v-card-text>
-        <v-divider />
-        <v-card-actions class="pa-4">
-          <v-spacer />
-          <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :loading="actionLoading"
-            @click="saveUser"
-          >
-            {{ editMode ? 'Guardar cambios' : 'Crear usuario' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+          <v-text-field
+            v-if="!editMode"
+            v-model="form.password"
+            label="Contraseña"
+            :type="showPwd ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-outline"
+            :append-inner-icon="showPwd ? 'mdi-eye-off' : 'mdi-eye'"
+            :rules="[r.required, r.minLength]"
+            @click:append-inner="showPwd = !showPwd"
+          />
+        </v-form>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          :loading="actionLoading"
+          @click="saveUser"
+        >
+          {{ editMode ? 'Guardar cambios' : 'Crear usuario' }}
+        </v-btn>
+      </template>
+    </AppModalShell>
 
-    <!-- ─── Suspend Confirm Dialog ──────────────────────────────────────── -->
-    <v-dialog v-model="suspendDialog" max-width="420">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-text class="pa-6 text-center">
+    <!-- ─── Suspend Confirm Dialog (AppModalShell) ──────────────────────── -->
+    <AppModalShell
+      v-model="suspendDialog"
+      :title="selectedUser?.isActive ? 'Suspender usuario' : 'Reactivar usuario'"
+      :subtitle="selectedUser?.isActive ? 'El usuario no podrá iniciar sesión mientras esté suspendido.' : 'El usuario podrá volver a iniciar sesión.'"
+      :width="420"
+    >
+      <template #tag>{{ selectedUser?.isActive ? 'Atención' : 'Reactivación' }}</template>
+      <template #body>
+        <div class="text-center py-2">
           <v-icon
-            size="56"
+            size="48"
             :color="selectedUser?.isActive ? 'warning' : 'success'"
-            class="mb-4"
+            class="mb-3"
           >
             {{ selectedUser?.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}
           </v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">
-            {{ selectedUser?.isActive ? 'Suspender Usuario' : 'Reactivar Usuario' }}
-          </h3>
           <p class="text-body-2 text-medium-emphasis">
             ¿{{ selectedUser?.isActive ? 'Suspender' : 'Reactivar' }} a
             <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?
-            <template v-if="selectedUser?.isActive">
-              El usuario no podrá iniciar sesión mientras esté suspendido.
-            </template>
           </p>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="suspendDialog = false">Cancelar</v-btn>
-          <v-btn
-            :color="selectedUser?.isActive ? 'warning' : 'success'"
-            variant="flat"
-            :loading="actionLoading"
-            @click="confirmToggleStatus"
-          >
-            {{ selectedUser?.isActive ? 'Suspender' : 'Reactivar' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="suspendDialog = false">Cancelar</v-btn>
+        <v-btn
+          :color="selectedUser?.isActive ? 'warning' : 'success'"
+          variant="flat"
+          :loading="actionLoading"
+          @click="confirmToggleStatus"
+        >
+          {{ selectedUser?.isActive ? 'Suspender' : 'Reactivar' }}
+        </v-btn>
+      </template>
+    </AppModalShell>
 
-    <!-- ─── Delete Confirm Dialog ───────────────────────────────────────── -->
-    <v-dialog v-model="deleteDialog" max-width="420">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-text class="pa-6 text-center">
-          <v-icon size="56" color="error" class="mb-4">mdi-account-remove</v-icon>
-          <h3 class="text-subtitle-1 font-weight-bold mb-2">Eliminar Usuario</h3>
+    <!-- ─── Delete Confirm Dialog (AppModalShell) ───────────────────────── -->
+    <AppModalShell
+      v-model="deleteDialog"
+      title="Eliminar usuario"
+      subtitle="Esta acción no se puede deshacer."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-account-remove</v-icon>
           <p class="text-body-2 text-medium-emphasis">
-            ¿Eliminar permanentemente a
-            <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?
-            Esta acción no se puede deshacer.
+            Vas a eliminar permanentemente a
+            <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>.
           </p>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteUser">
-            Eliminar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
+        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteUser">
+          Eliminar
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <!-- Snackbar -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">

@@ -53,55 +53,63 @@
       </v-col>
     </v-row>
 
-    <!-- Create/Edit Dialog -->
-    <v-dialog v-model="formDialog" max-width="560">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          {{ editMode ? 'Editar Software' : 'Crear Software' }}
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="formRef">
-            <v-text-field v-model="form.nombre" label="Nombre" :rules="[r.required]" class="mb-2" />
-            <v-textarea v-model="form.descripcion" label="Descripción" rows="2" class="mb-2" />
-            <v-text-field v-model="form.version" label="Versión" class="mb-2" />
-            <v-select
-              v-model="form.status"
-              label="Estado"
-              :items="[{title:'Activo',value:'activo'},{title:'Inactivo',value:'inactivo'}]"
-              class="mb-2"
-            />
-            <v-combobox
-              v-model="form.tags"
-              label="Tags (Enter para agregar)"
-              multiple
-              chips
-              closable-chips
-              class="mb-2"
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-          <v-btn color="primary" :loading="actionLoading" @click="saveSoftware">
-            {{ editMode ? 'Guardar' : 'Crear' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- Create/Edit Dialog (AppModalShell) -->
+    <AppModalShell
+      v-model="formDialog"
+      :title="editMode ? 'Editar software' : 'Crear software'"
+      :width="560"
+    >
+      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
+      <template #body>
+        <v-form ref="formRef">
+          <v-text-field v-model="form.nombre" label="Nombre" :rules="[r.required]" class="mb-2" />
+          <v-textarea v-model="form.descripcion" label="Descripción" rows="2" class="mb-2" />
+          <v-text-field v-model="form.version" label="Versión" class="mb-2" />
+          <v-select
+            v-model="form.status"
+            label="Estado"
+            :items="[{title:'Activo',value:'activo'},{title:'Inactivo',value:'inactivo'}]"
+            class="mb-2"
+          />
+          <v-combobox
+            v-model="form.tags"
+            label="Tags (Enter para agregar)"
+            multiple
+            chips
+            closable-chips
+            class="mb-2"
+          />
+        </v-form>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
+        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveSoftware">
+          {{ editMode ? 'Guardar cambios' : 'Crear' }}
+        </v-btn>
+      </template>
+    </AppModalShell>
 
-    <!-- Delete Dialog -->
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="lg" class="admin-dialog-card">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">Eliminar Software</v-card-title>
-        <v-card-text>¿Eliminar <strong>{{ selectedSw?.nombre }}</strong>?</v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" variant="tonal" :loading="actionLoading" @click="deleteSoftware">Eliminar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- Delete Dialog (AppModalShell) -->
+    <AppModalShell
+      v-model="deleteDialog"
+      title="Eliminar software"
+      subtitle="Esta acción no se puede deshacer."
+      :width="420"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <div class="text-center py-2">
+          <v-icon size="48" color="error" class="mb-3">mdi-application-cog</v-icon>
+          <p class="text-body-2 text-medium-emphasis">
+            Vas a eliminar <strong>{{ selectedSw?.nombre }}</strong>.
+          </p>
+        </div>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
+        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteSoftware">Eliminar</v-btn>
+      </template>
+    </AppModalShell>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg">{{ snackbar.text }}</v-snackbar>
   </div>
