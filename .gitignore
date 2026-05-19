@@ -14,3 +14,10 @@ README.md
 qa-smoke.md
 skills-lock.json
 TuCancha_Contexto.md
+
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# Local test artifacts
+proof-demo.pdf
+*.pdf
