@@ -69,7 +69,7 @@ const toLocalDate = (value: unknown): Date | null => {
   if (!value) return null
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
   if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
   if (ymd) {
     const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
     return Number.isNaN(d.getTime()) ? null : d

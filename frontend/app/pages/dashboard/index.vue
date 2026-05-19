@@ -40,7 +40,7 @@
                 v-for="booking in recentBookings"
                 :key="booking.id"
                 :title="`Reserva #${booking.id.slice(0,8)}`"
-                :subtitle="booking.date"
+                :subtitle="formatDate(booking.date)"
                 rounded="lg"
               >
                 <template #append><BookingStatusChip :status="booking.status" /></template>
@@ -96,7 +96,7 @@
               <div class="biz-home-row-text">
                 <span class="biz-home-row-title">{{ booking.court?.name ?? 'Cancha' }}</span>
                 <span class="biz-home-row-sub">
-                  {{ booking.date }} · {{ booking.startTime?.slice(0,5) }}–{{ booking.endTime?.slice(0,5) }}
+                  {{ formatDate(booking.date) }} · {{ booking.startTime?.slice(0,5) }}–{{ booking.endTime?.slice(0,5) }}
                 </span>
               </div>
               <BookingStatusChip status="pending" />
@@ -317,12 +317,6 @@ const pendingBookings = ref<any[]>([])
 // ── Client data ──────────────────────────────────────────────────────────────
 const myBookings = ref<any[]>([])
 
-const clientStats = computed(() => [
-  { label: 'Total Reservas', value: myBookings.value.length, icon: 'mdi-calendar-account', color: 'primary' },
-  { label: 'Confirmadas', value: myBookings.value.filter(b => b.status === 'confirmed').length, icon: 'mdi-check-circle', color: 'success' },
-  { label: 'Pendientes', value: myBookings.value.filter(b => b.status === 'pending').length, icon: 'mdi-clock-outline', color: 'warning' },
-])
-
 // Próxima reserva: la más cercana (hoy o futura) pendiente o confirmada
 const nextBooking = computed(() => {
   const today = new Date().toISOString().split('T')[0]
@@ -335,7 +329,7 @@ const toLocalDate = (value: unknown): Date | null => {
   if (!value) return null
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
   if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
   if (ymd) {
     const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
     return Number.isNaN(d.getTime()) ? null : d

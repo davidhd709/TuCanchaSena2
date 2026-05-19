@@ -345,7 +345,7 @@ const toLocalDate = (value: unknown): Date | null => {
   if (!value) return null
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
   if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
   if (ymd) {
     const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
     return Number.isNaN(d.getTime()) ? null : d
@@ -374,8 +374,11 @@ const durationLabel = computed(() => {
 })
 
 const createdAtLabel = computed(() => {
-  const d = toLocalDate(booking.value?.createdAt)
-  if (!d) return 'Fecha no disponible'
+  // createdAt es un timestamp real (con hora); no aplicar normalización de día.
+  const raw = booking.value?.createdAt
+  if (!raw) return 'Fecha no disponible'
+  const d = new Date(raw)
+  if (Number.isNaN(d.getTime())) return 'Fecha no disponible'
   return d.toLocaleDateString('es-CO', {
     day: '2-digit',
     month: 'short',

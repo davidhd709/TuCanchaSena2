@@ -139,14 +139,14 @@ export function dateNDaysAhead(n: number): string {
 }
 
 /**
- * Formatea una fecha YYYY-MM-DD igual que el frontend, donde `b.date` viene del
- * backend como ISO UTC y `new Date(iso)` se convierte a hora local con un shift
- * de TZ. Replicamos el mismo shift para que el filtro encuentre la card real.
- * Si en el futuro se arregla el shift en frontend, este helper también debe
- * actualizarse.
+ * Formatea una fecha YYYY-MM-DD igual que el frontend. Tras el fix de TZ (F5),
+ * el frontend extrae el prefijo YYYY-MM-DD del ISO y lo construye en hora LOCAL
+ * (sin shift), de modo que una reserva se muestra siempre en su día calendario.
+ * Replicamos exactamente ese comportamiento.
  */
 export function formatDateForUi(yyyymmdd: string): string {
-  return new Date(`${yyyymmdd}T00:00:00.000Z`).toLocaleDateString('es-CO', {
+  const [y, m, d] = yyyymmdd.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

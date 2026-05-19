@@ -139,7 +139,7 @@
               :style="bookingBlockStyle(b)"
               role="button"
               tabindex="0"
-              :aria-label="`Reserva de ${b.client?.firstName ?? ''} ${b.client?.lastName ?? ''} en ${b.court?.name ?? 'cancha'}, ${(b.startTime ?? '').slice(0,5)}–${(b.endTime ?? '').slice(0,5)}`"
+              :aria-label="`Reserva de ${b.user?.firstName ?? ''} ${b.user?.lastName ?? ''} en ${b.court?.name ?? 'cancha'}, ${(b.startTime ?? '').slice(0,5)}–${(b.endTime ?? '').slice(0,5)}`"
               @click="openDetail(b)"
               @keydown.enter.space.prevent="openDetail(b)"
             >
@@ -151,7 +151,7 @@
               </div>
               <div class="booking-client text-caption text-truncate">
                 <v-icon size="9" style="vertical-align: middle">mdi-account</v-icon>
-                {{ b.client?.firstName ?? '' }} {{ b.client?.lastName ?? '' }}
+                {{ b.user?.firstName ?? '' }} {{ b.user?.lastName ?? '' }}
               </div>
             </div>
 
@@ -203,7 +203,7 @@
             </div>
             <div class="bk-card-client">
               <span class="mdi mdi-account-outline" />
-              {{ b.client?.firstName }} {{ b.client?.lastName }}
+              {{ b.user?.firstName }} {{ b.user?.lastName }}
             </div>
             <div class="bk-card-rows">
               <span class="bk-card-row">
@@ -292,7 +292,7 @@
           <v-col cols="6">
             <div class="text-caption text-medium-emphasis mb-1">Cliente</div>
             <div class="text-body-2 font-weight-medium">
-              {{ selectedBooking.client?.firstName }} {{ selectedBooking.client?.lastName }}
+              {{ selectedBooking.user?.firstName }} {{ selectedBooking.user?.lastName }}
             </div>
           </v-col>
           <v-col cols="6">
@@ -394,7 +394,7 @@
           <v-icon size="48" color="error" class="mb-3">mdi-calendar-remove</v-icon>
           <p class="text-body-2 text-medium-emphasis">
             La reserva de
-            <strong>{{ selectedBooking?.client?.firstName }} {{ selectedBooking?.client?.lastName }}</strong>
+            <strong>{{ selectedBooking?.user?.firstName }} {{ selectedBooking?.user?.lastName }}</strong>
             en <strong>{{ selectedBooking?.court?.name }}</strong>
             ({{ selectedBooking?.date }} · {{ selectedBooking?.startTime?.slice(0,5) }}–{{ selectedBooking?.endTime?.slice(0,5) }})
             quedará como cancelada.
@@ -627,7 +627,7 @@ const toLocalDate = (value: unknown): Date | null => {
   if (!value) return null
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
   if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
   if (ymd) {
     const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
     return Number.isNaN(d.getTime()) ? null : d
