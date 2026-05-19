@@ -114,98 +114,96 @@
       </div>
     </div>
 
-    <!-- ─── Court Form Dialog ─── -->
-    <v-dialog v-model="formDialog" max-width="820" scrollable>
-      <v-card rounded="xl">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          {{ editMode ? 'Editar cancha' : 'Nueva cancha' }}
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-5">
-          <v-form ref="formRef">
-            <v-text-field
-              v-model="form.name"
-              label="Nombre de la cancha"
-              :rules="[r.required]"
-              class="mb-2"
-            />
-            <v-select
-              v-model="form.type"
-              label="Tipo de cancha"
-              :items="courtTypes"
-              :rules="[r.required]"
-              class="mb-2"
-            />
-            <p class="text-caption text-medium-emphasis mb-1 mt-1">Descripción</p>
-            <ClientOnly>
-              <RichTextEditor v-model="form.description" class="mb-4" />
-              <template #fallback>
-                <v-textarea v-model="form.description" label="Descripción" rows="3" class="mb-4" />
-              </template>
-            </ClientOnly>
-            <v-row dense>
-              <v-col cols="6">
-                <v-text-field
-                  v-model.number="form.pricePerHour"
-                  label="Precio base / hora"
-                  type="number"
-                  prefix="$"
-                  :rules="[r.required, r.positive]"
-                  hint="Precio por defecto para todos los slots"
-                  persistent-hint
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model.number="form.capacity"
-                  label="Capacidad (jugadores)"
-                  type="number"
-                  :rules="[r.required, r.positive]"
-                />
-              </v-col>
-            </v-row>
-            <v-select
-              v-model="form.status"
-              label="Estado"
-              :items="[
-                { title: 'Disponible', value: 'available' },
-                { title: 'No disponible', value: 'unavailable' },
-                { title: 'En mantenimiento', value: 'maintenance' },
-              ]"
-              class="mt-2 mb-3"
-            />
-            <v-select
-              v-model="form.amenities"
-              :items="COURT_AMENITY_OPTIONS"
-              label="Características de la cancha"
-              multiple
-              chips
-              closable-chips
-              prepend-inner-icon="mdi-soccer-field"
-              class="mb-3"
-            />
-            <v-combobox
-              v-model="form.images"
-              label="URLs de fotos de la cancha (Enter para agregar)"
-              multiple
-              chips
-              closable-chips
-              prepend-inner-icon="mdi-image-multiple-outline"
-              hint="Pega la URL de cada foto de la cancha."
-              persistent-hint
-            />
-          </v-form>
-        </v-card-text>
-        <v-divider />
-        <v-card-actions class="pa-4">
-          <v-spacer />
-          <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-          <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveCourt">
-            {{ editMode ? 'Guardar' : 'Crear' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- ─── Court Form Dialog (AppModalShell) ─── -->
+    <AppModalShell
+      v-model="formDialog"
+      :title="editMode ? 'Editar cancha' : 'Nueva cancha'"
+      :subtitle="editMode ? 'Actualiza los datos de tu cancha.' : 'Crea una cancha y define sus características.'"
+      :width="820"
+    >
+      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
+      <template #body>
+        <v-form ref="formRef">
+          <v-text-field
+            v-model="form.name"
+            label="Nombre de la cancha"
+            :rules="[r.required]"
+            class="mb-2"
+          />
+          <v-select
+            v-model="form.type"
+            label="Tipo de cancha"
+            :items="courtTypes"
+            :rules="[r.required]"
+            class="mb-2"
+          />
+          <p class="text-caption text-medium-emphasis mb-1 mt-1">Descripción</p>
+          <ClientOnly>
+            <RichTextEditor v-model="form.description" class="mb-4" />
+            <template #fallback>
+              <v-textarea v-model="form.description" label="Descripción" rows="3" class="mb-4" />
+            </template>
+          </ClientOnly>
+          <v-row dense>
+            <v-col cols="6">
+              <v-text-field
+                v-model.number="form.pricePerHour"
+                label="Precio base / hora"
+                type="number"
+                prefix="$"
+                :rules="[r.required, r.positive]"
+                hint="Precio por defecto para todos los slots"
+                persistent-hint
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-text-field
+                v-model.number="form.capacity"
+                label="Capacidad (jugadores)"
+                type="number"
+                :rules="[r.required, r.positive]"
+              />
+            </v-col>
+          </v-row>
+          <v-select
+            v-model="form.status"
+            label="Estado"
+            :items="[
+              { title: 'Disponible', value: 'available' },
+              { title: 'No disponible', value: 'unavailable' },
+              { title: 'En mantenimiento', value: 'maintenance' },
+            ]"
+            class="mt-2 mb-3"
+          />
+          <v-select
+            v-model="form.amenities"
+            :items="COURT_AMENITY_OPTIONS"
+            label="Características de la cancha"
+            multiple
+            chips
+            closable-chips
+            prepend-inner-icon="mdi-soccer-field"
+            class="mb-3"
+          />
+          <v-combobox
+            v-model="form.images"
+            label="URLs de fotos de la cancha (Enter para agregar)"
+            multiple
+            chips
+            closable-chips
+            prepend-inner-icon="mdi-image-multiple-outline"
+            hint="Pega la URL de cada foto de la cancha."
+            persistent-hint
+          />
+        </v-form>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
+        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveCourt">
+          {{ editMode ? 'Guardar cambios' : 'Crear cancha' }}
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <!-- ─── Availability Dialog ─── -->
     <v-dialog v-model="availabilityDialog" max-width="780" scrollable>

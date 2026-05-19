@@ -1,6 +1,5 @@
 <template>
   <NuxtLink :to="`/client/businesses/${business.id}`" class="biz-card">
-    <!-- Imagen / placeholder deportivo -->
     <div class="biz-card-media">
       <img
         v-if="cover && !imgError"
@@ -19,7 +18,6 @@
       </span>
     </div>
 
-    <!-- Información -->
     <div class="biz-card-body">
       <h3 class="biz-card-name line-clamp-1">{{ business.name }}</h3>
       <p class="biz-card-meta line-clamp-1">
@@ -57,9 +55,9 @@
 
 <script setup lang="ts">
 /**
- * Tarjeta de negocio deportivo — la entrada principal de la exploración.
- * Forzamos placeholder local cuando la URL viene del seed picsum, para que
- * el visual sea deportivo y coherente con la marca.
+ * Card de negocio deportivo — dark premium.
+ * Si la URL viene del seed picsum, mostramos placeholder local
+ * (`.biz-card-img--ph`) en lugar del paisaje aleatorio.
  */
 const props = defineProps<{
   business: {
@@ -90,7 +88,7 @@ const scheduleLabel = computed(() => {
   flex-direction: column;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   text-decoration: none;
@@ -100,7 +98,7 @@ const scheduleLabel = computed(() => {
 .biz-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
-  border-color: var(--border-strong);
+  border-color: var(--border-medium);
 }
 
 .biz-card-media {
@@ -110,29 +108,27 @@ const scheduleLabel = computed(() => {
   background: var(--bg-subtle);
 }
 .biz-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100%; height: 100%; object-fit: cover;
   transition: transform 0.5s ease;
 }
 .biz-card:hover .biz-card-img { transform: scale(1.04); }
 
-/* Placeholder deportivo: gradiente verde + icono de cancha, sin imagen externa. */
+/* Placeholder deportivo dark premium (gradiente verde sobre dark + campo simplificado). */
 .biz-card-img--ph {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.18), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
-    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
   position: relative;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
+    radial-gradient(circle at 80% 75%, rgba(52, 198, 146, 0.10), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
 }
 .biz-card-img--ph::before,
 .biz-card-img--ph::after {
   content: '';
   position: absolute;
-  border: 1.5px solid rgba(31, 122, 103, 0.18);
+  border: 1.5px solid rgba(52, 198, 146, 0.20);
   border-radius: 50%;
 }
 .biz-card-img--ph::before {
@@ -147,27 +143,25 @@ const scheduleLabel = computed(() => {
   position: relative;
   z-index: 1;
   font-size: 3rem;
-  color: rgba(31, 122, 103, 0.55);
+  color: rgba(52, 198, 146, 0.55);
 }
 
 .biz-card-courts {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 12px; right: 12px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 0.72rem;
-  font-weight: 700;
-  padding: 6px 11px;
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--border-soft);
+  font-weight: 800;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(12, 16, 20, 0.78);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-medium);
   color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
 }
-.biz-card-courts .mdi { color: var(--green-primary); font-size: 0.9rem; }
+.biz-card-courts .mdi { color: var(--green-bright); font-size: 0.9rem; }
 
 .biz-card-body {
   display: flex;
@@ -190,7 +184,7 @@ const scheduleLabel = computed(() => {
   align-items: center;
   gap: 4px;
 }
-.biz-card-meta .mdi { font-size: 1rem; color: var(--green-primary); }
+.biz-card-meta .mdi { font-size: 1rem; color: var(--green-bright); }
 .biz-card-schedule {
   font-size: 0.78rem;
   color: var(--text-faint);
@@ -199,7 +193,7 @@ const scheduleLabel = computed(() => {
   align-items: center;
   gap: 4px;
 }
-.biz-card-schedule .mdi { font-size: 0.95rem; color: var(--green-primary); }
+.biz-card-schedule .mdi { font-size: 0.95rem; color: var(--green-bright); }
 
 .biz-card-amenities {
   display: flex;
@@ -209,16 +203,17 @@ const scheduleLabel = computed(() => {
 }
 .biz-card-amenity {
   font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 100px;
-  background: var(--bg-subtle);
-  color: var(--text-muted);
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-soft);
 }
 .biz-card-amenity.is-more {
   background: var(--green-soft);
-  color: var(--green-primary);
-  font-weight: 700;
+  color: var(--green-bright);
+  border-color: rgba(52, 198, 146, 0.32);
 }
 
 .biz-card-footer {
@@ -231,7 +226,7 @@ const scheduleLabel = computed(() => {
   gap: 4px;
   font-size: 0.88rem;
   font-weight: 800;
-  color: var(--green-primary);
+  color: var(--green-bright);
 }
 .biz-card-cta .mdi { transition: transform var(--transition); }
 .biz-card:hover .biz-card-cta .mdi { transform: translateX(3px); }

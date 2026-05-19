@@ -142,9 +142,9 @@ onMounted(loadBusinesses)
   padding: 36px 32px 32px;
   margin-bottom: 24px;
   background:
-    radial-gradient(circle at 85% 25%, rgba(47, 161, 138, 0.18), transparent 50%),
-    radial-gradient(circle at 12% 80%, rgba(31, 122, 103, 0.10), transparent 55%),
-    linear-gradient(135deg, #f0fbf6 0%, #ffffff 100%);
+    radial-gradient(circle at 85% 25%, rgba(52, 198, 146, 0.16), transparent 50%),
+    radial-gradient(circle at 12% 80%, rgba(52, 198, 146, 0.08), transparent 55%),
+    linear-gradient(135deg, #15211f 0%, #0e1418 100%);
   border: 1px solid var(--border-soft);
 }
 .explore-hero-content { position: relative; max-width: 720px; }
@@ -152,10 +152,10 @@ onMounted(loadBusinesses)
   display: inline-block;
   font-size: .76rem;
   font-weight: 800;
-  color: var(--green-primary);
+  color: var(--green-bright);
   background: var(--green-soft);
   padding: 4px 12px;
-  border-radius: 100px;
+  border-radius: var(--radius-pill);
   margin-bottom: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -181,16 +181,16 @@ onMounted(loadBusinesses)
   position: relative;
   display: flex;
   align-items: center;
-  background: #fff;
-  border: 1px solid var(--border-soft);
-  border-radius: 100px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
   padding: 6px 12px 6px 20px;
   box-shadow: var(--shadow-md);
   max-width: 540px;
 }
 .explore-search:focus-within {
-  border-color: var(--green-primary);
-  box-shadow: 0 0 0 4px rgba(31, 122, 103, 0.12), var(--shadow-md);
+  border-color: var(--green-bright);
+  box-shadow: 0 0 0 4px var(--green-soft), var(--shadow-md);
 }
 .explore-search-icon { font-size: 1.3rem; color: var(--text-muted); flex-shrink: 0; }
 .explore-search-input {
@@ -216,7 +216,7 @@ onMounted(loadBusinesses)
   cursor: pointer;
   transition: background .2s ease;
 }
-.explore-search-clear:hover { background: var(--green-soft); color: var(--green-primary); }
+.explore-search-clear:hover { background: var(--green-soft); color: var(--green-bright); }
 .explore-search-clear .mdi { font-size: 1.1rem; }
 
 /* Chips de filtro horizontal scroll en móvil */
@@ -241,11 +241,11 @@ onMounted(loadBusinesses)
   cursor: pointer;
   transition: border-color .2s ease, background .2s ease, color .2s ease;
 }
-.explore-chip:hover { border-color: var(--green-primary); color: var(--text-primary); }
+.explore-chip:hover { border-color: var(--green-bright); color: var(--text-primary); }
 .explore-chip.is-active {
-  background: var(--green-primary);
-  color: #fff;
-  border-color: var(--green-primary);
+  background: var(--green-soft);
+  color: var(--green-bright);
+  border-color: rgba(52, 198, 146, 0.42);
 }
 
 .explore-count {

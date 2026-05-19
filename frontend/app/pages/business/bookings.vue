@@ -423,34 +423,34 @@
       </v-card>
     </v-dialog>
 
-    <!-- ── Reject dialog ───────────────────────────────────────────────────── -->
-    <v-dialog v-model="rejectDialog" max-width="420">
-      <v-card rounded="lg">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          Rechazar Reserva
-        </v-card-title>
-        <v-card-text>
-          <v-textarea
-            v-model="rejectReason"
-            label="Motivo del rechazo"
-            rows="3"
-            placeholder="Explica el motivo del rechazo al cliente..."
-            :rules="[v => !!v || 'El motivo es requerido']"
-          />
-        </v-card-text>
-        <v-card-actions class="pa-4 pt-0">
-          <v-spacer />
-          <v-btn variant="text" @click="rejectDialog = false">Cancelar</v-btn>
-          <v-btn
-            color="error" variant="flat"
-            :loading="actionLoading === 'reject'"
-            @click="rejectBooking"
-          >
-            Rechazar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- ── Reject dialog (AppModalShell) ───────────────────────────────────── -->
+    <AppModalShell
+      v-model="rejectDialog"
+      title="Rechazar Reserva"
+      subtitle="Explica el motivo al cliente para que pueda entender la decisión."
+      :width="460"
+    >
+      <template #tag>Atención</template>
+      <template #body>
+        <v-textarea
+          v-model="rejectReason"
+          label="Motivo del rechazo"
+          rows="3"
+          placeholder="Comprobante no válido, horario ocupado, etc."
+          :rules="[v => !!v || 'El motivo es requerido']"
+        />
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="rejectDialog = false">Cancelar</v-btn>
+        <v-btn
+          color="error" variant="flat"
+          :loading="actionLoading === 'reject'"
+          @click="rejectBooking"
+        >
+          Rechazar
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
       {{ snackbar.text }}

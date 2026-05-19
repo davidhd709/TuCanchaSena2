@@ -36,23 +36,51 @@ const chipLabel = computed(() => {
 </script>
 
 <style scoped>
+/* Badge de estado unificado del design system.
+   Usa los tokens `--accent-*-soft` para fondos y un color sólido para texto/icono. */
 .status-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: 800;
   padding: 5px 11px;
-  border-radius: 100px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
+  line-height: 1;
+  border: 1px solid transparent;
 }
-.status-badge .mdi { font-size: 0.9rem; }
+.status-badge .mdi { font-size: 0.95rem; }
 
-.is-pending   { background: rgba(47, 161, 138, 0.18); color: #6ee7b7; }
-.is-confirmed { background: rgba(47, 161, 138, 0.15);  color: #4ade80; }
-.is-completed { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.is-pending {
+  background: var(--accent-warning-soft);
+  color: var(--accent-warning);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+.is-confirmed {
+  background: var(--green-soft);
+  color: var(--green-bright);
+  border-color: rgba(52, 198, 146, 0.30);
+}
+.is-completed {
+  background: var(--accent-info-soft);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.28);
+}
 .is-rejected,
-.is-cancelled { background: rgba(239, 68, 68, 0.15);  color: #f87171; }
-.is-no_show   { background: rgba(71, 85, 105, 0.2); color: #cbd5e1; }
-.is-expired   { background: rgba(100, 116, 139, 0.18); color: #94a3b8; }
+.is-cancelled {
+  background: var(--accent-error-soft);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.28);
+}
+.is-no_show {
+  background: var(--accent-neutral-soft);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.24);
+}
+.is-expired {
+  background: rgba(100, 116, 139, 0.18);
+  color: #94a3b8;
+  border-color: rgba(100, 116, 139, 0.28);
+}
 </style>

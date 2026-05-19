@@ -653,7 +653,7 @@ onMounted(async () => {
   background:
     radial-gradient(circle at 85% 20%, rgba(47, 161, 138, 0.16), transparent 50%),
     radial-gradient(circle at 10% 90%, rgba(31, 122, 103, 0.10), transparent 55%),
-    linear-gradient(135deg, #f0fbf6 0%, #ffffff 100%);
+    linear-gradient(135deg, #15211f 0%, #0e1418 100%);
   border: 1px solid var(--border-soft);
 }
 .client-home-hero-bg { position: absolute; inset: 0; pointer-events: none; }
@@ -782,7 +782,7 @@ onMounted(async () => {
   border-radius: 14px;
   overflow: hidden;
   display: grid; place-items: center;
-  background: linear-gradient(135deg, #d9ede6, #f6faf8);
+  background: linear-gradient(135deg, #182230, #0f141a);
   color: rgba(31, 122, 103, 0.55);
 }
 .client-home-next-thumb img { width: 100%; height: 100%; object-fit: cover; }

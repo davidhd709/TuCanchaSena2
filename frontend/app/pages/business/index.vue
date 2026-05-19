@@ -118,15 +118,16 @@
       </div>
     </template>
 
-    <!-- ─── Dialog crear / editar ─── -->
-    <v-dialog v-model="formDialog" max-width="720" scrollable content-class="mn-form-dialog">
-      <v-card rounded="xl" class="mn-form-card">
-        <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">
-          {{ editMode ? 'Editar negocio' : 'Crear mi negocio' }}
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-5">
-          <v-form ref="formRef" class="mn-form-grid">
+    <!-- ─── Dialog crear / editar (AppModalShell) ─── -->
+    <AppModalShell
+      v-model="formDialog"
+      :title="editMode ? 'Editar negocio' : 'Crear mi negocio'"
+      :subtitle="editMode ? 'Actualiza los datos públicos de tu negocio.' : 'Completa estos datos para empezar a recibir reservas.'"
+      :width="720"
+    >
+      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
+      <template #body>
+        <v-form ref="formRef" class="mn-form-grid">
             <p class="mn-form-section">Información general</p>
             <v-text-field
               v-model="form.name"
@@ -225,17 +226,14 @@
             <p class="mn-form-section">Horario de funcionamiento</p>
             <BusinessScheduleEditor :key="scheduleEditorKey" v-model="form.schedules" />
           </v-form>
-        </v-card-text>
-        <v-divider />
-        <v-card-actions class="pa-4 mn-form-actions">
-          <v-spacer />
-          <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-          <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveBusiness">
-            {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      </template>
+      <template #footer>
+        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
+        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveBusiness">
+          {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
+        </v-btn>
+      </template>
+    </AppModalShell>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
       {{ snackbar.text }}

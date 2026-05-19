@@ -195,8 +195,9 @@ onMounted(loadBookings)
 }
 .bookings-tab:hover { color: var(--text-primary); }
 .bookings-tab.is-active {
-  background: var(--green-primary);
-  color: #fff;
+  background: var(--green-soft);
+  color: var(--green-bright);
+  border: 1px solid rgba(52, 198, 146, 0.32);
   box-shadow: var(--shadow-sm);
 }
 .bookings-tab-count {
@@ -205,15 +206,15 @@ onMounted(loadBookings)
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.18);
-  color: inherit;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev);
+  color: var(--text-muted);
   font-size: .68rem;
   font-weight: 800;
 }
-.bookings-tab:not(.is-active) .bookings-tab-count {
-  background: var(--green-soft);
-  color: var(--green-primary);
+.bookings-tab.is-active .bookings-tab-count {
+  background: rgba(52, 198, 146, 0.22);
+  color: var(--green-bright);
 }
 
 /* Upcoming highlight */

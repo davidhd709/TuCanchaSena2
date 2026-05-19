@@ -376,7 +376,7 @@ onMounted(async () => {
   background:
     radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.18), transparent 55%),
     radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
-    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
 }
 .court-gallery-ph .mdi { font-size: 6rem; color: rgba(31, 122, 103, 0.55); }
 .court-gallery-status {

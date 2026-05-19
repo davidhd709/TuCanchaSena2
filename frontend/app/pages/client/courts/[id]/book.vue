@@ -148,7 +148,7 @@
       <!-- Aside lateral (desktop). En móvil queda oculto porque el resumen está arriba. -->
       <aside class="pay-side" v-if="court" aria-hidden="false">
         <div class="pay-side-media">
-          <img v-if="court.images?.[0]" :src="court.images[0]" :alt="court.name" />
+          <img v-if="cleanCover" :src="cleanCover" :alt="court.name" />
           <div v-else class="pay-side-ph"><span class="mdi mdi-soccer-field" /></div>
         </div>
         <div class="pay-side-body">
@@ -275,7 +275,10 @@ const submitBooking = async () => {
 }
 .pay-step small { color: var(--text-muted); font-size: .85rem; font-weight: 600; }
 .pay-step.is-active span,
-.pay-step.is-done span { background: var(--green-primary); color: #fff; }
+.pay-step.is-done span {
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  color: #04170f;
+}
 .pay-step.is-active small,
 .pay-step.is-done small { color: var(--green-primary); font-weight: 800; }
 
@@ -313,13 +316,13 @@ const submitBooking = async () => {
 }
 .pay-trust .mdi { color: var(--green-primary); font-size: 1rem; }
 
-/* Card de confianza prominente antes del CTA. */
+/* Card de confianza prominente antes del CTA (dark premium). */
 .pay-trust-card {
   margin: 0 0 16px;
   padding: 16px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--green-soft), #ffffff);
-  border: 1px solid rgba(31, 122, 103, 0.28);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(52, 198, 146, 0.10), var(--bg-elev));
+  border: 1px solid rgba(52, 198, 146, 0.28);
 }
 .pay-trust-title {
   display: flex;
@@ -336,13 +339,13 @@ const submitBooking = async () => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-size: .88rem;
   line-height: 1.45;
 }
 .pay-trust-list .mdi {
   flex-shrink: 0;
-  color: var(--green-primary);
+  color: var(--green-bright);
   font-size: 1.1rem;
   margin-top: 1px;
 }
@@ -367,9 +370,9 @@ const submitBooking = async () => {
 .pay-summary-ph {
   display: grid; place-items: center;
   background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.20), transparent 55%),
-    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
-  color: rgba(31, 122, 103, 0.55);
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.18), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
+  color: rgba(52, 198, 146, 0.55);
 }
 .pay-summary-body { flex: 1; min-width: 0; }
 .pay-summary-name {
@@ -394,7 +397,7 @@ const submitBooking = async () => {
   border-top: 1px solid var(--border-soft);
 }
 .pay-summary-total span { color: var(--text-muted); font-size: .85rem; }
-.pay-summary-total strong { color: var(--green-primary); font-size: 1.2rem; font-weight: 800; }
+.pay-summary-total strong { color: var(--green-bright); font-size: 1.2rem; font-weight: 800; }
 
 .pay-table {
   border-radius: 12px;
@@ -415,18 +418,18 @@ const submitBooking = async () => {
 
 .pay-alert {
   margin-top: 14px;
-  border: 1px solid #f5d6a0;
-  border-radius: 12px;
-  background: #fff8e8;
-  color: #855a1c;
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  border-radius: var(--radius-md);
+  background: var(--accent-warning-soft);
+  color: #f5d28a;
   padding: 12px;
   display: flex;
   align-items: flex-start;
   gap: 8px;
   font-size: .86rem;
 }
-.pay-alert .mdi { font-size: 1.1rem; color: #c98a1e; margin-top: 1px; }
-.pay-alert strong { color: #6f4615; }
+.pay-alert .mdi { font-size: 1.1rem; color: var(--accent-warning); margin-top: 1px; }
+.pay-alert strong { color: #ffd99a; }
 
 /* (d) ¿Qué pasa después? */
 .pay-next .pay-title { margin-bottom: 12px; }
@@ -467,9 +470,9 @@ const submitBooking = async () => {
 .pay-side-ph {
   display: grid; place-items: center;
   background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.20), transparent 55%),
-    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
-  color: rgba(31, 122, 103, 0.55);
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.18), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
+  color: rgba(52, 198, 146, 0.55);
   font-size: 3rem;
 }
 .pay-side-body { padding: 18px; }
@@ -478,10 +481,10 @@ const submitBooking = async () => {
 .pay-chip {
   display: inline-block;
   margin-top: 10px;
-  border-radius: 100px;
+  border-radius: var(--radius-pill);
   padding: 4px 12px;
   background: var(--green-soft);
-  color: var(--green-primary);
+  color: var(--green-bright);
   font-size: .78rem;
   font-weight: 700;
 }

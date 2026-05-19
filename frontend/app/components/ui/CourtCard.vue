@@ -84,16 +84,16 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   text-decoration: none;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-sm);
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 .court-card:hover {
   transform: translateY(-3px);
-  border-color: var(--border-strong);
+  border-color: var(--border-medium);
   box-shadow: var(--shadow-lg);
 }
 
@@ -109,50 +109,41 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
 }
 .court-card:hover .court-card-img { transform: scale(1.04); }
 
-/* Placeholder deportivo coherente con BusinessCard. */
 .court-card-img--ph {
   display: flex; align-items: center; justify-content: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.18), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
-    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
   position: relative;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
+    radial-gradient(circle at 80% 75%, rgba(52, 198, 146, 0.10), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
 }
 .court-card-img--ph::before,
 .court-card-img--ph::after {
   content: '';
   position: absolute;
-  border: 1.5px solid rgba(31, 122, 103, 0.18);
+  border: 1.5px solid rgba(52, 198, 146, 0.20);
   border-radius: 50%;
 }
-.court-card-img--ph::before {
-  width: 78%; height: 78%;
-  top: 11%; left: 11%;
-}
-.court-card-img--ph::after {
-  width: 34%; height: 34%;
-  top: 33%; left: 33%;
-}
+.court-card-img--ph::before { width: 78%; height: 78%; top: 11%; left: 11%; }
+.court-card-img--ph::after { width: 34%; height: 34%; top: 33%; left: 33%; }
 .court-card-img--ph .mdi {
   position: relative;
   z-index: 1;
   font-size: 3rem;
-  color: rgba(31, 122, 103, 0.55);
+  color: rgba(52, 198, 146, 0.55);
 }
 
 .court-card-type {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 12px; left: 12px;
   padding: 5px 12px;
-  border-radius: 100px;
+  border-radius: var(--radius-pill);
   font-size: .72rem;
-  font-weight: 700;
-  color: var(--green-primary);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
+  font-weight: 800;
+  color: var(--green-bright);
+  background: rgba(12, 16, 20, 0.78);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(52, 198, 146, 0.28);
 }
 
 .court-card-body { padding: 14px 16px 16px; }
@@ -173,22 +164,22 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  color: #b8860b;
-  font-weight: 700;
+  color: #facc15;
+  font-weight: 800;
   font-size: .85rem;
   flex-shrink: 0;
 }
-.court-card-rating .mdi { font-size: 1rem; color: #f59e0b; }
+.court-card-rating .mdi { font-size: 1rem; }
 
 .court-card-meta {
-  margin-top: 4px;
+  margin-top: 6px;
   color: var(--text-muted);
   font-size: .82rem;
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
-.court-card-meta .mdi { font-size: 1rem; color: var(--green-primary); }
+.court-card-meta .mdi { font-size: 1rem; color: var(--green-bright); }
 
 .court-card-footer {
   margin-top: 14px;
@@ -199,11 +190,7 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
   justify-content: space-between;
   gap: 10px;
 }
-.court-card-price {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
+.court-card-price { display: flex; align-items: baseline; gap: 4px; }
 .court-card-price-label {
   color: var(--text-faint);
   font-size: .72rem;
@@ -211,7 +198,7 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
 }
 .court-card-price-amount {
   color: var(--text-primary);
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 800;
   line-height: 1;
 }
@@ -223,7 +210,7 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  color: var(--green-primary);
+  color: var(--green-bright);
   font-size: .85rem;
   font-weight: 800;
 }

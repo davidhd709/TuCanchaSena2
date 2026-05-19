@@ -93,7 +93,7 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
   padding: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   text-decoration: none;
   color: var(--text-primary);
@@ -101,7 +101,7 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
 }
 .booking-card:hover {
   transform: translateY(-2px);
-  border-color: var(--border-strong);
+  border-color: var(--border-medium);
   box-shadow: var(--shadow-md);
 }
 
@@ -109,7 +109,7 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
   flex-shrink: 0;
   width: 110px;
   aspect-ratio: 1 / 1;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-subtle);
 }
@@ -124,10 +124,10 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.20), transparent 55%),
-    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
+    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
+    linear-gradient(135deg, #182230 0%, #0f141a 100%);
 }
-.booking-card-ph .mdi { font-size: 2.2rem; color: rgba(31, 122, 103, 0.55); }
+.booking-card-ph .mdi { font-size: 2.2rem; color: rgba(52, 198, 146, 0.55); }
 
 .booking-card-info {
   flex: 1;
@@ -158,7 +158,7 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
   align-items: center;
   gap: 4px;
 }
-.booking-card-place .mdi { color: var(--green-primary); font-size: 1rem; }
+.booking-card-place .mdi { color: var(--green-bright); font-size: 1rem; }
 
 .booking-card-rows {
   margin-top: 8px;
@@ -173,19 +173,20 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
   font-size: .82rem;
   color: var(--text-muted);
 }
-.booking-card-row .mdi { color: var(--green-primary); font-size: 1rem; }
+.booking-card-row .mdi { color: var(--green-bright); font-size: 1rem; }
 .booking-card-price { color: var(--text-primary); font-weight: 800; }
 
 .booking-card-reason {
   margin-top: 8px;
   padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(239, 68, 68, 0.08);
-  color: #b91c1c;
+  border-radius: var(--radius-sm);
+  background: var(--accent-error-soft);
+  color: #fca5a5;
   font-size: .78rem;
   display: inline-flex;
   align-items: flex-start;
   gap: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.22);
 }
 .booking-card-reason .mdi { font-size: 1rem; margin-top: 1px; }
 

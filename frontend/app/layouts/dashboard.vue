@@ -18,7 +18,7 @@
             <v-btn color="primary" block size="large" to="/business/courts" prepend-icon="mdi-plus">Nueva Cancha</v-btn>
             <div class="owner-user">
               <span class="owner-avatar">{{ initials }}</span>
-              <div>
+              <div class="owner-user-info">
                 <div class="owner-user-name">{{ authStore.fullName }}</div>
                 <div class="owner-user-role">Dueño del negocio</div>
               </div>
@@ -80,40 +80,89 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 </script>
 
 <style scoped>
-.owner-shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
+.owner-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
 .owner-sidebar {
-  border-right: 1px solid rgba(255,255,255,.08);
-  background: #0d1319;
-  padding: 26px 18px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  border-right: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--bg-subtle), var(--bg-app));
+  padding: 24px 18px;
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 24px;
 }
-.owner-brand { color: #63df89; font-size: 2rem; font-weight: 800; }
-.owner-brand-sub { color: #a4b0ba; margin-top: 2px; }
-.owner-nav { display: flex; flex-direction: column; gap: 8px; }
+.owner-brand {
+  color: var(--green-bright);
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.owner-brand-sub {
+  color: var(--text-muted);
+  font-size: .82rem;
+  margin-top: 2px;
+}
+.owner-nav { display: flex; flex-direction: column; gap: 4px; }
 .owner-link {
-  color: #c3ccd4;
+  color: var(--text-secondary);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 12px;
-  padding: 12px 14px;
+  gap: 12px;
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: .92rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
-.owner-link.router-link-active { background: #67dc8b; color: #0e1f14; font-weight: 700; }
+.owner-link:hover {
+  background: var(--bg-elev);
+  color: var(--text-primary);
+}
+.owner-link.router-link-active {
+  background: var(--green-soft);
+  color: var(--green-bright);
+  border-color: rgba(52, 198, 146, 0.28);
+  font-weight: 800;
+}
 .owner-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
-.owner-user { display: flex; align-items: center; gap: 10px; }
-.owner-avatar {
-  width: 42px; height: 42px; border-radius: 50%;
-  display: grid; place-items: center; font-weight: 700;
-  background: linear-gradient(135deg, #67dc8b, #2ab963);
-  color: #112218;
+.owner-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
 }
-.owner-user-name { color: #e7edf3; font-weight: 700; }
-.owner-user-role { color: #95a0ab; font-size: .85rem; }
-.owner-main { background: #0f1318; }
-.owner-content { padding: 30px 24px; }
+.owner-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-weight: 800; font-size: .82rem;
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  color: #04170f;
+  flex-shrink: 0;
+}
+.owner-user-info { flex: 1; min-width: 0; }
+.owner-user-name {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: .9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.owner-user-role {
+  color: var(--text-muted);
+  font-size: .76rem;
+}
+.owner-main { background: transparent; }
+.owner-content { padding: 30px 28px; max-width: 1280px; width: 100%; margin: 0 auto; }
 .owner-content > * {
   animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
 }
@@ -122,23 +171,62 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 .owner-content > *:nth-child(4) { animation-delay: .09s; }
 
 .dash-nav {
-  border-bottom: 1px solid rgba(255,255,255,.08);
-  background: rgba(12,16,22,.9);
+  border-bottom: 1px solid var(--border-soft);
+  background: rgba(12, 16, 20, 0.78);
+  backdrop-filter: blur(14px) saturate(140%);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 .dash-nav-inner {
-  max-width: 1320px; margin: 0 auto; height: 72px; padding: 0 24px;
+  max-width: 1320px; margin: 0 auto; height: 68px; padding: 0 24px;
   display: flex; align-items: center; justify-content: space-between;
 }
-.dash-nav-brand { color: #63df89; font-weight: 800; text-decoration: none; font-size: 1.6rem; }
-.dash-nav-links { display: flex; gap: 18px; }
-.dash-nav-link { color: #bbc4ce; text-decoration: none; }
-.dash-nav-link.router-link-active { color: #67dc8b; }
-.dash-nav-avatar {
-  width: 34px; height: 34px; border-radius: 50%; border: none;
-  background: linear-gradient(135deg, #67dc8b, #2ab963); color: #0f1b13;
+.dash-nav-brand {
+  color: var(--green-bright);
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
 }
-.dash-main { min-height: calc(100vh - 72px); }
-.dash-content { max-width: 1320px; margin: 0 auto; padding: 26px 24px; }
+.dash-nav-links { display: flex; gap: 22px; }
+.dash-nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: .92rem;
+  font-weight: 600;
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
+}
+.dash-nav-link:hover { color: var(--text-primary); }
+.dash-nav-link.router-link-active {
+  color: var(--green-bright);
+  border-bottom-color: var(--green-bright);
+}
+.dash-nav-profile {
+  border: 1px solid var(--border-medium);
+  background: var(--bg-card);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  cursor: pointer;
+  transition: border-color .2s ease;
+}
+.dash-nav-profile:hover { border-color: var(--green-bright); }
+.dash-nav-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  color: #04170f;
+  font-weight: 800;
+  display: inline-grid;
+  place-items: center;
+  font-size: .78rem;
+}
+.dash-main { min-height: calc(100vh - 68px); }
+.dash-content { max-width: 1320px; margin: 0 auto; padding: 28px 24px; }
 .dash-content > * {
   animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
 }

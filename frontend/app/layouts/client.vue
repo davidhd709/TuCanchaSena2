@@ -1,7 +1,6 @@
 <template>
   <v-app theme="tucancha">
-    <div class="client-theme client-shell">
-      <!-- Top nav (desktop + tablet) -->
+    <div class="client-shell">
       <header class="client-nav">
         <div class="client-nav-inner">
           <NuxtLink to="/dashboard" class="client-brand" aria-label="TuCancha — Inicio">
@@ -69,7 +68,6 @@
         </div>
       </footer>
 
-      <!-- Bottom navigation móvil -->
       <nav class="client-bottom-nav" aria-label="Navegación móvil">
         <NuxtLink to="/dashboard" class="client-bottom-link">
           <span class="mdi mdi-home-variant-outline" />
@@ -109,21 +107,19 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 </script>
 
 <style scoped>
-/* El wrapper define la paleta clara y cubre todo el viewport. */
 .client-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--bg-app);
 }
 
-/* ── Top nav ───────────────────────────────────────────────────────────── */
+/* ── Top nav dark premium ─────────────────────────────────────────────── */
 .client-nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px) saturate(140%);
+  background: rgba(12, 16, 20, 0.78);
+  backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid var(--border-soft);
 }
 .client-nav-inner {
@@ -139,7 +135,7 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--green-primary);
+  color: var(--green-bright);
   text-decoration: none;
   font-family: 'Sora', 'Manrope', sans-serif;
   font-weight: 800;
@@ -151,9 +147,9 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--green-soft);
-  color: var(--green-primary);
+  color: var(--green-bright);
   font-size: 1.15rem;
 }
 .client-links {
@@ -173,8 +169,8 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 }
 .client-link:hover { color: var(--text-primary); }
 .client-link.router-link-active {
-  color: var(--green-primary);
-  border-bottom-color: var(--green-primary);
+  color: var(--green-bright);
+  border-bottom-color: var(--green-bright);
 }
 
 .client-right { display: flex; align-items: center; gap: 8px; }
@@ -183,33 +179,29 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   align-items: center;
   gap: 8px;
   padding: 4px 10px 4px 4px;
-  border: 1px solid var(--border-soft);
-  border-radius: 100px;
-  background: #fff;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  background: var(--bg-card);
   color: var(--text-primary);
   cursor: pointer;
   font-size: .85rem;
   font-weight: 700;
   transition: border-color .2s ease, box-shadow .2s ease;
 }
-.client-profile:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+.client-profile:hover { border-color: var(--green-bright); box-shadow: var(--shadow-sm); }
 .client-profile-avatar {
   width: 28px; height: 28px;
   border-radius: 50%;
   display: inline-grid; place-items: center;
-  background: linear-gradient(135deg, #2fa18a, #1f7a67);
-  color: #fff;
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  color: #04170f;
   font-size: .72rem;
   font-weight: 800;
 }
 .client-profile-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Main ──────────────────────────────────────────────────────────────── */
-.client-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+.client-main { flex: 1; display: flex; flex-direction: column; }
 .client-content {
   max-width: 1280px;
   width: 100%;
@@ -223,7 +215,7 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 /* ── Footer ────────────────────────────────────────────────────────────── */
 .client-footer {
   border-top: 1px solid var(--border-soft);
-  background: #fff;
+  background: var(--bg-subtle);
 }
 .client-footer-inner {
   max-width: 1280px;
@@ -240,7 +232,7 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--green-primary);
+  color: var(--green-bright);
   font-weight: 800;
   margin-bottom: 4px;
 }
@@ -251,7 +243,7 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   font-weight: 600;
   transition: color .2s ease;
 }
-.client-footer-links a:hover { color: var(--green-primary); }
+.client-footer-links a:hover { color: var(--green-bright); }
 
 /* ── Bottom nav móvil ──────────────────────────────────────────────────── */
 .client-bottom-nav {
@@ -261,7 +253,7 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(12, 16, 20, 0.92);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--border-soft);
   padding: 8px 8px max(8px, env(safe-area-inset-bottom));
@@ -278,16 +270,15 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   color: var(--text-muted);
   font-size: .68rem;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   transition: color .2s ease, background .2s ease;
 }
 .client-bottom-link .mdi { font-size: 1.3rem; }
 .client-bottom-link.router-link-active {
-  color: var(--green-primary);
+  color: var(--green-bright);
   background: var(--green-soft);
 }
 
-/* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .client-nav-inner { height: 60px; padding: 0 16px; gap: 12px; }
   .client-links { display: none; }

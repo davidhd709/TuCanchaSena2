@@ -1,326 +1,385 @@
 /* ============================================================
-   TU CANCHA — Premium Dark Design System
+   TU CANCHA — Design System v1
+   ============================================================
+   Tema único: Dark premium deportivo. Sin scope alternativo.
+   - Colores, sombras, radios y spacing como tokens.
+   - Tipografías: Sora para displays, Manrope para UI.
+   - Verde marca como acento principal; estados con paleta clara.
+   - Overrides de Vuetify mínimos y consistentes.
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg-glow-a: rgba(47, 161, 138, 0.16);
-  --bg-glow-b: rgba(24, 98, 84, 0.16);
+  /* ── Superficies ─────────────────────────────────────────── */
+  --bg-app: #0c1014;          /* fondo de aplicación */
+  --bg-app-2: #0f1419;        /* fondo alterno (gradiente glow) */
+  --bg-card: #161c24;         /* superficies básicas (cards) */
+  --bg-elev: #1d2530;         /* superficies elevadas (menús, inputs) */
+  --bg-subtle: #11161c;       /* surfaces hundidas / tablas */
+  --bg-overlay: rgba(8, 11, 16, 0.7);
 
-  --green-primary: #1f7a67;
-  --green-bright: #2fa18a;
-  --green-dark: #175e50;
-  --green-soft: rgba(47, 161, 138, 0.12);
-  --green-glow: rgba(47, 161, 138, 0.28);
+  /* ── Texto ──────────────────────────────────────────────── */
+  --text-primary: #e7eef5;
+  --text-secondary: #c1ccd6;
+  --text-muted: #8a96a3;
+  --text-faint: #5d6873;
 
-  --accent-primary: #58d68d;
-  --accent-soft: rgba(88, 214, 141, 0.14);
+  /* ── Marca y estados ────────────────────────────────────── */
+  --green-primary: #2fa18a;   /* botones, links */
+  --green-bright: #34c692;    /* hover/glow */
+  --green-dark: #1d6f5e;
+  --green-soft: rgba(52, 198, 146, 0.12);
+  --green-glow: rgba(52, 198, 146, 0.24);
 
-  --bg-app: #0f1318;
-  --bg-card: #171c23;
-  --bg-subtle: #1f2630;
-  --bg-elev: #242d39;
-  --white: #ecfff2;
+  --accent-warning: #f59e0b;
+  --accent-warning-soft: rgba(245, 158, 11, 0.14);
+  --accent-error: #ef4444;
+  --accent-error-soft: rgba(239, 68, 68, 0.14);
+  --accent-info: #3b82f6;
+  --accent-info-soft: rgba(59, 130, 246, 0.14);
+  --accent-success: #22c55e;
+  --accent-success-soft: rgba(34, 197, 94, 0.14);
+  --accent-neutral: #94a3b8;
+  --accent-neutral-soft: rgba(148, 163, 184, 0.12);
 
-  --text-primary: #ecfff2;
-  --text-muted: #a3bbb0;
-  --text-faint: #73887f;
+  /* ── Bordes ─────────────────────────────────────────────── */
+  --border-soft: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(52, 198, 146, 0.42);
+  --border-focus: rgba(52, 198, 146, 0.56);
 
-  --border-soft: rgba(47, 161, 138, 0.22);
-  --border-strong: rgba(47, 161, 138, 0.42);
+  /* ── Sombras (sutiles, no negras planas) ────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0, 0, 0, 0.18);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.32), 0 2px 4px rgba(0, 0, 0, 0.20);
+  --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.38), 0 4px 12px rgba(0, 0, 0, 0.22);
+  --shadow-glow: 0 8px 24px rgba(52, 198, 146, 0.18);
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-xl: 32px;
+  /* ── Radios ─────────────────────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
 
-  --shadow-sm: 0 10px 22px rgba(0, 0, 0, 0.28);
-  --shadow-md: 0 18px 44px rgba(0, 0, 0, 0.34);
-  --shadow-lg: 0 32px 70px rgba(0, 0, 0, 0.46);
+  /* ── Spacing (referencia: 4 px) ─────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
 
+  /* ── Animación ──────────────────────────────────────────── */
   --transition: 0.22s cubic-bezier(0.33, 1, 0.68, 1);
+  --transition-fast: 0.15s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 html { scroll-behavior: smooth; }
 
-/* Global motion system */
-@keyframes tc-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.tc-enter {
-  animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
-}
-
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   background:
-    radial-gradient(1200px 520px at -10% -20%, var(--bg-glow-a), transparent 55%),
-    radial-gradient(900px 420px at 110% 0%, var(--bg-glow-b), transparent 45%),
+    radial-gradient(1200px 520px at -10% -20%, rgba(52, 198, 146, 0.12), transparent 55%),
+    radial-gradient(900px 420px at 110% 0%, rgba(52, 198, 146, 0.08), transparent 45%),
     var(--bg-app);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
+/* Scrollbar discreto */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #6f665c;
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   border: 2px solid var(--bg-app);
 }
-::-webkit-scrollbar-thumb:hover { background: #8d8173; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
 
+/* ─────────────────────────────────────────────────────────────
+   TIPOGRAFÍA
+   ─────────────────────────────────────────────────────────── */
 .brand-display {
   font-family: 'Sora', 'Manrope', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
+  line-height: 1.15;
 }
 .brand-heading {
-  font-family: 'Sora', 'Manrope', sans-serif;
-  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 .brand-muted { color: var(--text-muted); }
 
 .brand-tag {
   display: inline-block;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent-primary);
+  color: var(--green-bright);
+  background: var(--green-soft);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
 }
 
+/* ─────────────────────────────────────────────────────────────
+   SURFACES — utilitarios de card reutilizables
+   ─────────────────────────────────────────────────────────── */
 .surface-card {
-  background: linear-gradient(180deg, #1b212a, #151a22);
+  background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 .surface-card--hover:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
 }
-
-.brand-icon-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(140deg, rgba(47, 161, 138, 0.2), rgba(88, 214, 141, 0.14));
-  border: 1px solid rgba(47, 161, 138, 0.34);
+.surface-elev {
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
-  color: var(--green-bright);
 }
 
-.btn-primary {
+/* ─────────────────────────────────────────────────────────────
+   BOTONES UTILITARIOS — para <NuxtLink>, <a>, <button> puro.
+   Vuetify v-btn se controla con los overrides de abajo.
+   ─────────────────────────────────────────────────────────── */
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-danger {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 13px 28px;
-  background: linear-gradient(135deg, #58d68d, #2fa18a);
-  color: #05180f;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 800;
-  border: none;
+  padding: 11px 22px;
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 10px 26px rgba(47, 161, 138, 0.24);
+  text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  color: #04170f;
+  box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(47, 161, 138, 0.3);
+  box-shadow: var(--shadow-glow);
 }
-
 .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 26px;
-  background: rgba(47, 161, 138, 0.09);
-  color: var(--accent-primary);
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border: 1.5px solid rgba(47, 161, 138, 0.3);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
+  background: var(--green-soft);
+  color: var(--green-bright);
+  border-color: rgba(52, 198, 146, 0.28);
 }
 .btn-secondary:hover {
-  border-color: var(--accent-primary);
-  background: rgba(47, 161, 138, 0.15);
+  border-color: var(--green-bright);
+  background: rgba(52, 198, 146, 0.18);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-medium);
+}
+.btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  background: var(--bg-elev);
+}
+.btn-danger {
+  background: var(--accent-error-soft);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.28);
+}
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   FOCUS VISIBLE
+   ─────────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--accent-primary);
+  outline: 2px solid var(--green-bright);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
-.v-application {
-  background: transparent !important;
-  color: var(--text-primary) !important;
-}
+/* ─────────────────────────────────────────────────────────────
+   OVERRIDES VUETIFY (mínimos, no agresivos)
+   ─────────────────────────────────────────────────────────── */
 
+/* Reset de transparencias del shell de Vuetify para que se vea el body global. */
+.v-application { background: transparent !important; color: var(--text-primary) !important; }
 .v-main,
 .v-container,
 .v-sheet,
 .v-window,
-.v-window-item {
-  background: transparent !important;
-}
+.v-window-item { background: transparent !important; }
 
+/* Cards: superficie estándar, sombras sutiles, sin borde verde de fondo. */
 .v-card {
   border-radius: var(--radius-lg) !important;
   border: 1px solid var(--border-soft) !important;
-  background: linear-gradient(180deg, #1b212a, #151a22) !important;
+  background: var(--bg-card) !important;
   box-shadow: var(--shadow-sm) !important;
+  color: var(--text-primary) !important;
 }
-
 .v-card-title {
-  padding-top: 20px !important;
-  padding-bottom: 10px !important;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
   letter-spacing: 0.01em;
+  color: var(--text-primary);
 }
+.v-card-text { color: var(--text-secondary) !important; }
 
-.v-card-text {
-  padding-top: 8px !important;
-  padding-bottom: 20px !important;
-}
-
+/* Botones: tipografía consistente, sin "shouty". */
 .v-btn {
   letter-spacing: 0.01em !important;
   font-weight: 700 !important;
   text-transform: none !important;
-  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+  border-radius: var(--radius-md) !important;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
 }
-
-.v-btn:hover {
-  transform: translateY(-1px);
-}
-
+.v-btn:hover { transform: translateY(-1px); }
 .v-btn--variant-flat.bg-primary,
-.v-btn--variant-elevated.bg-primary,
-.v-btn--variant-tonal.text-primary {
-  background: linear-gradient(135deg, #58d68d, #2fa18a) !important;
+.v-btn--variant-elevated.bg-primary {
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary)) !important;
   color: #04170f !important;
 }
 
+/* Inputs: borde neutro en reposo, verde solo en focus. Menos visualmente cargados. */
 .v-field {
-  border-radius: 14px !important;
-  background: linear-gradient(180deg, #1c232d, #161b23) !important;
-  border: 1px solid rgba(47, 161, 138, 0.24) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md) !important;
+  background: var(--bg-elev) !important;
+  border: 1px solid var(--border-soft) !important;
+  box-shadow: none !important;
 }
 .v-field--variant-outlined .v-field__outline {
   --v-field-border-opacity: 1;
-  color: rgba(47, 161, 138, 0.28) !important;
+  color: var(--border-medium) !important;
 }
 .v-field--variant-outlined.v-field--focused .v-field__outline {
-  color: rgba(47, 161, 138, 0.56) !important;
+  color: var(--green-bright) !important;
 }
-
 .v-field--focused {
-  border-color: rgba(47, 161, 138, 0.52) !important;
-  box-shadow: 0 0 0 3px rgba(47, 161, 138, 0.18) !important;
+  border-color: var(--green-bright) !important;
+  box-shadow: 0 0 0 3px var(--green-soft) !important;
 }
-
 .v-field__input,
 .v-field__field,
-.v-select__selection-text,
-.v-label.v-field-label {
-  color: var(--text-primary) !important;
-}
-
-.v-field__append-inner .v-icon,
-.v-field__prepend-inner .v-icon {
-  color: var(--text-muted) !important;
-}
+.v-select__selection-text { color: var(--text-primary) !important; }
 .v-label.v-field-label {
   color: var(--text-muted) !important;
   font-weight: 600;
 }
-.v-field__input {
-  min-height: 46px !important;
+.v-field__append-inner .v-icon,
+.v-field__prepend-inner .v-icon { color: var(--text-muted) !important; }
+.v-field__input { min-height: 46px !important; }
+.v-messages__message { color: var(--text-faint) !important; }
+.v-input { margin-bottom: 12px !important; }
+.v-textarea .v-field__input { padding-top: 14px !important; line-height: 1.55 !important; }
+.v-messages { min-height: 20px !important; }
+
+/* Listas, menús y selects flotantes. */
+.v-list,
+.v-navigation-drawer,
+.v-menu .v-overlay__content {
+  background: var(--bg-elev) !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+  color: var(--text-primary) !important;
 }
-.v-messages__message {
-  color: var(--text-faint) !important;
+.v-list-item { color: var(--text-primary) !important; }
+.v-list-item--active { color: var(--green-bright) !important; }
+.v-list-item__overlay { opacity: 0; }
+.v-list-item:hover .v-list-item__overlay { opacity: 0.06; background: #fff; }
+
+/* Chips base neutros; los chips de estado tienen sus propias clases. */
+.v-chip {
+  border: 1px solid var(--border-medium) !important;
+  background: var(--bg-elev) !important;
+  color: var(--text-secondary) !important;
+}
+.v-chip--variant-tonal.text-primary,
+.v-chip--variant-flat.bg-primary {
+  background: var(--green-soft) !important;
+  color: var(--green-bright) !important;
+  border-color: rgba(52, 198, 146, 0.32) !important;
 }
 
-.v-input {
-  margin-bottom: 12px !important;
-}
+/* Alertas: bordes y fondos coherentes. */
+.v-alert { border: 1px solid var(--border-soft) !important; }
 
-.v-textarea .v-field__input {
-  padding-top: 14px !important;
-  line-height: 1.55 !important;
-}
-
-.v-messages {
-  min-height: 20px !important;
-}
-
+/* Tablas. */
 .v-data-table {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-soft);
-  background: #171c23;
+  background: var(--bg-card);
 }
-
 .v-data-table .v-table__wrapper > table > thead > tr > th {
-  background: #1f2630 !important;
+  background: var(--bg-subtle) !important;
   color: var(--text-muted) !important;
   text-transform: uppercase;
   font-size: 0.72rem !important;
   letter-spacing: 0.07em;
   font-weight: 800 !important;
 }
-
 .v-data-table .v-table__wrapper > table > tbody > tr > td {
-  border-bottom: 1px solid rgba(47, 161, 138, 0.14) !important;
+  border-bottom: 1px solid var(--border-soft) !important;
+  color: var(--text-secondary);
 }
 
-.v-list,
-.v-navigation-drawer,
-.v-menu .v-overlay__content {
-  background: linear-gradient(180deg, #1b212a, #161b23) !important;
-  border: 1px solid var(--border-soft);
+/* Divider. */
+.v-divider { border-color: var(--border-soft) !important; }
+
+/* Diálogos: tarjeta del modal con tokens. */
+.v-dialog > .v-overlay__content > .v-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-soft) !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
-.v-chip {
-  border: 1px solid rgba(47, 161, 138, 0.28) !important;
-}
+/* ─────────────────────────────────────────────────────────────
+   FORM HELPERS
+   ─────────────────────────────────────────────────────────── */
+form { display: grid; gap: 10px; }
 
-.v-alert {
-  border: 1px solid rgba(47, 161, 138, 0.26) !important;
+/* ─────────────────────────────────────────────────────────────
+   MOTION / TRANSICIONES DE PÁGINA
+   ─────────────────────────────────────────────────────────── */
+@keyframes tc-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+.tc-enter { animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both; }
 
-form {
-  display: grid;
-  gap: 10px;
-}
+.page-enter-active,
+.page-leave-active { transition: opacity .22s ease, transform .22s ease; }
+.page-enter-from,
+.page-leave-to { opacity: 0; transform: translateY(8px); }
 
 @media (max-width: 760px) {
   .v-card-title { padding-top: 16px !important; }
   .v-card-text { padding-bottom: 16px !important; }
-}
-
-/* Route transitions */
-.page-enter-active,
-.page-leave-active {
-  transition: opacity .22s ease, transform .22s ease;
-}
-.page-enter-from,
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -330,121 +389,3 @@ form {
     transition-delay: 0ms !important;
   }
 }
-
-/* ============================================================
-   CLIENT THEME — Paleta clara y moderna para el lado cliente.
-   Se aplica solo dentro de `.client-theme` (montado por
-   `layouts/client.vue`). NO afecta admin ni business: el tema
-   dark de arriba sigue siendo el default global.
-   ============================================================ */
-
-.client-theme {
-  /* Paleta clara */
-  --bg-app: #f6faf8;
-  --bg-card: #ffffff;
-  --bg-subtle: #eef3f0;
-  --bg-elev: #ffffff;
-
-  --text-primary: #0f1f1c;
-  --text-muted: #4a5a55;
-  --text-faint: #8a9a94;
-
-  /* Verde de marca mantenido, soft adaptado a fondo claro. */
-  --green-primary: #1f7a67;
-  --green-bright: #2fa18a;
-  --green-dark: #145947;
-  --green-soft: rgba(31, 122, 103, 0.10);
-  --green-glow: rgba(31, 122, 103, 0.18);
-
-  --accent-primary: #1f7a67;
-  --accent-soft: rgba(47, 161, 138, 0.10);
-
-  --border-soft: rgba(15, 31, 28, 0.08);
-  --border-strong: rgba(31, 122, 103, 0.28);
-
-  --shadow-sm: 0 1px 2px rgba(15, 31, 28, 0.05), 0 1px 3px rgba(15, 31, 28, 0.05);
-  --shadow-md: 0 6px 16px rgba(15, 31, 28, 0.08), 0 2px 4px rgba(15, 31, 28, 0.04);
-  --shadow-lg: 0 24px 48px rgba(15, 31, 28, 0.12), 0 4px 12px rgba(15, 31, 28, 0.06);
-
-  background: var(--bg-app);
-  color: var(--text-primary);
-  min-height: 100vh;
-}
-
-.client-theme .brand-display,
-.client-theme .brand-heading { color: var(--text-primary); }
-.client-theme .brand-muted { color: var(--text-muted); }
-
-.client-theme .surface-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
-}
-.client-theme .surface-card--hover:hover {
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-strong);
-}
-
-/* Overrides Vuetify restringidos al scope cliente. */
-.client-theme .v-card {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-soft) !important;
-  box-shadow: var(--shadow-sm) !important;
-  color: var(--text-primary) !important;
-}
-.client-theme .v-card-title,
-.client-theme .v-card-text { color: var(--text-primary) !important; }
-
-.client-theme .v-field {
-  background: #ffffff !important;
-  border: 1px solid var(--border-soft) !important;
-  box-shadow: none !important;
-}
-.client-theme .v-field--variant-outlined .v-field__outline {
-  color: var(--border-soft) !important;
-}
-.client-theme .v-field--variant-outlined.v-field--focused .v-field__outline {
-  color: var(--green-primary) !important;
-}
-.client-theme .v-field--focused {
-  border-color: var(--green-primary) !important;
-  box-shadow: 0 0 0 3px rgba(31, 122, 103, 0.12) !important;
-}
-.client-theme .v-field__input,
-.client-theme .v-select__selection-text { color: var(--text-primary) !important; }
-.client-theme .v-label.v-field-label { color: var(--text-muted) !important; }
-.client-theme .v-field__append-inner .v-icon,
-.client-theme .v-field__prepend-inner .v-icon { color: var(--text-muted) !important; }
-.client-theme .v-messages__message { color: var(--text-faint) !important; }
-
-.client-theme .v-list,
-.client-theme .v-menu .v-overlay__content {
-  background: #ffffff !important;
-  border: 1px solid var(--border-soft) !important;
-  color: var(--text-primary) !important;
-}
-.client-theme .v-list-item { color: var(--text-primary) !important; }
-.client-theme .v-list-item--active { color: var(--green-primary) !important; }
-
-.client-theme .v-chip {
-  border-color: var(--border-soft) !important;
-  background: var(--bg-subtle) !important;
-  color: var(--text-primary) !important;
-}
-.client-theme .v-chip--variant-tonal.text-primary,
-.client-theme .v-chip--variant-flat.bg-primary {
-  background: var(--green-soft) !important;
-  color: var(--green-primary) !important;
-  border-color: rgba(31, 122, 103, 0.22) !important;
-}
-
-.client-theme .v-alert { border-color: var(--border-soft) !important; }
-
-.client-theme .v-divider { border-color: var(--border-soft) !important; }
-
-/* Scrollbar más sutil. */
-.client-theme ::-webkit-scrollbar-thumb {
-  background: rgba(15, 31, 28, 0.18);
-  border-color: var(--bg-app);
-}
-.client-theme ::-webkit-scrollbar-thumb:hover { background: rgba(15, 31, 28, 0.32); }
