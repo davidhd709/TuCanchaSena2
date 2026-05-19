@@ -1,64 +1,74 @@
 <template>
-  <article class="booking-card">
-    <div class="booking-card-media">
+  <NuxtLink :to="`/client/bookings/${booking.id}`" class="booking-card">
+    <div class="booking-card-thumb">
       <img
         v-if="cover && !imgError"
         :src="cover"
         :alt="booking.court?.name ?? 'Cancha'"
         @error="imgError = true"
       />
-      <div v-else class="booking-card-ph"><span class="mdi mdi-soccer-field" /></div>
-      <span class="booking-badge" :class="`is-${booking.status}`">{{ label }}</span>
-    </div>
-
-    <div class="booking-card-body">
-      <h3 class="booking-card-name">{{ booking.court?.name ?? 'Cancha' }}</h3>
-      <p class="booking-card-place"><span class="mdi mdi-map-marker-outline" /> {{ booking.court?.business?.name ?? 'Ubicación' }}</p>
-
-      <div class="booking-info-row"><span><span class="mdi mdi-calendar-blank-outline" /> Fecha</span><strong>{{ formattedDate }}</strong></div>
-      <div class="booking-info-row"><span><span class="mdi mdi-clock-outline" /> Horario</span><strong>{{ booking.startTime?.slice(0,5) }} - {{ booking.endTime?.slice(0,5) }}</strong></div>
-      <div class="booking-info-row"><span><span class="mdi mdi-cash-multiple" /> Total</span><strong class="booking-price">${{ amount }}</strong></div>
-
-      <p v-if="booking.cancellationReason" class="booking-reason">Motivo: {{ booking.cancellationReason }}</p>
-
-      <div class="booking-actions">
-        <v-btn
-          v-if="booking.status === 'pending'"
-          block
-          color="primary"
-          class="mb-2"
-          @click.stop="emit('cancel', booking)"
-        >
-          Cancelar reserva
-        </v-btn>
-        <v-btn block variant="outlined" :to="`/client/bookings/${booking.id}`">Ver detalle</v-btn>
+      <div v-else class="booking-card-ph">
+        <span class="mdi mdi-soccer-field" />
       </div>
     </div>
-  </article>
+
+    <div class="booking-card-info">
+      <div class="booking-card-head">
+        <h3 class="booking-card-name">{{ booking.court?.name ?? 'Cancha' }}</h3>
+        <BookingStatusChip :status="booking.status" />
+      </div>
+      <p class="booking-card-place">
+        <span class="mdi mdi-map-marker-outline" />
+        {{ booking.court?.business?.name ?? 'Negocio deportivo' }}
+      </p>
+
+      <div class="booking-card-rows">
+        <span class="booking-card-row">
+          <span class="mdi mdi-calendar-blank-outline" />
+          {{ formattedDate }}
+        </span>
+        <span class="booking-card-row">
+          <span class="mdi mdi-clock-outline" />
+          {{ booking.startTime?.slice(0,5) }} – {{ booking.endTime?.slice(0,5) }}
+        </span>
+        <span class="booking-card-row booking-card-price">
+          <span class="mdi mdi-cash-multiple" />
+          ${{ amount }}
+        </span>
+      </div>
+
+      <p v-if="booking.cancellationReason" class="booking-card-reason">
+        <span class="mdi mdi-information-outline" />
+        {{ booking.cancellationReason }}
+      </p>
+
+      <div class="booking-card-actions">
+        <v-btn
+          v-if="booking.status === 'pending'"
+          color="error"
+          variant="text"
+          size="small"
+          @click.stop.prevent="emit('cancel', booking)"
+        >
+          Cancelar
+        </v-btn>
+        <span class="booking-card-chevron mdi mdi-chevron-right" />
+      </div>
+    </div>
+  </NuxtLink>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{ booking: any }>()
 const emit = defineEmits<{ (e: 'cancel', booking: any): void }>()
 
-const labels: Record<string, string> = {
-  confirmed: 'Confirmada',
-  pending: 'Pendiente',
-  rejected: 'Rechazada',
-  cancelled: 'Cancelada',
-  completed: 'Completada',
-}
-
-const label = computed(() => labels[props.booking.status] ?? 'Reserva')
-const cover = computed(() => props.booking.court?.images?.[0] ?? '')
+const cover = computed(() => safeCover(props.booking.court?.images?.[0]))
 const imgError = ref(false)
 
-/** Acepta `YYYY-MM-DD`, ISO con `T` o Date. Devuelve `null` si no es parseable. */
 const toLocalDate = (value: unknown): Date | null => {
   if (!value) return null
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
   if (typeof value !== 'string') return null
-  // Solo YYYY-MM-DD: construir en zona local para no sufrir el shift de UTC.
   const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
   if (ymd) {
     const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
@@ -71,68 +81,128 @@ const toLocalDate = (value: unknown): Date | null => {
 const formattedDate = computed(() => {
   const d = toLocalDate(props.booking.date)
   if (!d) return 'Fecha no disponible'
-  return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
+  return d.toLocaleDateString('es-CO', { weekday: 'short', day: '2-digit', month: 'short' })
 })
 const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleString('es-CO'))
 </script>
 
 <style scoped>
 .booking-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
   border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.1);
-  background: #191f27;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
-.booking-card-media { height: 174px; position: relative; }
-.booking-card-media img,
-.booking-card-ph { width: 100%; height: 100%; object-fit: cover; }
+.booking-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.booking-card-thumb {
+  flex-shrink: 0;
+  width: 110px;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+}
+.booking-card-thumb img,
+.booking-card-ph {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .booking-card-ph {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(140deg, #1d2a34, #111722);
+  background:
+    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.20), transparent 55%),
+    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
 }
-.booking-card-ph .mdi { font-size: 2.2rem; color: rgba(111, 230, 140, .45); }
+.booking-card-ph .mdi { font-size: 2.2rem; color: rgba(31, 122, 103, 0.55); }
 
-.booking-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  border-radius: 10px;
-  padding: 5px 12px;
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .04em;
-  text-transform: uppercase;
+.booking-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
-.booking-badge.is-confirmed,
-.booking-badge.is-completed { background: rgba(15,129,63,.65); color: #d4ffe2; }
-.booking-badge.is-pending { background: #c8f1fc; color: #173743; }
-.booking-badge.is-rejected,
-.booking-badge.is-cancelled { background: rgba(166, 11, 19, .86); color: #ffe0e2; }
-
-.booking-card-body { padding: 16px; }
-.booking-card-name { font-size: 1.98rem; font-size: clamp(1.25rem, 1.6vw, 1.98rem); font-weight: 700; color: #e8ecf2; }
-.booking-card-place { margin-top: 4px; color: #b8c0ca; }
-.booking-info-row {
-  margin-top: 10px;
+.booking-card-head {
   display: flex;
   justify-content: space-between;
-  color: #c8ced6;
-  font-size: 1.3rem;
-  font-size: clamp(.92rem, 1.1vw, 1.3rem);
+  align-items: flex-start;
+  gap: 8px;
 }
-.booking-info-row span { color: #9aa3ae; display: inline-flex; gap: 6px; }
-.booking-info-row .mdi { color: #14b45f; }
-.booking-price { color: #1cd36d; }
+.booking-card-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.booking-card-place {
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.booking-card-place .mdi { color: var(--green-primary); font-size: 1rem; }
 
-.booking-reason {
-  margin-top: 12px;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(159, 38, 45, 0.28);
-  border: 1px solid rgba(199, 53, 62, 0.3);
-  color: #ffb9bf;
+.booking-card-rows {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
 }
-.booking-actions { margin-top: 14px; }
+.booking-card-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+.booking-card-row .mdi { color: var(--green-primary); font-size: 1rem; }
+.booking-card-price { color: var(--text-primary); font-weight: 800; }
+
+.booking-card-reason {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+  font-size: .78rem;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.booking-card-reason .mdi { font-size: 1rem; margin-top: 1px; }
+
+.booking-card-actions {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.booking-card-chevron { color: var(--text-faint); font-size: 1.4rem; margin-left: auto; }
+
+@media (max-width: 600px) {
+  .booking-card { padding: 12px; gap: 12px; }
+  .booking-card-thumb { width: 84px; }
+  .booking-card-name { font-size: .95rem; }
+  .booking-card-rows { gap: 4px 10px; }
+}
 </style>

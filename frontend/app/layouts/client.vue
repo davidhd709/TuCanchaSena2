@@ -1,175 +1,299 @@
 <template>
   <v-app theme="tucancha">
-    <header class="client-nav">
-      <div class="client-nav-inner">
-        <NuxtLink to="/" class="client-brand">TuCancha</NuxtLink>
+    <div class="client-theme client-shell">
+      <!-- Top nav (desktop + tablet) -->
+      <header class="client-nav">
+        <div class="client-nav-inner">
+          <NuxtLink to="/dashboard" class="client-brand" aria-label="TuCancha — Inicio">
+            <span class="client-brand-icon mdi mdi-soccer" />
+            TuCancha
+          </NuxtLink>
 
-        <nav class="client-links">
-          <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="client-link">{{ item.title }}</NuxtLink>
-        </nav>
+          <nav class="client-links" aria-label="Navegación principal">
+            <NuxtLink
+              v-for="item in navItems"
+              :key="item.to"
+              :to="item.to"
+              class="client-link"
+            >
+              {{ item.title }}
+            </NuxtLink>
+          </nav>
 
-        <div class="client-right">
-          <button class="client-icon-btn" aria-label="Notificaciones"><v-icon icon="mdi-bell-outline" size="20" /></button>
-          <v-menu location="bottom end" offset="10">
-            <template #activator="{ props }">
-              <button v-bind="props" class="client-icon-btn" aria-label="Menú de usuario">
-                <v-icon icon="mdi-account-circle-outline" size="22" />
-              </button>
-            </template>
-            <v-list density="comfortable" rounded="lg" min-width="230" class="pa-2">
-              <div class="px-3 py-2">
-                <div class="text-body-2 font-weight-bold">{{ authStore.fullName }}</div>
-                <div class="text-caption brand-muted">{{ authStore.user?.email }}</div>
-              </div>
-              <v-divider class="my-1" />
-              <v-list-item to="/dashboard" prepend-icon="mdi-home-outline" title="Inicio" rounded="lg" />
-              <v-list-item to="/client/courts" prepend-icon="mdi-soccer-field" title="Explorar" rounded="lg" />
-              <v-list-item to="/client/bookings" prepend-icon="mdi-calendar-account-outline" title="Mis Reservas" rounded="lg" />
-              <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi Perfil" rounded="lg" />
-              <v-divider class="my-1" />
-              <v-list-item prepend-icon="mdi-logout" title="Cerrar Sesión" rounded="lg" base-color="error" @click="handleLogout" />
-            </v-list>
-          </v-menu>
+          <div class="client-right">
+            <v-menu location="bottom end" offset="10">
+              <template #activator="{ props }">
+                <button v-bind="props" class="client-profile" aria-label="Menú de usuario">
+                  <span class="client-profile-avatar">{{ initials }}</span>
+                  <span class="client-profile-name">{{ firstName }}</span>
+                  <v-icon icon="mdi-chevron-down" size="18" />
+                </button>
+              </template>
+              <v-list density="comfortable" rounded="lg" min-width="240" class="pa-2">
+                <div class="px-3 py-2">
+                  <div class="text-body-2 font-weight-bold">{{ authStore.fullName }}</div>
+                  <div class="text-caption brand-muted">{{ authStore.user?.email }}</div>
+                </div>
+                <v-divider class="my-1" />
+                <v-list-item to="/dashboard" prepend-icon="mdi-home-outline" title="Inicio" rounded="lg" />
+                <v-list-item to="/client/businesses" prepend-icon="mdi-stadium-variant" title="Negocios" rounded="lg" />
+                <v-list-item to="/client/courts" prepend-icon="mdi-soccer-field" title="Canchas" rounded="lg" />
+                <v-list-item to="/client/bookings" prepend-icon="mdi-calendar-account-outline" title="Mis reservas" rounded="lg" />
+                <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi perfil" rounded="lg" />
+                <v-divider class="my-1" />
+                <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" rounded="lg" base-color="error" @click="handleLogout" />
+              </v-list>
+            </v-menu>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <main class="client-main">
-      <div class="client-content"><slot /></div>
-    </main>
+      <main class="client-main">
+        <div class="client-content"><slot /></div>
+      </main>
 
-    <footer class="client-footer">
-      <div class="client-footer-inner">
-        <div>
-          <div class="client-footer-brand">TuCancha</div>
-          <p>© 2024 TuCancha. Premium Soccer Field Booking.</p>
+      <footer class="client-footer">
+        <div class="client-footer-inner">
+          <div>
+            <div class="client-footer-brand">
+              <span class="client-brand-icon mdi mdi-soccer" />
+              TuCancha
+            </div>
+            <p>© 2026 TuCancha · Reserva canchas sintéticas en minutos.</p>
+          </div>
+          <div class="client-footer-links">
+            <a href="#">Términos</a>
+            <a href="#">Privacidad</a>
+            <a href="#">Soporte</a>
+          </div>
         </div>
-        <div class="client-footer-links">
-          <a href="#">Privacidad</a><a href="#">Términos</a><a href="#">Contacto</a><a href="#">Soporte</a>
-        </div>
-      </div>
-    </footer>
+      </footer>
+
+      <!-- Bottom navigation móvil -->
+      <nav class="client-bottom-nav" aria-label="Navegación móvil">
+        <NuxtLink to="/dashboard" class="client-bottom-link">
+          <span class="mdi mdi-home-variant-outline" />
+          <span>Inicio</span>
+        </NuxtLink>
+        <NuxtLink to="/client/businesses" class="client-bottom-link">
+          <span class="mdi mdi-stadium-variant" />
+          <span>Negocios</span>
+        </NuxtLink>
+        <NuxtLink to="/client/courts" class="client-bottom-link">
+          <span class="mdi mdi-soccer-field" />
+          <span>Canchas</span>
+        </NuxtLink>
+        <NuxtLink to="/client/bookings" class="client-bottom-link">
+          <span class="mdi mdi-calendar-check-outline" />
+          <span>Reservas</span>
+        </NuxtLink>
+      </nav>
+    </div>
   </v-app>
 </template>
 
 <script setup lang="ts">
 const authStore = useAuthStore()
+const initials = computed(() => {
+  if (!authStore.user) return '?'
+  return `${authStore.user.firstName?.[0] ?? ''}${authStore.user.lastName?.[0] ?? ''}`.toUpperCase()
+})
+const firstName = computed(() => authStore.user?.firstName ?? 'Cliente')
 const navItems = [
   { to: '/dashboard', title: 'Inicio' },
-  { to: '/client/courts', title: 'Explorar' },
-  { to: '/client/bookings', title: 'Mis Reservas' },
+  { to: '/client/businesses', title: 'Negocios' },
+  { to: '/client/courts', title: 'Canchas' },
+  { to: '/client/bookings', title: 'Mis reservas' },
 ]
 const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/login') }
 </script>
 
 <style scoped>
+/* El wrapper define la paleta clara y cubre todo el viewport. */
+.client-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-app);
+}
+
+/* ── Top nav ───────────────────────────────────────────────────────────── */
 .client-nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-  background: rgba(12, 16, 22, 0.9);
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-bottom: 1px solid var(--border-soft);
 }
 .client-nav-inner {
-  max-width: 1520px;
+  max-width: 1280px;
   margin: 0 auto;
-  height: 84px;
-  padding: 0 32px;
+  height: 68px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 24px;
 }
 .client-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green-primary);
   text-decoration: none;
-  color: #63df89;
-  font-size: 2.45rem;
-  font-size: clamp(1.7rem, 2.1vw, 2.45rem);
+  font-family: 'Sora', 'Manrope', sans-serif;
   font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+.client-brand-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--green-soft);
+  color: var(--green-primary);
+  font-size: 1.15rem;
 }
 .client-links {
   display: flex;
-  align-items: center;
-  gap: 34px;
+  gap: 28px;
+  margin-left: 24px;
+  flex: 1;
 }
 .client-link {
-  color: #c3cad2;
+  color: var(--text-muted);
   text-decoration: none;
-  font-size: 1.4rem;
-  font-size: clamp(.95rem,1.2vw,1.4rem);
-  padding-bottom: 7px;
-  border-bottom: 3px solid transparent;
-  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+  font-size: .92rem;
+  font-weight: 600;
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
 }
-.client-link:hover {
-  color: #d8e0e8;
-  transform: translateY(-1px);
-}
+.client-link:hover { color: var(--text-primary); }
 .client-link.router-link-active {
-  color: #62df8b;
-  border-color: #62df8b;
-  font-weight: 700;
-}
-.client-right { display: flex; align-items: center; gap: 10px; }
-.client-icon-btn {
-  border: none;
-  background: transparent;
-  color: #bcc4cc;
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  transition: background .2s ease, color .2s ease, transform .2s ease;
-}
-.client-icon-btn:hover {
-  background: rgba(255,255,255,.06);
-  color: #e8eef5;
-  transform: translateY(-1px);
+  color: var(--green-primary);
+  border-bottom-color: var(--green-primary);
 }
 
-.client-main { min-height: calc(100vh - 84px); }
+.client-right { display: flex; align-items: center; gap: 8px; }
+.client-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid var(--border-soft);
+  border-radius: 100px;
+  background: #fff;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 700;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.client-profile:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+.client-profile-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: inline-grid; place-items: center;
+  background: linear-gradient(135deg, #2fa18a, #1f7a67);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 800;
+}
+.client-profile-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Main ──────────────────────────────────────────────────────────────── */
+.client-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 .client-content {
-  max-width: 1520px;
+  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  padding: 30px 32px 40px;
+  padding: 28px 24px 60px;
 }
 .client-content > * {
   animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
 }
-.client-content > *:nth-child(2) { animation-delay: .03s; }
-.client-content > *:nth-child(3) { animation-delay: .06s; }
-.client-content > *:nth-child(4) { animation-delay: .09s; }
 
+/* ── Footer ────────────────────────────────────────────────────────────── */
 .client-footer {
-  border-top: 1px solid rgba(255,255,255,.08);
-  background: #151b21;
-  margin-top: 20px;
+  border-top: 1px solid var(--border-soft);
+  background: #fff;
 }
 .client-footer-inner {
-  max-width: 1520px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 28px 32px;
+  padding: 22px 24px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
-  color: #a7afb8;
+  color: var(--text-muted);
+  font-size: .85rem;
 }
 .client-footer-brand {
-  color: #64de8b;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green-primary);
   font-weight: 800;
   margin-bottom: 4px;
 }
-.client-footer-links { display: flex; gap: 24px; align-items: center; }
+.client-footer-links { display: flex; gap: 22px; }
 .client-footer-links a {
-  color: #aab2ba;
+  color: var(--text-muted);
   text-decoration: none;
+  font-weight: 600;
   transition: color .2s ease;
 }
-.client-footer-links a:hover { color: #7be8a0; }
+.client-footer-links a:hover { color: var(--green-primary); }
 
+/* ── Bottom nav móvil ──────────────────────────────────────────────────── */
+.client-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border-soft);
+  padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+  justify-content: space-around;
+}
+.client-bottom-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: .68rem;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: color .2s ease, background .2s ease;
+}
+.client-bottom-link .mdi { font-size: 1.3rem; }
+.client-bottom-link.router-link-active {
+  color: var(--green-primary);
+  background: var(--green-soft);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .client-nav-inner { padding: 0 16px; height: 70px; }
-  .client-links { gap: 14px; }
-  .client-content { padding: 18px 16px 28px; }
-  .client-footer-inner { padding: 20px 16px; flex-direction: column; }
+  .client-nav-inner { height: 60px; padding: 0 16px; gap: 12px; }
+  .client-links { display: none; }
+  .client-content { padding: 18px 16px 100px; }
+  .client-profile-name { display: none; }
+  .client-footer-inner { padding: 18px 16px; flex-direction: column; align-items: flex-start; }
+  .client-bottom-nav { display: flex; }
 }
 </style>

@@ -132,96 +132,138 @@
 
     <!-- ═══ Cliente (experiencia marketplace) ═══ -->
     <template v-else>
-      <!-- Saludo -->
-      <section class="home-hero">
-        <div class="home-hero-text">
-          <h1 class="brand-display home-hero-title">
-            ¡Hola, {{ authStore.user?.firstName }}! 👋
-          </h1>
-          <p class="home-hero-sub">Reserva tu cancha y vive el partido.</p>
+      <!-- Hero comercial -->
+      <section class="client-home-hero">
+        <div class="client-home-hero-bg" aria-hidden="true">
+          <div class="client-home-hero-blob client-home-hero-blob-1" />
+          <div class="client-home-hero-blob client-home-hero-blob-2" />
         </div>
-        <v-btn to="/client/courts" color="primary" size="large" prepend-icon="mdi-magnify">
-          Explorar canchas
-        </v-btn>
+        <div class="client-home-hero-content">
+          <span class="client-home-hero-greet">Hola, {{ authStore.user?.firstName ?? 'jugador' }} 👋</span>
+          <h1 class="client-home-hero-title">
+            Reserva tu cancha y juega <span class="client-home-hero-accent">hoy mismo</span>.
+          </h1>
+          <p class="client-home-hero-sub">
+            Encuentra canchas sintéticas cerca de ti, revisa disponibilidad y reserva en minutos.
+          </p>
+          <div class="client-home-hero-actions">
+            <v-btn
+              to="/client/courts"
+              color="primary"
+              size="large"
+              prepend-icon="mdi-soccer"
+              class="client-home-hero-cta"
+            >
+              Reservar cancha
+            </v-btn>
+            <v-btn
+              to="/client/businesses"
+              color="primary"
+              size="large"
+              variant="outlined"
+              prepend-icon="mdi-stadium-variant"
+            >
+              Ver negocios
+            </v-btn>
+          </div>
+        </div>
       </section>
 
-      <!-- Métricas ligeras -->
-      <div class="home-stats">
-        <StatCard
-          v-for="stat in clientStats"
-          :key="stat.label"
-          :label="stat.label"
-          :value="stat.value"
-          :icon="stat.icon"
-          :accent="stat.color"
-        />
-      </div>
+      <!-- Beneficios -->
+      <section class="client-home-perks">
+        <article class="client-home-perk">
+          <div class="client-home-perk-icon">
+            <span class="mdi mdi-clock-fast" />
+          </div>
+          <div>
+            <h3>Reserva en minutos</h3>
+            <p>Elige fecha, hora y cancha en una sola pantalla.</p>
+          </div>
+        </article>
+        <article class="client-home-perk">
+          <div class="client-home-perk-icon">
+            <span class="mdi mdi-shield-check-outline" />
+          </div>
+          <div>
+            <h3>Negocios verificados</h3>
+            <p>Solo canchas activas con horarios y servicios reales.</p>
+          </div>
+        </article>
+        <article class="client-home-perk">
+          <div class="client-home-perk-icon">
+            <span class="mdi mdi-bank-transfer" />
+          </div>
+          <div>
+            <h3>Paga por transferencia</h3>
+            <p>Sube el comprobante y el negocio confirma tu reserva.</p>
+          </div>
+        </article>
+      </section>
 
       <!-- Próxima reserva destacada -->
-      <section v-if="nextBooking" class="home-section">
-        <h2 class="home-section-title">Tu próxima reserva</h2>
-        <NuxtLink :to="`/client/bookings/${nextBooking.id}`" class="next-booking">
-          <div class="next-booking-thumb">
+      <section v-if="nextBooking" class="client-home-section">
+        <div class="client-home-section-head">
+          <h2 class="client-home-section-title">Tu próxima reserva</h2>
+          <NuxtLink to="/client/bookings" class="client-home-section-link">Ver todas</NuxtLink>
+        </div>
+        <NuxtLink :to="`/client/bookings/${nextBooking.id}`" class="client-home-next">
+          <div class="client-home-next-thumb">
             <img
-              v-if="nextBooking.court?.images?.[0]"
-              :src="nextBooking.court.images[0]"
+              v-if="nextBookingCover"
+              :src="nextBookingCover"
               :alt="nextBooking.court?.name ?? 'Cancha'"
             />
             <span v-else class="mdi mdi-soccer-field" />
           </div>
-          <div class="next-booking-info">
-            <h3 class="next-booking-name">{{ nextBooking.court?.name ?? 'Cancha' }}</h3>
-            <p class="next-booking-meta">
-              <span class="mdi mdi-calendar-outline" /> {{ formatDate(nextBooking.date) }}
-              <span class="mdi mdi-clock-outline ml-2" />
-              {{ nextBooking.startTime?.slice(0,5) }} – {{ nextBooking.endTime?.slice(0,5) }}
-            </p>
+          <div class="client-home-next-body">
+            <h3>{{ nextBooking.court?.name ?? 'Cancha' }}</h3>
+            <p>{{ nextBooking.court?.business?.name ?? 'Negocio deportivo' }}</p>
+            <div class="client-home-next-rows">
+              <span><span class="mdi mdi-calendar-blank-outline" /> {{ formatDate(nextBooking.date) }}</span>
+              <span><span class="mdi mdi-clock-outline" /> {{ nextBooking.startTime?.slice(0,5) }}–{{ nextBooking.endTime?.slice(0,5) }}</span>
+            </div>
           </div>
-          <BookingStatusChip :status="nextBooking.status" />
-          <v-icon icon="mdi-chevron-right" class="next-booking-caret" />
+          <div class="client-home-next-side">
+            <BookingStatusChip :status="nextBooking.status" />
+            <span class="client-home-next-caret mdi mdi-chevron-right" />
+          </div>
         </NuxtLink>
       </section>
 
-      <!-- Reservas recientes -->
-      <section class="home-section">
-        <div class="home-section-head">
-          <h2 class="home-section-title">Reservas recientes</h2>
-          <NuxtLink v-if="myBookings.length" to="/client/bookings" class="home-section-link">
-            Ver todas
-          </NuxtLink>
+      <!-- Reservas recientes (modo lista compacta) -->
+      <section v-if="myBookings.length" class="client-home-section">
+        <div class="client-home-section-head">
+          <h2 class="client-home-section-title">Reservas recientes</h2>
+          <NuxtLink to="/client/bookings" class="client-home-section-link">Ver todas</NuxtLink>
         </div>
+        <ul class="client-home-recent">
+          <li v-for="booking in myBookings" :key="booking.id">
+            <NuxtLink :to="`/client/bookings/${booking.id}`" class="client-home-recent-row">
+              <div class="client-home-recent-thumb">
+                <img v-if="recentCover(booking)" :src="recentCover(booking)!" :alt="booking.court?.name ?? 'Cancha'" />
+                <span v-else class="mdi mdi-soccer-field" />
+              </div>
+              <div class="client-home-recent-text">
+                <span class="client-home-recent-name">{{ booking.court?.name ?? 'Cancha' }}</span>
+                <span class="client-home-recent-when">
+                  {{ formatDate(booking.date) }} · {{ booking.startTime?.slice(0,5) }}–{{ booking.endTime?.slice(0,5) }}
+                </span>
+              </div>
+              <BookingStatusChip :status="booking.status" />
+            </NuxtLink>
+          </li>
+        </ul>
+      </section>
 
-        <div v-if="myBookings.length" class="home-bookings">
-          <NuxtLink
-            v-for="booking in myBookings"
-            :key="booking.id"
-            :to="`/client/bookings/${booking.id}`"
-            class="home-booking-row"
-          >
-            <div class="home-booking-thumb">
-              <img
-                v-if="booking.court?.images?.[0]"
-                :src="booking.court.images[0]"
-                :alt="booking.court?.name ?? 'Cancha'"
-              />
-              <span v-else class="mdi mdi-soccer-field" />
-            </div>
-            <div class="home-booking-text">
-              <span class="home-booking-name">{{ booking.court?.name ?? 'Cancha' }}</span>
-              <span class="home-booking-when">
-                {{ formatDate(booking.date) }} · {{ booking.startTime?.slice(0,5) }}–{{ booking.endTime?.slice(0,5) }}
-              </span>
-            </div>
-            <BookingStatusChip :status="booking.status" />
-          </NuxtLink>
-        </div>
-
-        <div v-else class="surface-card home-empty">
-          <div class="home-empty-icon"><span class="mdi mdi-calendar-blank-outline" /></div>
-          <h3 class="brand-heading">Aún no tienes reservas</h3>
-          <p class="brand-muted">Explora las canchas disponibles y reserva tu primer partido.</p>
-          <v-btn to="/client/courts" color="primary" class="mt-3" prepend-icon="mdi-soccer-field">
-            Explorar canchas
+      <section v-else class="client-home-section">
+        <div class="client-home-empty">
+          <div class="client-home-empty-icon">
+            <span class="mdi mdi-soccer-field" />
+          </div>
+          <h3>Aún no tienes reservas</h3>
+          <p>Explora las canchas disponibles y reserva tu primer partido.</p>
+          <v-btn to="/client/courts" color="primary" size="large" prepend-icon="mdi-soccer" class="mt-3">
+            Reservar cancha
           </v-btn>
         </div>
       </section>
@@ -289,14 +331,26 @@ const nextBooking = computed(() => {
     .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
 })
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return ''
-  const [y, m, d] = dateStr.split('-').map(Number)
-  if (!y || !m || !d) return dateStr
-  return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
-    weekday: 'short', day: 'numeric', month: 'short',
-  })
+const toLocalDate = (value: unknown): Date | null => {
+  if (!value) return null
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
+  if (typeof value !== 'string') return null
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (ymd) {
+    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? null : d
 }
+const formatDate = (value: unknown) => {
+  const d = toLocalDate(value)
+  if (!d) return 'Fecha no disponible'
+  return d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+const nextBookingCover = computed(() => safeCover(nextBooking.value?.court?.images?.[0]))
+const recentCover = (booking: any) => safeCover(booking?.court?.images?.[0]) || ''
 
 // ── Load data on mount ───────────────────────────────────────────────────────
 onMounted(async () => {
@@ -585,5 +639,258 @@ onMounted(async () => {
   .home-stats { grid-template-columns: 1fr; gap: 10px; }
   .home-hero .v-btn { width: 100%; }
   .biz-home-stats { grid-template-columns: 1fr; gap: 10px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLIENT HOME (marketplace) — paleta clara via .client-theme
+   ═══════════════════════════════════════════════════════════════ */
+.client-home-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 40px 36px;
+  margin-bottom: 36px;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(47, 161, 138, 0.16), transparent 50%),
+    radial-gradient(circle at 10% 90%, rgba(31, 122, 103, 0.10), transparent 55%),
+    linear-gradient(135deg, #f0fbf6 0%, #ffffff 100%);
+  border: 1px solid var(--border-soft);
+}
+.client-home-hero-bg { position: absolute; inset: 0; pointer-events: none; }
+.client-home-hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+.client-home-hero-blob-1 {
+  width: 260px; height: 260px;
+  background: rgba(47, 161, 138, 0.16);
+  top: -60px; right: -60px;
+}
+.client-home-hero-blob-2 {
+  width: 200px; height: 200px;
+  background: rgba(31, 122, 103, 0.10);
+  bottom: -40px; left: -40px;
+}
+.client-home-hero-content { position: relative; max-width: 720px; }
+.client-home-hero-greet {
+  display: inline-block;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--green-primary);
+  background: var(--green-soft);
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+}
+.client-home-hero-title {
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem);
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.client-home-hero-accent { color: var(--green-primary); }
+.client-home-hero-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 22px;
+  max-width: 540px;
+}
+.client-home-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.client-home-hero-cta { font-weight: 800 !important; }
+
+/* Beneficios */
+.client-home-perks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 36px;
+}
+.client-home-perk {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.client-home-perk:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.client-home-perk-icon {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background: var(--green-soft);
+  color: var(--green-primary);
+  font-size: 1.4rem;
+}
+.client-home-perk h3 {
+  font-size: .98rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.client-home-perk p {
+  font-size: .85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Secciones */
+.client-home-section { margin-bottom: 36px; }
+.client-home-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.client-home-section-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.client-home-section-link {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--green-primary);
+  text-decoration: none;
+}
+.client-home-section-link:hover { color: var(--green-dark); }
+
+/* Próxima reserva */
+.client-home-next {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(47, 161, 138, 0.08), var(--bg-card));
+  border: 1px solid rgba(47, 161, 138, 0.22);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.client-home-next:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.client-home-next-thumb {
+  width: 96px; height: 96px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, #d9ede6, #f6faf8);
+  color: rgba(31, 122, 103, 0.55);
+}
+.client-home-next-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.client-home-next-thumb .mdi { font-size: 2.4rem; }
+.client-home-next-body { flex: 1; min-width: 0; }
+.client-home-next-body h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.client-home-next-body p {
+  font-size: .85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.client-home-next-rows {
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.client-home-next-rows span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .85rem;
+  color: var(--text-muted);
+}
+.client-home-next-rows .mdi { color: var(--green-primary); font-size: 1rem; }
+.client-home-next-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+.client-home-next-caret { color: var(--text-faint); font-size: 1.6rem; }
+
+/* Recientes — lista compacta */
+.client-home-recent { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.client-home-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+.client-home-recent-row:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.client-home-recent-thumb {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--green-soft);
+  display: grid; place-items: center;
+  color: var(--green-primary);
+  flex-shrink: 0;
+}
+.client-home-recent-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.client-home-recent-thumb .mdi { font-size: 1.2rem; }
+.client-home-recent-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.client-home-recent-name {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.client-home-recent-when { font-size: .78rem; color: var(--text-muted); }
+
+/* Empty state */
+.client-home-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+}
+.client-home-empty-icon {
+  width: 72px; height: 72px;
+  margin: 0 auto 14px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green-primary);
+  font-size: 2rem;
+}
+.client-home-empty h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+.client-home-empty p { color: var(--text-muted); font-size: .9rem; }
+
+@media (max-width: 760px) {
+  .client-home-hero { padding: 28px 20px; }
+  .client-home-perks { grid-template-columns: 1fr; }
+  .client-home-hero-actions .v-btn { flex: 1; }
+  .client-home-next { flex-direction: column; }
+  .client-home-next-thumb { width: 100%; height: 140px; }
+  .client-home-next-side { flex-direction: row; align-items: center; justify-content: space-between; }
 }
 </style>

@@ -238,7 +238,11 @@ const courtTypes = [
 ]
 const courtTypeLabel = (type: string) => courtTypes.find(t => t.value === type)?.title ?? type
 
-const images = computed<string[]>(() => court.value?.images ?? [])
+/** Filtramos picsum: si no hay imágenes reales, la galería usa placeholder local. */
+const images = computed<string[]>(() => {
+  const list = (court.value?.images ?? []) as string[]
+  return list.filter((url) => !!safeCover(url))
+})
 
 // Icono MDI por comodidad/servicio (las no mapeadas usan un check genérico).
 const AMENITY_ICONS: Record<string, string> = {
@@ -370,10 +374,11 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.22), transparent 55%),
-    linear-gradient(135deg, #15222c 0%, #0f141c 100%);
+    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.18), transparent 55%),
+    radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
+    linear-gradient(135deg, #d9ede6 0%, #f6faf8 100%);
 }
-.court-gallery-ph .mdi { font-size: 6rem; color: rgba(47, 161, 138, 0.4); }
+.court-gallery-ph .mdi { font-size: 6rem; color: rgba(31, 122, 103, 0.55); }
 .court-gallery-status {
   position: absolute;
   top: 16px;
@@ -385,9 +390,10 @@ onMounted(async () => {
   font-weight: 700;
   padding: 7px 13px;
   border-radius: 100px;
-  background: rgba(6, 8, 16, 0.78);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(6px);
   border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
 }
 .court-gallery-dot { width: 7px; height: 7px; border-radius: 50%; }
 .court-gallery-status.is-available { color: var(--green-bright); }
@@ -417,7 +423,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(6, 8, 16, 0.6);
+  background: rgba(15, 31, 28, 0.55);
   color: #fff;
   font-size: 0.92rem;
   font-weight: 700;

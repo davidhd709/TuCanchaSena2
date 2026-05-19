@@ -1,34 +1,54 @@
 <template>
   <section>
-    <div class="mb-head">
-      <h1>Mis Reservas</h1>
-      <p>Gestiona y revisa el historial de tus canchas reservadas.</p>
-    </div>
+    <header class="bookings-head">
+      <h1 class="bookings-title">Mis reservas</h1>
+      <p class="bookings-sub">Gestiona y revisa el historial de tus canchas reservadas.</p>
+    </header>
 
-    <div class="mb-tabs">
+    <!-- Tabs estilo segmented control -->
+    <div class="bookings-tabs" role="tablist" aria-label="Filtrar reservas">
       <button
         v-for="tab in tabs"
         :key="tab.value"
-        class="mb-tab"
+        type="button"
+        role="tab"
+        :aria-selected="activeTab === tab.value"
+        class="bookings-tab"
         :class="{ 'is-active': activeTab === tab.value }"
         @click="activeTab = tab.value"
       >
         {{ tab.label }}
+        <span v-if="counts[tab.value] > 0" class="bookings-tab-count">{{ counts[tab.value] }}</span>
       </button>
     </div>
 
     <LoadingState v-if="loading" :count="3" :sm="6" :lg="4" />
     <ErrorState v-else-if="fetchError" message="No pudimos cargar tus reservas." @retry="loadBookings" />
 
-    <div v-else class="mb-grid">
-      <BookingCard v-for="booking in tabBookings" :key="booking.id" :booking="booking" @cancel="openCancelConfirm" />
+    <template v-else>
+      <!-- Próxima reserva destacada -->
+      <section v-if="upcomingHighlight" class="bookings-upcoming">
+        <div class="bookings-upcoming-label">Tu próxima reserva</div>
+        <BookingCard :booking="upcomingHighlight" @cancel="openCancelConfirm" />
+      </section>
+
+      <ul v-if="tabBookings.length" class="bookings-list">
+        <li v-for="booking in tabBookings" :key="booking.id">
+          <BookingCard :booking="booking" @cancel="openCancelConfirm" />
+        </li>
+      </ul>
+
       <EmptyState
-        v-if="tabBookings.length === 0"
+        v-else
         icon="mdi-calendar-blank-outline"
-        title="Sin reservas"
-        :description="activeTab === 'all' ? 'Aún no tienes reservas.' : 'No hay reservas en este estado.'"
-      />
-    </div>
+        title="Sin reservas en este filtro"
+        :description="activeTab === 'all' ? 'Aún no tienes reservas. Empieza explorando canchas.' : 'No hay reservas en este estado todavía.'"
+      >
+        <template #action>
+          <v-btn to="/client/courts" color="primary" prepend-icon="mdi-soccer">Reservar cancha</v-btn>
+        </template>
+      </EmptyState>
+    </template>
 
     <v-dialog v-model="cancelDialog" max-width="420">
       <v-card rounded="lg">
@@ -37,7 +57,17 @@
           <h3 class="text-subtitle-1 font-weight-bold mb-2">¿Cancelar reserva?</h3>
           <p class="text-body-2 text-medium-emphasis">Esta acción no se puede deshacer.</p>
         </v-card-text>
-        <v-card-actions class="pa-4 pt-0"><v-spacer /><v-btn variant="text" @click="cancelDialog = false">Volver</v-btn><v-btn color="error" :loading="cancelLoading === bookingToCancel?.id" @click="confirmCancel">Sí, cancelar</v-btn></v-card-actions>
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
+          <v-btn
+            color="error"
+            :loading="cancelLoading === bookingToCancel?.id"
+            @click="confirmCancel"
+          >
+            Sí, cancelar
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -57,13 +87,41 @@ const bookingToCancel = ref<any>(null)
 const snackbar = reactive({ show: false, text: '', color: 'success' })
 
 const tabs = [
-  { value: 'all', label: 'Todas' },
-  { value: 'confirmed', label: 'Próximas' },
-  { value: 'pending', label: 'Pendientes' },
+  { value: 'all',       label: 'Todas' },
+  { value: 'confirmed', label: 'Confirmadas' },
+  { value: 'pending',   label: 'Pendientes' },
   { value: 'completed', label: 'Completadas' },
-]
+] as const
 
-const tabBookings = computed(() => activeTab.value === 'all' ? bookings.value : bookings.value.filter(b => b.status === activeTab.value))
+const counts = computed<Record<string, number>>(() => ({
+  all: bookings.value.length,
+  confirmed: bookings.value.filter((b) => b.status === 'confirmed').length,
+  pending: bookings.value.filter((b) => b.status === 'pending').length,
+  completed: bookings.value.filter((b) => b.status === 'completed').length,
+}))
+
+const sortByDate = (a: any, b: any) => (a.date as string).localeCompare(b.date)
+
+const tabBookings = computed(() => {
+  const list = activeTab.value === 'all'
+    ? [...bookings.value]
+    : bookings.value.filter((b) => b.status === activeTab.value)
+  // Más recientes primero (fecha descendente).
+  return list.sort((a, b) => sortByDate(b, a))
+})
+
+/** Destacamos la próxima reserva confirmada o pendiente (no la del tab actual). */
+const upcomingHighlight = computed(() => {
+  if (activeTab.value !== 'all') return null
+  const todayIso = new Date().toISOString().slice(0, 10)
+  return [...bookings.value]
+    .filter((b) =>
+      (b.status === 'confirmed' || b.status === 'pending')
+      && typeof b.date === 'string'
+      && b.date.slice(0, 10) >= todayIso,
+    )
+    .sort(sortByDate)[0] ?? null
+})
 
 const openCancelConfirm = (booking: any) => { bookingToCancel.value = booking; cancelDialog.value = true }
 const confirmCancel = async () => {
@@ -71,7 +129,7 @@ const confirmCancel = async () => {
   cancelLoading.value = bookingToCancel.value.id
   try {
     await apiFetch(`/bookings/${bookingToCancel.value.id}`, { method: 'DELETE' })
-    const idx = bookings.value.findIndex(b => b.id === bookingToCancel.value.id)
+    const idx = bookings.value.findIndex((b) => b.id === bookingToCancel.value.id)
     if (idx !== -1) bookings.value[idx] = { ...bookings.value[idx], status: 'cancelled' }
     cancelDialog.value = false
     snackbar.text = 'Reserva cancelada'; snackbar.color = 'success'
@@ -92,49 +150,100 @@ onMounted(loadBookings)
 </script>
 
 <style scoped>
-.mb-head h1 {
-  color: #e7edf2;
-  font-size: clamp(2rem, 2.7vw, 3.2rem);
-  line-height: 1.05;
+.bookings-head { margin-bottom: 20px; }
+.bookings-title {
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--text-primary);
 }
-.mb-head p {
-  color: #aab3bd;
-  margin-top: 8px;
-  font-size: clamp(1rem, 1.1vw, 1.35rem);
+.bookings-sub {
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-size: .95rem;
 }
 
-.mb-tabs {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.mb-tab {
-  border: 1px solid rgba(255,255,255,.08);
-  background: #2a3135;
-  color: #bac2cb;
+/* Tabs segmented control */
+.bookings-tabs {
+  display: inline-flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
-  padding: 10px 18px;
-  font-size: clamp(.95rem, 1.05vw, 1.2rem);
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+.bookings-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: .9rem;
   font-weight: 700;
-  transition: background .18s ease, color .18s ease, transform .18s ease, border-color .18s ease;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
 }
-.mb-tab:hover {
-  transform: translateY(-1px);
-  border-color: rgba(111, 230, 140, 0.32);
-  color: #d6dee6;
+.bookings-tab:hover { color: var(--text-primary); }
+.bookings-tab.is-active {
+  background: var(--green-primary);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
 }
-.mb-tab.is-active { background: #18ab58; color: #eafff1; border-color: transparent; }
-.mb-tab:active { transform: translateY(0); }
+.bookings-tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
+  font-size: .68rem;
+  font-weight: 800;
+}
+.bookings-tab:not(.is-active) .bookings-tab-count {
+  background: var(--green-soft);
+  color: var(--green-primary);
+}
 
-.mb-grid {
-  margin-top: 18px;
-  display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  align-items: start;
+/* Upcoming highlight */
+.bookings-upcoming {
+  margin-bottom: 28px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(47, 161, 138, 0.10), var(--bg-card));
+  border: 1px solid rgba(47, 161, 138, 0.22);
+}
+.bookings-upcoming-label {
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green-primary);
+  margin-bottom: 10px;
 }
 
-@media (max-width: 1100px) { .mb-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 760px) { .mb-grid { grid-template-columns: 1fr; } }
+/* Lista */
+.bookings-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .bookings-tabs { display: flex; }
+  .bookings-tab { padding: 8px 12px; font-size: .85rem; }
+}
 </style>

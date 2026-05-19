@@ -508,13 +508,14 @@ const confirmCancel = async () => {
 }
 
 .countdown-card {
-  border-color: rgba(34, 197, 94, 0.36) !important;
+  border-color: rgba(31, 122, 103, 0.36) !important;
+  background: linear-gradient(135deg, rgba(47, 161, 138, 0.08), var(--bg-card)) !important;
 }
 .countdown-value {
   font-family: 'Sora', 'Manrope', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: #86efac;
+  color: var(--green-primary);
   line-height: 1.1;
   letter-spacing: 1px;
 }

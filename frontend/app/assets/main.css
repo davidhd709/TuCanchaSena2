@@ -330,3 +330,121 @@ form {
     transition-delay: 0ms !important;
   }
 }
+
+/* ============================================================
+   CLIENT THEME — Paleta clara y moderna para el lado cliente.
+   Se aplica solo dentro de `.client-theme` (montado por
+   `layouts/client.vue`). NO afecta admin ni business: el tema
+   dark de arriba sigue siendo el default global.
+   ============================================================ */
+
+.client-theme {
+  /* Paleta clara */
+  --bg-app: #f6faf8;
+  --bg-card: #ffffff;
+  --bg-subtle: #eef3f0;
+  --bg-elev: #ffffff;
+
+  --text-primary: #0f1f1c;
+  --text-muted: #4a5a55;
+  --text-faint: #8a9a94;
+
+  /* Verde de marca mantenido, soft adaptado a fondo claro. */
+  --green-primary: #1f7a67;
+  --green-bright: #2fa18a;
+  --green-dark: #145947;
+  --green-soft: rgba(31, 122, 103, 0.10);
+  --green-glow: rgba(31, 122, 103, 0.18);
+
+  --accent-primary: #1f7a67;
+  --accent-soft: rgba(47, 161, 138, 0.10);
+
+  --border-soft: rgba(15, 31, 28, 0.08);
+  --border-strong: rgba(31, 122, 103, 0.28);
+
+  --shadow-sm: 0 1px 2px rgba(15, 31, 28, 0.05), 0 1px 3px rgba(15, 31, 28, 0.05);
+  --shadow-md: 0 6px 16px rgba(15, 31, 28, 0.08), 0 2px 4px rgba(15, 31, 28, 0.04);
+  --shadow-lg: 0 24px 48px rgba(15, 31, 28, 0.12), 0 4px 12px rgba(15, 31, 28, 0.06);
+
+  background: var(--bg-app);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.client-theme .brand-display,
+.client-theme .brand-heading { color: var(--text-primary); }
+.client-theme .brand-muted { color: var(--text-muted); }
+
+.client-theme .surface-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+}
+.client-theme .surface-card--hover:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-strong);
+}
+
+/* Overrides Vuetify restringidos al scope cliente. */
+.client-theme .v-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-soft) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--text-primary) !important;
+}
+.client-theme .v-card-title,
+.client-theme .v-card-text { color: var(--text-primary) !important; }
+
+.client-theme .v-field {
+  background: #ffffff !important;
+  border: 1px solid var(--border-soft) !important;
+  box-shadow: none !important;
+}
+.client-theme .v-field--variant-outlined .v-field__outline {
+  color: var(--border-soft) !important;
+}
+.client-theme .v-field--variant-outlined.v-field--focused .v-field__outline {
+  color: var(--green-primary) !important;
+}
+.client-theme .v-field--focused {
+  border-color: var(--green-primary) !important;
+  box-shadow: 0 0 0 3px rgba(31, 122, 103, 0.12) !important;
+}
+.client-theme .v-field__input,
+.client-theme .v-select__selection-text { color: var(--text-primary) !important; }
+.client-theme .v-label.v-field-label { color: var(--text-muted) !important; }
+.client-theme .v-field__append-inner .v-icon,
+.client-theme .v-field__prepend-inner .v-icon { color: var(--text-muted) !important; }
+.client-theme .v-messages__message { color: var(--text-faint) !important; }
+
+.client-theme .v-list,
+.client-theme .v-menu .v-overlay__content {
+  background: #ffffff !important;
+  border: 1px solid var(--border-soft) !important;
+  color: var(--text-primary) !important;
+}
+.client-theme .v-list-item { color: var(--text-primary) !important; }
+.client-theme .v-list-item--active { color: var(--green-primary) !important; }
+
+.client-theme .v-chip {
+  border-color: var(--border-soft) !important;
+  background: var(--bg-subtle) !important;
+  color: var(--text-primary) !important;
+}
+.client-theme .v-chip--variant-tonal.text-primary,
+.client-theme .v-chip--variant-flat.bg-primary {
+  background: var(--green-soft) !important;
+  color: var(--green-primary) !important;
+  border-color: rgba(31, 122, 103, 0.22) !important;
+}
+
+.client-theme .v-alert { border-color: var(--border-soft) !important; }
+
+.client-theme .v-divider { border-color: var(--border-soft) !important; }
+
+/* Scrollbar más sutil. */
+.client-theme ::-webkit-scrollbar-thumb {
+  background: rgba(15, 31, 28, 0.18);
+  border-color: var(--bg-app);
+}
+.client-theme ::-webkit-scrollbar-thumb:hover { background: rgba(15, 31, 28, 0.32); }
