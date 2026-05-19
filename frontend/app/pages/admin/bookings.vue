@@ -41,12 +41,12 @@
         </template>
         <template #item.paymentProof="{ item }">
           <v-btn
-            v-if="item.paymentProofUrl"
+            v-if="item.paymentProof"
             icon="mdi-image"
             variant="text"
             color="primary"
             size="small"
-            :href="item.paymentProofUrl"
+            :href="item.paymentProof"
             target="_blank"
             aria-label="Ver comprobante de pago"
           />

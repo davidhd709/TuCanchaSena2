@@ -199,7 +199,7 @@
           </div>
           <div class="bk-card-foot">
             <span class="bk-card-total">${{ Number(b.totalPrice ?? 0).toLocaleString('es-CO') }}</span>
-            <span v-if="b.paymentProofUrl" class="bk-card-proof">
+            <span v-if="b.paymentProof" class="bk-card-proof">
               <span class="mdi mdi-image-check-outline" /> Comprobante
             </span>
             <span v-else class="bk-card-proof is-missing">
@@ -266,14 +266,14 @@
                 {{ selectedBooking.paymentMethod === 'nequi' ? 'Nequi' : 'Transferencia' }}
               </div>
             </v-col>
-            <v-col v-if="selectedBooking.paymentProofUrl" cols="6">
+            <v-col v-if="selectedBooking.paymentProof" cols="6">
               <div class="text-caption text-medium-emphasis mb-1">Comprobante</div>
               <v-btn
                 size="x-small"
                 variant="tonal"
                 color="primary"
                 prepend-icon="mdi-image"
-                :href="selectedBooking.paymentProofUrl"
+                :href="selectedBooking.paymentProof"
                 target="_blank"
               >
                 Ver imagen

@@ -60,8 +60,9 @@ export const useAuthStore = defineStore('auth', {
       firstName: string
       lastName: string
       phone?: string
-      role?: string
     }) {
+      // El endpoint público /auth/register siempre crea un cliente.
+      // Para alta de admin/business se usa POST /users (admin-only).
       const config = useRuntimeConfig()
       const data = await $fetch<{ access_token: string; user: User }>(
         `${config.public.apiBase}/auth/register`,

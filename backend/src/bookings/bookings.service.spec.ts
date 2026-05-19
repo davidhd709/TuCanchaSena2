@@ -28,6 +28,7 @@ import { ConfigService } from '@nestjs/config'
 
 import { BookingsService } from './bookings.service'
 import { PrismaService } from '../prisma/prisma.service'
+import { STORAGE_DRIVER } from '../uploads/storage.driver'
 
 // ─────────────────────────────────────────────────────────────────
 // MOCKS
@@ -61,6 +62,9 @@ const mockPrismaService = {
     findUnique: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
+    // `expireStale()` la usa en availableSlots/create y en el cron.
+    updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+    count: jest.fn(),
   },
   court: {
     findUnique: jest.fn(),
@@ -76,6 +80,11 @@ const mockPrismaService = {
 
 const mockConfigService = {
   get: jest.fn().mockReturnValue('http://localhost:8001'),
+}
+
+/** Mock del storage driver: devuelve una URL fija para el comprobante. */
+const mockStorageDriver = {
+  save: jest.fn().mockResolvedValue({ key: 'k', url: 'http://stub/proof.png' }),
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -102,6 +111,19 @@ const mockCourt = {
       pricePerHour: null, // usará el precio de la cancha (50000)
     },
   ],
+  // El servicio valida que el negocio esté activo y abierto ese día.
+  business: {
+    id: 'business-1',
+    isActive: true,
+    schedules: [
+      {
+        dayOfWeek: 'monday',
+        isOpen: true,
+        openTime: '08:00',
+        closeTime: '22:00',
+      },
+    ],
+  },
 }
 
 /** DTO estándar para crear una reserva de 10:00 a 11:00 el 2025-01-06 (lunes) */
@@ -135,8 +157,9 @@ const mockBooking = {
 }
 
 const adminUser = { sub: 'admin-uuid', role: 'admin' }
-const ownerUser = { sub: 'owner-uuid-1', role: 'bussines' }
+const ownerUser = { sub: 'owner-uuid-1', role: 'business' }
 const clientUser = { sub: userId, role: 'client' }
+const strangerUser = { sub: 'stranger-uuid', role: 'client' }
 
 // ─────────────────────────────────────────────────────────────────
 // SUITE PRINCIPAL
@@ -151,6 +174,7 @@ describe('BookingsService', () => {
         BookingsService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: STORAGE_DRIVER, useValue: mockStorageDriver },
       ],
     }).compile()
 
@@ -293,15 +317,57 @@ describe('BookingsService', () => {
     it('debería lanzar NotFoundException si la reserva no existe', async () => {
       mockPrismaService.booking.findUnique.mockResolvedValue(null)
 
-      await expect(service.findOne('non-existent-id')).rejects.toThrow(NotFoundException)
+      await expect(service.findOne('non-existent-id', adminUser)).rejects.toThrow(
+        NotFoundException,
+      )
     })
 
-    it('debería devolver la reserva si existe', async () => {
+    it('admin: ve cualquier reserva', async () => {
       mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
 
-      const result = await service.findOne('booking-1')
+      const result = await service.findOne('booking-1', adminUser)
 
       expect(result).toEqual(mockBooking)
+    })
+
+    it('client: ve su propia reserva', async () => {
+      mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
+
+      const result = await service.findOne('booking-1', clientUser)
+
+      expect(result).toEqual(mockBooking)
+    })
+
+    it('client: ForbiddenException al intentar ver reserva ajena (IDOR)', async () => {
+      mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
+
+      await expect(service.findOne('booking-1', strangerUser)).rejects.toThrow(
+        ForbiddenException,
+      )
+    })
+
+    it('business: ve reserva de cancha de un negocio que posee', async () => {
+      mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
+      mockPrismaService.business.findUnique.mockResolvedValue({
+        id: 'business-1',
+        ownerId: ownerUser.sub,
+      })
+
+      const result = await service.findOne('booking-1', ownerUser)
+
+      expect(result).toEqual(mockBooking)
+    })
+
+    it('business: ForbiddenException si la cancha no es de un negocio propio (IDOR)', async () => {
+      mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
+      mockPrismaService.business.findUnique.mockResolvedValue({
+        id: 'business-1',
+        ownerId: 'otro-owner',
+      })
+
+      await expect(
+        service.findOne('booking-1', { sub: 'otro-business', role: 'business' }),
+      ).rejects.toThrow(ForbiddenException)
     })
   })
 
@@ -315,7 +381,7 @@ describe('BookingsService', () => {
 
       expect(result.status).toBe('confirmed')
       expect(mockPrismaService.booking.update).toHaveBeenCalledWith(
-        expect.objectContaining({ data: { status: 'confirmed' } }),
+        expect.objectContaining({ data: { status: 'confirmed', expiresAt: null } }),
       )
     })
 
@@ -336,11 +402,11 @@ describe('BookingsService', () => {
       mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
       mockPrismaService.business.findUnique.mockResolvedValue({
         id: 'business-1',
-        ownerId: 'otro-owner',
+        ownerId: 'otro-owner-distinto',
       })
 
       await expect(
-        service.confirm('booking-1', { sub: 'stranger-uuid', role: 'bussines' }),
+        service.confirm('booking-1', { sub: 'stranger-uuid', role: 'business' }),
       ).rejects.toThrow(ForbiddenException)
     })
   })
@@ -351,7 +417,7 @@ describe('BookingsService', () => {
       mockPrismaService.booking.findUnique.mockResolvedValue(mockBooking)
       mockPrismaService.booking.update.mockResolvedValue({
         ...mockBooking,
-        status: 'cancelled',
+        status: 'rejected',
         cancellationReason: 'Mantenimiento imprevisto',
       })
 
@@ -361,10 +427,14 @@ describe('BookingsService', () => {
         adminUser,
       )
 
-      expect(result.status).toBe('cancelled')
+      expect(result.status).toBe('rejected')
       expect(mockPrismaService.booking.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: { status: 'cancelled', cancellationReason: 'Mantenimiento imprevisto' },
+          data: {
+            status: 'rejected',
+            cancellationReason: 'Mantenimiento imprevisto',
+            expiresAt: null,
+          },
         }),
       )
     })

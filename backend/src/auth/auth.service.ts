@@ -29,7 +29,9 @@ export class AuthService {
         firstName: dto.firstName,
         lastName: dto.lastName,
         phone: dto.phone,
-        role: dto.role ?? 'client',
+        // El registro público siempre crea un cliente. Los roles admin/business
+        // se asignan a través de `POST /users` (admin-only).
+        role: 'client',
       },
     });
 

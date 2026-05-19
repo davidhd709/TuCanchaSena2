@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia'
 
-export type BookingStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'completed'
+export type BookingStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'rejected'
+  | 'cancelled'
+  | 'completed'
+  | 'no_show'
+  | 'expired'
 
 export interface Booking {
   id: string
@@ -11,7 +18,8 @@ export interface Booking {
   endTime: string
   status: BookingStatus
   paymentMethod: string
-  paymentProofUrl?: string
+  paymentProof?: string
+  cancellationReason?: string
   notes?: string
   totalPrice: number
   court?: {

@@ -79,21 +79,6 @@
         />
       </div>
 
-      <!-- Tipo de cuenta -->
-      <div class="field-group">
-        <label class="field-label">Tipo de cuenta</label>
-        <v-select
-          v-model="form.role"
-          :items="roleOptions"
-          :rules="[rules.required]"
-          prepend-inner-icon="mdi-account-key-outline"
-          variant="outlined"
-          density="comfortable"
-          hide-details="auto"
-          class="auth-input"
-        />
-      </div>
-
       <!-- Contraseña -->
       <div class="field-group">
         <label class="field-label">Contraseña</label>
@@ -170,15 +155,9 @@ const form = reactive({
   lastName: '',
   email: '',
   phone: '',
-  role: 'client',
   password: '',
   confirmPassword: '',
 })
-
-const roleOptions = [
-  { title: 'Cliente', value: 'client' },
-  { title: 'Propietario de Negocio', value: 'business' },
-]
 
 const rules = {
   required: (v: string) => !!v || 'Este campo es requerido',
@@ -200,7 +179,6 @@ const handleRegister = async () => {
       lastName: form.lastName,
       email: form.email,
       phone: form.phone || undefined,
-      role: form.role,
       password: form.password,
     })
     router.push('/dashboard')

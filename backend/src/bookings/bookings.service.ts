@@ -4,8 +4,10 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto, RejectBookingDto } from './dto/booking.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -32,6 +34,8 @@ const BOOKING_HOLD_MINUTES = 30;
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
+
   constructor(
     private prisma: PrismaService,
     @Inject(STORAGE_DRIVER) private storage: StorageDriver
@@ -83,7 +87,7 @@ export class BookingsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, currentUser: { sub: string; role: string }) {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
       include: { court: { include: { business: true } }, user: this.userSelect() },
@@ -91,6 +95,7 @@ export class BookingsService {
     if (!booking) {
       throw new NotFoundException('Reserva no encontrada');
     }
+    await this.assertBookingAccess(booking, currentUser);
     return booking;
   }
 
@@ -259,8 +264,7 @@ export class BookingsService {
   }
 
   async confirm(id: string, currentUser: { sub: string; role: string }) {
-    const booking = await this.findOne(id);
-    await this.assertBusinessAccess(booking, currentUser);
+    await this.findOne(id, currentUser);
     // Pago validado: la reserva ya no vence.
     return this.prisma.booking.update({
       where: { id },
@@ -269,8 +273,7 @@ export class BookingsService {
   }
 
   async reject(id: string, dto: RejectBookingDto, currentUser: { sub: string; role: string }) {
-    const booking = await this.findOne(id);
-    await this.assertBusinessAccess(booking, currentUser);
+    await this.findOne(id, currentUser);
     // Rechazada (estado propio, distinto de cancelada) → el horario vuelve a estar libre.
     return this.prisma.booking.update({
       where: { id },
@@ -279,8 +282,7 @@ export class BookingsService {
   }
 
   async complete(id: string, currentUser: { sub: string; role: string }) {
-    const booking = await this.findOne(id);
-    await this.assertBusinessAccess(booking, currentUser);
+    await this.findOne(id, currentUser);
     return this.prisma.booking.update({
       where: { id },
       data: { status: 'completed' },
@@ -288,8 +290,7 @@ export class BookingsService {
   }
 
   async noShow(id: string, currentUser: { sub: string; role: string }) {
-    const booking = await this.findOne(id);
-    await this.assertBusinessAccess(booking, currentUser);
+    await this.findOne(id, currentUser);
     return this.prisma.booking.update({
       where: { id },
       data: { status: 'no_show' },
@@ -297,13 +298,7 @@ export class BookingsService {
   }
 
   async cancel(id: string, currentUser: { sub: string; role: string }) {
-    const booking = await this.findOne(id);
-    if (currentUser.role === 'client' && booking.userId !== currentUser.sub) {
-      throw new ForbiddenException('No puedes cancelar esta reserva');
-    }
-    if (currentUser.role === 'business' && booking.court.business.ownerId !== currentUser.sub) {
-      throw new ForbiddenException('No puedes cancelar esta reserva');
-    }
+    await this.findOne(id, currentUser);
     return this.prisma.booking.update({
       where: { id },
       data: { status: 'cancelled' },
@@ -311,30 +306,64 @@ export class BookingsService {
   }
 
   /**
-   * Expiración lazy: marca como `expired` las reservas pendientes cuyo bloqueo
-   * temporal de 30 min ya venció, liberando el horario. Se llama en los caminos
-   * que dependen de la disponibilidad (crear reserva, ver slots).
+   * Marca como `expired` las reservas pendientes cuyo bloqueo temporal de 30 min
+   * ya venció, liberando el horario. Se invoca en dos vías:
+   *
+   * 1. Lazy: dentro de `availableSlots`/`create` (rutas que dependen de la
+   *    disponibilidad). Garantiza que la siguiente consulta vea el estado real
+   *    aunque el cron aún no haya corrido.
+   * 2. Cron `expirePendingBookingsCron`: cada 5 min, libera horarios incluso si
+   *    nadie consulta los slots. Idempotente: `updateMany` con filtro de
+   *    `status=pending` no toca filas ya `expired/confirmed/cancelled/...`.
    */
-  private async expireStale() {
-    await this.prisma.booking.updateMany({
+  async expireStale() {
+    return this.prisma.booking.updateMany({
       where: { status: 'pending', expiresAt: { lt: new Date() } },
       data: { status: 'expired' },
     });
   }
 
-  private async assertBusinessAccess(
-    booking: { court: { businessId: string } },
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async expirePendingBookingsCron() {
+    try {
+      const result = await this.expireStale();
+      if (result.count > 0) {
+        this.logger.log(`Expiración de reservas: ${result.count} liberada(s)`);
+      }
+    } catch (err) {
+      this.logger.error('Fallo en cron de expiración de reservas', err as Error);
+    }
+  }
+
+  /**
+   * Reglas de acceso por rol:
+   * - admin: todo
+   * - client: solo sus propias reservas
+   * - business: solo reservas de canchas de negocios que posee
+   */
+  private async assertBookingAccess(
+    booking: { userId: string; court: { businessId: string } },
     currentUser: { sub: string; role: string }
   ) {
     if (currentUser.role === 'admin') {
       return;
     }
-    const business = await this.prisma.business.findUnique({
-      where: { id: booking.court.businessId },
-    });
-    if (!business || business.ownerId !== currentUser.sub) {
-      throw new ForbiddenException('No tienes acceso a esta reserva');
+    if (currentUser.role === 'client') {
+      if (booking.userId !== currentUser.sub) {
+        throw new ForbiddenException('No tienes acceso a esta reserva');
+      }
+      return;
     }
+    if (currentUser.role === 'business') {
+      const business = await this.prisma.business.findUnique({
+        where: { id: booking.court.businessId },
+      });
+      if (!business || business.ownerId !== currentUser.sub) {
+        throw new ForbiddenException('No tienes acceso a esta reserva');
+      }
+      return;
+    }
+    throw new ForbiddenException('No tienes acceso a esta reserva');
   }
 
   private userSelect() {

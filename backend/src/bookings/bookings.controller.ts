@@ -50,8 +50,8 @@ export class BookingsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bookings.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: JwtUser) {
+    return this.bookings.findOne(id, user);
   }
 
   @Post()

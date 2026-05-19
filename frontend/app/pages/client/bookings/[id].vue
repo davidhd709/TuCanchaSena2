@@ -123,7 +123,7 @@
 
           <!-- Motivo de rechazo -->
           <v-alert
-            v-if="booking.status === 'rejected' && booking.rejectionReason"
+            v-if="booking.status === 'rejected' && booking.cancellationReason"
             type="error"
             variant="tonal"
             rounded="lg"
@@ -131,11 +131,11 @@
             border="start"
           >
             <div class="font-weight-bold mb-1">Motivo del rechazo</div>
-            <div class="text-body-2">{{ booking.rejectionReason }}</div>
+            <div class="text-body-2">{{ booking.cancellationReason }}</div>
           </v-alert>
 
           <!-- Comprobante -->
-          <v-card v-if="booking.paymentProofUrl" rounded="lg" class="mb-4">
+          <v-card v-if="booking.paymentProof" rounded="lg" class="mb-4">
             <v-card-title class="pa-5 pb-3 text-subtitle-1 font-weight-bold">
               <v-icon class="mr-2" color="primary">mdi-image</v-icon>
               Comprobante de Pago
@@ -144,14 +144,14 @@
             <v-card-text class="pa-5">
               <v-img
                 v-if="!isPdfProof"
-                :src="booking.paymentProofUrl"
+                :src="booking.paymentProof"
                 max-height="280"
                 cover
                 rounded="lg"
                 class="mb-3"
               />
               <v-btn
-                :href="booking.paymentProofUrl"
+                :href="booking.paymentProof"
                 target="_blank"
                 color="primary"
                 variant="outlined"
@@ -367,7 +367,7 @@ const createdAtLabel = computed(() => {
 })
 
 const isPdfProof = computed(() =>
-  booking.value?.paymentProofUrl?.toLowerCase().endsWith('.pdf'),
+  booking.value?.paymentProof?.toLowerCase().endsWith('.pdf'),
 )
 
 // —— Bloqueo temporal de 30 min: cuenta regresiva ——

@@ -300,7 +300,6 @@ definePageMeta({
 })
 
 const { apiFetch } = useApi()
-const config = useRuntimeConfig()
 const authStore = useAuthStore()
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -432,8 +431,9 @@ const saveUser = async () => {
       updateUserInList(selectedUser.value.id, updated)
       notify('Usuario actualizado correctamente')
     } else {
-      // Create via /auth/register
-      const created = await $fetch<any>(`${config.public.apiBase}/auth/register`, {
+      // Creación admin-only con rol explícito. /auth/register es público y
+      // siempre crea `client`; para asignar admin/business usamos POST /users.
+      await apiFetch<any>('/users', {
         method: 'POST',
         body: {
           firstName: form.firstName,
@@ -444,7 +444,6 @@ const saveUser = async () => {
           password: form.password,
         },
       })
-      // Reload list to get full user object
       users.value = await apiFetch<any[]>('/users')
       notify('Usuario creado exitosamente')
     }

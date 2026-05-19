@@ -14,7 +14,7 @@
       <div class="booking-info-row"><span><span class="mdi mdi-clock-outline" /> Horario</span><strong>{{ booking.startTime?.slice(0,5) }} - {{ booking.endTime?.slice(0,5) }}</strong></div>
       <div class="booking-info-row"><span><span class="mdi mdi-cash-multiple" /> Total</span><strong class="booking-price">${{ amount }}</strong></div>
 
-      <p v-if="booking.rejectionReason" class="booking-reason">Motivo: {{ booking.rejectionReason }}</p>
+      <p v-if="booking.cancellationReason" class="booking-reason">Motivo: {{ booking.cancellationReason }}</p>
 
       <div class="booking-actions">
         <v-btn

@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -15,6 +16,12 @@ export class UsersController {
   @Roles('admin')
   findAll() {
     return this.users.findAll();
+  }
+
+  @Post()
+  @Roles('admin')
+  create(@Body() dto: CreateUserDto) {
+    return this.users.create(dto);
   }
 
   @Get(':id')
