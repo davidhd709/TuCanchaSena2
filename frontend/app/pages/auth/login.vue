@@ -150,13 +150,13 @@ onMounted(() => {
 /* ─── Card shell ────────────────────────────────────── */
 .login-card {
   width: 100%;
-  background: linear-gradient(180deg, #1a2027, #151b23);
+  background: var(--bg-card);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(47, 161, 138, 0.24);
-  border-radius: 22px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
   padding: 36px 32px 28px;
-  box-shadow: 0 18px 46px rgba(0,0,0,0.38);
+  box-shadow: var(--shadow-lg);
   font-family: 'Manrope', sans-serif;
 }
 

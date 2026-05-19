@@ -378,7 +378,7 @@ onMounted(async () => {
     radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
     linear-gradient(135deg, #182230 0%, #0f141a 100%);
 }
-.court-gallery-ph .mdi { font-size: 6rem; color: rgba(31, 122, 103, 0.55); }
+.court-gallery-ph .mdi { font-size: 6rem; color: rgba(52, 198, 146, 0.55); }
 .court-gallery-status {
   position: absolute;
   top: 16px;
@@ -389,17 +389,17 @@ onMounted(async () => {
   font-size: 0.76rem;
   font-weight: 700;
   padding: 7px 13px;
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: rgba(12, 16, 20, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-medium);
   box-shadow: var(--shadow-sm);
 }
 .court-gallery-dot { width: 7px; height: 7px; border-radius: 50%; }
 .court-gallery-status.is-available { color: var(--green-bright); }
-.court-gallery-status.is-available .court-gallery-dot { background: var(--green-primary); }
-.court-gallery-status.is-unavailable { color: #f87171; }
-.court-gallery-status.is-unavailable .court-gallery-dot { background: #ef4444; }
+.court-gallery-status.is-available .court-gallery-dot { background: var(--green-bright); }
+.court-gallery-status.is-unavailable { color: #fca5a5; }
+.court-gallery-status.is-unavailable .court-gallery-dot { background: var(--accent-error); }
 
 .court-gallery-side {
   display: grid;

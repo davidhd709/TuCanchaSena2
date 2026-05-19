@@ -495,11 +495,12 @@ const confirmCancel = async () => {
 .status-hero {
   min-height: 100px;
 }
+/* Hero de estado alineado con la paleta del design system. */
 .hero-pending {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 .hero-confirmed {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
 }
 .hero-rejected {
   background: linear-gradient(135deg, #ef4444, #dc2626);
@@ -512,14 +513,14 @@ const confirmCancel = async () => {
 }
 
 .countdown-card {
-  border-color: rgba(31, 122, 103, 0.36) !important;
-  background: linear-gradient(135deg, rgba(47, 161, 138, 0.08), var(--bg-card)) !important;
+  border-color: rgba(52, 198, 146, 0.36) !important;
+  background: linear-gradient(135deg, var(--green-soft), var(--bg-card)) !important;
 }
 .countdown-value {
   font-family: 'Sora', 'Manrope', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--green-primary);
+  color: var(--green-bright);
   line-height: 1.1;
   letter-spacing: 1px;
 }
