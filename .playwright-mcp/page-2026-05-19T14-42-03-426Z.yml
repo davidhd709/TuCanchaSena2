@@ -1,0 +1,128 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - link "TuCancha" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e8]:
+          - link "Inicio" [ref=e9] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Explorar" [ref=e10] [cursor=pointer]:
+            - /url: /client/courts
+          - link "Mis Reservas" [ref=e11] [cursor=pointer]:
+            - /url: /client/bookings
+        - generic [ref=e12]:
+          - button "Notificaciones" [ref=e13] [cursor=pointer]:
+            - generic [ref=e14]: 󰂜
+          - button "Menú de usuario" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 󰭕
+    - main [ref=e17]:
+      - generic [ref=e327]:
+        - link "Mis Reservas" [ref=e328] [cursor=pointer]:
+          - /url: /client/bookings
+          - generic [ref=e330]: 󰁍
+          - generic [ref=e331]: Mis Reservas
+        - generic [ref=e333]:
+          - generic [ref=e334]: 󰅐
+          - generic [ref=e335]:
+            - heading "¡Reserva enviada!" [level=1] [ref=e336]
+            - paragraph [ref=e337]: Estamos verificando tu comprobante de pago.
+          - generic [ref=e338]:
+            - generic [ref=e339]: 󰅐
+            - text: Pendiente
+        - generic [ref=e340]:
+          - generic [ref=e341]:
+            - generic [ref=e342]:
+              - generic [ref=e343]:
+                - generic [ref=e344]: 󰠴
+                - text: Datos de la reserva
+              - separator [ref=e345]
+              - list [ref=e347]:
+                - listitem [ref=e348]:
+                  - generic [ref=e351]: 󰠴
+                  - generic [ref=e352]:
+                    - generic [ref=e353]: Arena Sport Central
+                    - generic [ref=e354]: Cancha El Estadio
+                - separator [ref=e355]
+                - listitem [ref=e356]:
+                  - generic [ref=e359]: 󰃭
+                  - generic [ref=e360]:
+                    - generic [ref=e361]: Invalid Date
+                    - generic [ref=e362]: Fecha de la reserva
+                - separator [ref=e363]
+                - listitem [ref=e364]:
+                  - generic [ref=e367]: 󰅐
+                  - generic [ref=e368]:
+                    - generic [ref=e369]: 08:00 – 09:00
+                    - generic [ref=e370]: Horario · 1 hora
+                - separator [ref=e371]
+                - listitem [ref=e372]:
+                  - generic [ref=e375]: 󰄔
+                  - generic [ref=e376]:
+                    - generic [ref=e377]: Transferencia Bancaria
+                    - generic [ref=e378]: Método de pago
+            - generic [ref=e379]:
+              - generic [ref=e380]:
+                - generic [ref=e381]: 󰋩
+                - text: Comprobante de Pago
+              - separator [ref=e382]
+              - link "Abrir PDF" [ref=e384] [cursor=pointer]:
+                - /url: http://localhost:8001/uploads/ac74ba5d-b3c1-4c94-ba69-b6d851611825.pdf
+                - generic [ref=e386]: 󰏌
+                - generic [ref=e387]: Abrir PDF
+          - generic [ref=e388]:
+            - generic [ref=e390]:
+              - generic [ref=e391]: 󰔟
+              - generic [ref=e392]: Horario bloqueado
+              - generic [ref=e393]: 29:43
+              - paragraph [ref=e394]: El negocio tiene este tiempo para validar tu pago. Si no lo hace, el horario se libera.
+            - generic [ref=e396]:
+              - generic [ref=e397]: Total reserva
+              - generic [ref=e398]: $145.000
+              - generic [ref=e399]: COP
+            - generic [ref=e401]:
+              - generic [ref=e402]: Información de la reserva
+              - generic [ref=e403]:
+                - generic [ref=e404]: ID
+                - generic [ref=e405]: "62709895"
+              - generic [ref=e406]:
+                - generic [ref=e407]: Creada
+                - generic [ref=e408]: 19 de may de 2026, 09:41 a. m.
+              - generic [ref=e409]:
+                - generic [ref=e410]: Estado
+                - generic [ref=e411]:
+                  - generic [ref=e412]: 󰅐
+                  - text: Pendiente
+            - generic [ref=e414]:
+              - generic [ref=e415]: Puedes cancelar esta reserva mientras está pendiente.
+              - button "Cancelar reserva" [ref=e416] [cursor=pointer]:
+                - generic [ref=e418]: 󰃴
+                - generic [ref=e419]: Cancelar reserva
+            - link "Hacer otra reserva" [ref=e420] [cursor=pointer]:
+              - /url: /client/courts
+              - generic [ref=e422]: 󰐕
+              - generic [ref=e423]: Hacer otra reserva
+    - contentinfo [ref=e127]:
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - generic [ref=e130]: TuCancha
+          - paragraph [ref=e131]: © 2024 TuCancha. Premium Soccer Field Booking.
+        - generic [ref=e132]:
+          - link "Privacidad" [ref=e133] [cursor=pointer]:
+            - /url: "#"
+          - link "Términos" [ref=e134] [cursor=pointer]:
+            - /url: "#"
+          - link "Contacto" [ref=e135] [cursor=pointer]:
+            - /url: "#"
+          - link "Soporte" [ref=e136] [cursor=pointer]:
+            - /url: "#"
+  - generic:
+    - img
+  - generic [ref=e137]:
+    - button "Toggle Nuxt DevTools" [ref=e138] [cursor=pointer]:
+      - img [ref=e139]
+    - generic "Page load time" [ref=e142]:
+      - generic [ref=e143]: "385"
+      - generic [ref=e144]: ms
+    - button "Toggle Component Inspector" [ref=e146] [cursor=pointer]:
+      - img [ref=e147]

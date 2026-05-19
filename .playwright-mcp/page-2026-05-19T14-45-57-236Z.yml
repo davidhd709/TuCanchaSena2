@@ -1,0 +1,117 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e65]:
+    - complementary [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e68]: Owner Panel
+        - paragraph [ref=e69]: Manage your fields
+      - navigation [ref=e70]:
+        - link "Dashboard" [ref=e71] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e72]: 󰨝
+          - text: Dashboard
+        - link "Canchas" [ref=e73] [cursor=pointer]:
+          - /url: /business/courts
+          - generic [ref=e74]: 󰠴
+          - text: Canchas
+        - link "Reservas" [ref=e75] [cursor=pointer]:
+          - /url: /business/bookings
+          - generic [ref=e76]: 󰱄
+          - text: Reservas
+        - link "Ajustes" [ref=e77] [cursor=pointer]:
+          - /url: /business
+          - generic [ref=e78]: 󱍡
+          - text: Ajustes
+      - generic [ref=e79]:
+        - link "Nueva Cancha" [ref=e80] [cursor=pointer]:
+          - /url: /business/courts
+          - generic [ref=e82]: 󰐕
+          - generic [ref=e83]: Nueva Cancha
+        - generic [ref=e84]:
+          - generic [ref=e85]: CP
+          - generic [ref=e86]:
+            - generic [ref=e87]: Carlos Pérez
+            - generic [ref=e88]: Owner Admin
+        - button "Cerrar Sesión" [ref=e89] [cursor=pointer]:
+          - generic [ref=e91]: 󰍃
+          - generic [ref=e92]: Cerrar Sesión
+    - main [ref=e93]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]: Negocio
+            - heading "Mi Panel de Negocio" [level=1] [ref=e99]
+            - paragraph [ref=e100]: Gestiona tu negocio, tus canchas y tus reservas
+          - link "Mi Negocio" [ref=e102] [cursor=pointer]:
+            - /url: /business
+            - generic [ref=e104]: 󰓜
+            - generic [ref=e105]: Mi Negocio
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - generic [ref=e109]: 󰠴
+            - generic [ref=e110]:
+              - paragraph [ref=e111]: "6"
+              - paragraph [ref=e112]: Mis Canchas
+          - generic [ref=e113]:
+            - generic [ref=e115]: 󰃶
+            - generic [ref=e116]:
+              - paragraph [ref=e117]: "0"
+              - paragraph [ref=e118]: Reservas Hoy
+          - generic [ref=e119]:
+            - generic [ref=e121]: 󰅐
+            - generic [ref=e122]:
+              - paragraph [ref=e123]: "1"
+              - paragraph [ref=e124]: Pendientes
+          - generic [ref=e125]:
+            - generic [ref=e127]: 󰗠
+            - generic [ref=e128]:
+              - paragraph [ref=e129]: "0"
+              - paragraph [ref=e130]: Completadas
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - heading "Reservas pendientes de revisión" [level=2] [ref=e134]
+              - link "Ver todas" [ref=e135] [cursor=pointer]:
+                - /url: /business/bookings
+            - link "󰠴 Arena Sport Central 2026-05-19T00:00:00.000Z · 09:00–10:00 󰅐 Pendiente" [ref=e137] [cursor=pointer]:
+              - /url: /business/bookings
+              - generic [ref=e139]: 󰠴
+              - generic [ref=e140]:
+                - generic [ref=e141]: Arena Sport Central
+                - generic [ref=e142]: 2026-05-19T00:00:00.000Z · 09:00–10:00
+              - generic [ref=e143]:
+                - generic [ref=e144]: 󰅐
+                - text: Pendiente
+          - generic [ref=e145]:
+            - heading "Acciones rápidas" [level=2] [ref=e146]
+            - generic [ref=e147]:
+              - link "󱍡 Mi Negocio Datos, servicios y horarios 󰅂" [ref=e148] [cursor=pointer]:
+                - /url: /business
+                - generic [ref=e150]: 󱍡
+                - generic [ref=e151]:
+                  - generic [ref=e152]: Mi Negocio
+                  - generic [ref=e153]: Datos, servicios y horarios
+                - generic [ref=e154]: 󰅂
+              - link "󰠴 Mis Canchas Crear y administrar canchas 󰅂" [ref=e155] [cursor=pointer]:
+                - /url: /business/courts
+                - generic [ref=e157]: 󰠴
+                - generic [ref=e158]:
+                  - generic [ref=e159]: Mis Canchas
+                  - generic [ref=e160]: Crear y administrar canchas
+                - generic [ref=e161]: 󰅂
+              - link "󰱄 Reservas Calendario y comprobantes 󰅂" [ref=e162] [cursor=pointer]:
+                - /url: /business/bookings
+                - generic [ref=e164]: 󰱄
+                - generic [ref=e165]:
+                  - generic [ref=e166]: Reservas
+                  - generic [ref=e167]: Calendario y comprobantes
+                - generic [ref=e168]: 󰅂
+  - generic:
+    - img
+  - generic [ref=e49]:
+    - button "Toggle Nuxt DevTools" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+    - generic "Page load time" [ref=e54]:
+      - generic [ref=e55]: "235"
+      - generic [ref=e56]: ms
+    - button "Toggle Component Inspector" [ref=e58] [cursor=pointer]:
+      - img [ref=e59]

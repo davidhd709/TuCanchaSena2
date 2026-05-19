@@ -1,0 +1,212 @@
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - link "TuCancha" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e8]:
+          - link "Inicio" [ref=e9] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Explorar" [ref=e10] [cursor=pointer]:
+            - /url: /client/courts
+          - link "Mis Reservas" [ref=e11] [cursor=pointer]:
+            - /url: /client/bookings
+        - generic [ref=e12]:
+          - button "Notificaciones" [ref=e13] [cursor=pointer]:
+            - generic [ref=e14]: 󰂜
+          - button "Menú de usuario" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 󰭕
+    - main [ref=e17]:
+      - generic [ref=e19]:
+        - link "Volver a canchas" [ref=e20] [cursor=pointer]:
+          - /url: /client/courts
+          - generic [ref=e21]: 󰁍
+          - text: Volver a canchas
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - img "Arena Sport Central" [ref=e24]
+            - generic [ref=e25]: Disponible
+          - generic [ref=e27]:
+            - img "Arena Sport Central 2" [ref=e29]
+            - img "Arena Sport Central 3" [ref=e31]
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - heading "Arena Sport Central" [level=1] [ref=e34]
+            - paragraph [ref=e35]:
+              - generic [ref=e36]: 󰟙
+              - link "Cancha El Estadio" [ref=e37] [cursor=pointer]:
+                - /url: /client/businesses/5400112f-d314-4c24-ac23-c625eef54cdb
+              - text: "· Calle 10 #20-30, Bogotá"
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e40]: 󰓎
+              - text: "4.7"
+              - generic [ref=e41]: (96)
+            - generic [ref=e42]: Futsal
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]:
+                - generic [ref=e48]: 󰄔
+                - generic [ref=e49]:
+                  - generic [ref=e50]: $145.000
+                  - generic [ref=e51]: por hora
+              - generic [ref=e52]:
+                - generic [ref=e54]: 󰭘
+                - generic [ref=e55]:
+                  - generic [ref=e56]: "10"
+                  - generic [ref=e57]: jugadores
+              - generic [ref=e58]:
+                - generic [ref=e60]: 󰠴
+                - generic [ref=e61]:
+                  - generic [ref=e62]: Futsal
+                  - generic [ref=e63]: tipo de cancha
+            - generic [ref=e64]:
+              - heading "Sobre esta cancha" [level=2] [ref=e65]
+              - generic [ref=e66]: Cancha de futsal techada, ideal para jugar sin importar el clima.
+            - generic [ref=e67]:
+              - heading "Características de la cancha" [level=2] [ref=e68]
+              - generic [ref=e69]:
+                - generic [ref=e70]:
+                  - generic [ref=e71]: 󱄫
+                  - text: Cancha cubierta
+                - generic [ref=e72]:
+                  - generic [ref=e73]: 󰛩
+                  - text: Iluminación LED
+                - generic [ref=e74]:
+                  - generic [ref=e75]: 󰟘
+                  - text: Vestidores
+                - generic [ref=e76]:
+                  - generic [ref=e77]: 󰆫
+                  - text: Hidratación
+            - generic [ref=e78]:
+              - heading "El negocio" [level=2] [ref=e79]
+              - 'link "Cancha El Estadio 󰟙 Calle 10 #20-30, Bogotá Ver perfil 󰁔" [ref=e80] [cursor=pointer]':
+                - /url: /client/businesses/5400112f-d314-4c24-ac23-c625eef54cdb
+                - generic [ref=e81]:
+                  - generic [ref=e82]: Cancha El Estadio
+                  - generic [ref=e83]:
+                    - generic [ref=e84]: 󰟙
+                    - text: "Calle 10 #20-30, Bogotá"
+                - generic [ref=e85]:
+                  - text: Ver perfil
+                  - generic [ref=e86]: 󰁔
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - generic [ref=e89]: 󰖩
+                  - text: WiFi
+                - generic [ref=e90]:
+                  - generic [ref=e91]: 󰦫
+                  - text: Baños
+                - generic [ref=e92]:
+                  - generic [ref=e93]: 󰏣
+                  - text: Parqueadero
+                - generic [ref=e94]:
+                  - generic [ref=e95]: 󰍖
+                  - text: Bar
+                - generic [ref=e96]:
+                  - generic [ref=e97]: 󰩰
+                  - text: Restaurante
+                - generic [ref=e98]:
+                  - generic [ref=e99]: 󰛩
+                  - text: Iluminación nocturna
+                - generic [ref=e100]:
+                  - generic [ref=e101]: 󰟘
+                  - text: Vestidores
+                - generic [ref=e102]:
+                  - generic [ref=e103]: 󰦠
+                  - text: Duchas
+                - generic [ref=e104]:
+                  - generic [ref=e105]: 󰳈
+                  - text: Seguridad
+                - generic [ref=e106]:
+                  - generic [ref=e107]: 󱕭
+                  - text: Zona de descanso
+                - generic [ref=e108]: Graderías
+                - generic [ref=e109]:
+                  - generic [ref=e110]: 󰛊
+                  - text: Cafetería
+          - complementary [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: $145.000 / hora
+              - generic [ref=e116]:
+                - generic [ref=e118]: 󰃭
+                - textbox "Fecha de reserva" [ref=e120]: 2026-05-19
+                - generic:
+                  - generic:
+                    - generic: Fecha de reserva
+              - paragraph [ref=e151]: Horarios disponibles
+              - generic [ref=e152]:
+                - button "08:00 – 09:00 $145.000" [disabled] [ref=e153]:
+                  - generic [ref=e154]: 08:00 – 09:00
+                  - generic [ref=e155]: $145.000
+                - button "09:00 – 10:00 $145.000" [active] [ref=e156] [cursor=pointer]:
+                  - generic [ref=e157]: 09:00 – 10:00
+                  - generic [ref=e158]: $145.000
+                - button "10:00 – 11:00 $145.000" [ref=e159] [cursor=pointer]:
+                  - generic [ref=e160]: 10:00 – 11:00
+                  - generic [ref=e161]: $145.000
+                - button "11:00 – 12:00 $145.000" [ref=e162] [cursor=pointer]:
+                  - generic [ref=e163]: 11:00 – 12:00
+                  - generic [ref=e164]: $145.000
+                - button "12:00 – 13:00 $145.000" [ref=e165] [cursor=pointer]:
+                  - generic [ref=e166]: 12:00 – 13:00
+                  - generic [ref=e167]: $145.000
+                - button "13:00 – 14:00 $145.000" [ref=e168] [cursor=pointer]:
+                  - generic [ref=e169]: 13:00 – 14:00
+                  - generic [ref=e170]: $145.000
+                - button "14:00 – 15:00 $145.000" [ref=e171] [cursor=pointer]:
+                  - generic [ref=e172]: 14:00 – 15:00
+                  - generic [ref=e173]: $145.000
+                - button "15:00 – 16:00 $145.000" [ref=e174] [cursor=pointer]:
+                  - generic [ref=e175]: 15:00 – 16:00
+                  - generic [ref=e176]: $145.000
+                - button "16:00 – 17:00 $145.000" [ref=e177] [cursor=pointer]:
+                  - generic [ref=e178]: 16:00 – 17:00
+                  - generic [ref=e179]: $145.000
+                - button "17:00 – 18:00 $145.000" [ref=e180] [cursor=pointer]:
+                  - generic [ref=e181]: 17:00 – 18:00
+                  - generic [ref=e182]: $145.000
+                - button "18:00 – 19:00 $145.000" [ref=e183] [cursor=pointer]:
+                  - generic [ref=e184]: 18:00 – 19:00
+                  - generic [ref=e185]: $145.000
+                - button "19:00 – 20:00 $145.000" [ref=e186] [cursor=pointer]:
+                  - generic [ref=e187]: 19:00 – 20:00
+                  - generic [ref=e188]: $145.000
+                - button "20:00 – 21:00 $145.000" [ref=e189] [cursor=pointer]:
+                  - generic [ref=e190]: 20:00 – 21:00
+                  - generic [ref=e191]: $145.000
+                - button "21:00 – 22:00 $145.000" [ref=e192] [cursor=pointer]:
+                  - generic [ref=e193]: 21:00 – 22:00
+                  - generic [ref=e194]: $145.000
+              - paragraph [ref=e195]: ★ Precio especial para ese horario
+              - generic [ref=e196]:
+                - generic [ref=e197]:
+                  - generic [ref=e198]: 1 hora
+                  - strong [ref=e199]: $145.000
+                - button "Reservar ahora" [ref=e200] [cursor=pointer]:
+                  - generic [ref=e201]: Reservar ahora
+    - contentinfo [ref=e127]:
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - generic [ref=e130]: TuCancha
+          - paragraph [ref=e131]: © 2024 TuCancha. Premium Soccer Field Booking.
+        - generic [ref=e132]:
+          - link "Privacidad" [ref=e133] [cursor=pointer]:
+            - /url: "#"
+          - link "Términos" [ref=e134] [cursor=pointer]:
+            - /url: "#"
+          - link "Contacto" [ref=e135] [cursor=pointer]:
+            - /url: "#"
+          - link "Soporte" [ref=e136] [cursor=pointer]:
+            - /url: "#"
+  - generic:
+    - img
+  - generic [ref=e137]:
+    - button "Toggle Nuxt DevTools" [ref=e138] [cursor=pointer]:
+      - img [ref=e139]
+    - generic "Page load time" [ref=e142]:
+      - generic [ref=e143]: "107"
+      - generic [ref=e144]: ms
+    - button "Toggle Component Inspector" [ref=e146] [cursor=pointer]:
+      - img [ref=e147]

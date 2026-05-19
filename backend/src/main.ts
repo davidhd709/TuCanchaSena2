@@ -6,6 +6,14 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 
+/** Orígenes locales que aceptamos por defecto en desarrollo (Nuxt en :3000/:3001). */
+const DEV_CORS_DEFAULTS = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+];
+
 function validateEnv(config: ConfigService) {
   const logger = new Logger('Bootstrap');
   const isProd = config.get<string>('NODE_ENV') === 'production';
@@ -25,6 +33,16 @@ function validateEnv(config: ConfigService) {
   }
 }
 
+function resolveCorsOrigins(config: ConfigService): string[] {
+  const raw = config.get<string>('CORS_ORIGIN');
+  const isProd = config.get<string>('NODE_ENV') === 'production';
+  if (raw && raw.trim() !== '') {
+    return raw.split(',').map((o) => o.trim()).filter(Boolean);
+  }
+  // En prod `validateEnv` ya aborta si no hay CORS_ORIGIN; aquí solo cubre dev.
+  return isProd ? [] : DEV_CORS_DEFAULTS;
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
@@ -34,7 +52,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: (config.get<string>('CORS_ORIGIN') ?? 'http://localhost:3000').split(','),
+    origin: resolveCorsOrigins(config),
     credentials: true,
   });
 

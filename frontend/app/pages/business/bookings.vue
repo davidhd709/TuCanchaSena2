@@ -588,13 +588,24 @@ const statusLegend = [
 ]
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return ''
-  const parts = dateStr.split('-').map(Number)
-  const y  = parts[0] ?? new Date().getFullYear()
-  const mo = parts[1] ?? 1
-  const d  = parts[2] ?? 1
-  return new Date(y, mo - 1, d).toLocaleDateString('es-CO', {
+/** Acepta `YYYY-MM-DD`, ISO con `T` o Date. Devuelve `null` si no es parseable. */
+const toLocalDate = (value: unknown): Date | null => {
+  if (!value) return null
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
+  if (typeof value !== 'string') return null
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (ymd) {
+    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+const formatDate = (dateStr: unknown) => {
+  const d = toLocalDate(dateStr)
+  if (!d) return 'Fecha no disponible'
+  return d.toLocaleDateString('es-CO', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 }

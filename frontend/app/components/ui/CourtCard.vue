@@ -1,7 +1,14 @@
 <template>
   <NuxtLink :to="to" class="court-card">
     <div class="court-card-media">
-      <img v-if="cover" :src="cover" :alt="court.name" class="court-card-img" loading="lazy" />
+      <img
+        v-if="cover && !imgError"
+        :src="cover"
+        :alt="court.name"
+        class="court-card-img"
+        loading="lazy"
+        @error="imgError = true"
+      />
       <div v-else class="court-card-img court-card-img--ph"><span class="mdi mdi-soccer-field" /></div>
       <span class="court-card-status">Disponible</span>
     </div>
@@ -50,6 +57,7 @@ const props = withDefaults(
 
 const to = computed(() => props.to ?? `/client/courts/${props.court.id}`)
 const cover = computed(() => props.court.images?.[0] ?? '')
+const imgError = ref(false)
 const formattedPrice = computed(() => Number(props.court.pricePerHour).toLocaleString('es-CO'))
 </script>
 

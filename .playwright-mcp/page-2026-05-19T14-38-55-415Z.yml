@@ -1,0 +1,145 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - link "TuCancha" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e8]:
+          - link "Inicio" [ref=e9] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Explorar" [ref=e10] [cursor=pointer]:
+            - /url: /client/courts
+          - link "Mis Reservas" [ref=e11] [cursor=pointer]:
+            - /url: /client/bookings
+        - generic [ref=e12]:
+          - button "Notificaciones" [ref=e13] [cursor=pointer]:
+            - generic [ref=e14]: 󰂜
+          - button "Menú de usuario" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 󰭕
+    - main [ref=e17]:
+      - generic [ref=e200]:
+        - link "Volver a canchas" [ref=e201] [cursor=pointer]:
+          - /url: /client/courts
+          - generic [ref=e202]: 󰁍
+          - text: Volver a canchas
+        - generic [ref=e204]:
+          - img "La Doceava (Cancha Principal)" [ref=e205]
+          - generic [ref=e206]: Disponible
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - heading "La Doceava (Cancha Principal)" [level=1] [ref=e210]
+            - paragraph [ref=e211]:
+              - generic [ref=e212]: 󰟙
+              - link "Santiago Bernabeu" [ref=e213] [cursor=pointer]:
+                - /url: /client/businesses/db90f7c1-05ae-4764-b583-82d6d58f70e5
+              - text: "· Calle 62 # 6 - 25, Barrio Pasatiempo, Montería, Córdoba."
+          - generic [ref=e215]: Fútbol 5
+        - generic [ref=e216]:
+          - generic [ref=e217]:
+            - generic [ref=e218]:
+              - generic [ref=e219]:
+                - generic [ref=e221]: 󰄔
+                - generic [ref=e222]:
+                  - generic [ref=e223]: $50.000
+                  - generic [ref=e224]: por hora
+              - generic [ref=e225]:
+                - generic [ref=e227]: 󰭘
+                - generic [ref=e228]:
+                  - generic [ref=e229]: "10"
+                  - generic [ref=e230]: jugadores
+              - generic [ref=e231]:
+                - generic [ref=e233]: 󰠴
+                - generic [ref=e234]:
+                  - generic [ref=e235]: Fútbol 5
+                  - generic [ref=e236]: tipo de cancha
+            - generic [ref=e237]:
+              - heading "Sobre esta cancha" [level=2] [ref=e238]
+              - paragraph [ref=e240]: Terreno de juego con grama sintética monofilamento de última generación, iluminación LED profesional y gradería techada.
+            - generic [ref=e241]:
+              - heading "Características de la cancha" [level=2] [ref=e242]
+              - generic [ref=e243]:
+                - generic [ref=e244]:
+                  - generic [ref=e245]: 󱄫
+                  - text: Cancha cubierta
+                - generic [ref=e246]:
+                  - generic [ref=e247]: 󰗡
+                  - text: Césped sintético nuevo
+                - generic [ref=e248]:
+                  - generic [ref=e249]: 󰗡
+                  - text: Marcador electrónico
+            - generic [ref=e250]:
+              - heading "El negocio" [level=2] [ref=e251]
+              - 'link "Santiago Bernabeu 󰟙 Calle 62 # 6 - 25, Barrio Pasatiempo, Montería, Córdoba. Ver perfil 󰁔" [ref=e252] [cursor=pointer]':
+                - /url: /client/businesses/db90f7c1-05ae-4764-b583-82d6d58f70e5
+                - generic [ref=e253]:
+                  - generic [ref=e254]: Santiago Bernabeu
+                  - generic [ref=e255]:
+                    - generic [ref=e256]: 󰟙
+                    - text: "Calle 62 # 6 - 25, Barrio Pasatiempo, Montería, Córdoba."
+                - generic [ref=e257]:
+                  - text: Ver perfil
+                  - generic [ref=e258]: 󰁔
+              - generic [ref=e259]:
+                - generic [ref=e260]:
+                  - generic [ref=e261]: 󰖩
+                  - text: WiFi
+                - generic [ref=e262]:
+                  - generic [ref=e263]: 󰦫
+                  - text: Baños
+                - generic [ref=e264]:
+                  - generic [ref=e265]: 󰏣
+                  - text: Parqueadero
+                - generic [ref=e266]:
+                  - generic [ref=e267]: 󰗡
+                  - text: Cancha techada
+                - generic [ref=e268]:
+                  - generic [ref=e269]: 󰍖
+                  - text: Bar
+                - generic [ref=e270]:
+                  - generic [ref=e271]: 󰩰
+                  - text: Restaurante
+                - generic [ref=e272]:
+                  - generic [ref=e273]: 󰛊
+                  - text: Cafetería
+                - generic [ref=e274]:
+                  - generic [ref=e275]: 󰦠
+                  - text: Duchas
+                - generic [ref=e276]:
+                  - generic [ref=e277]: 󰟘
+                  - text: Vestidores
+          - complementary [ref=e278]:
+            - generic [ref=e279]:
+              - generic [ref=e280]: $50.000 / hora
+              - generic [ref=e283]:
+                - generic [ref=e285]: 󰃭
+                - textbox "Fecha de reserva" [ref=e287]
+                - generic:
+                  - generic:
+                    - generic: Fecha de reserva
+              - generic [ref=e288]:
+                - generic [ref=e289]: 󰥌
+                - text: Elige una fecha para ver los horarios disponibles.
+    - contentinfo [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e86]:
+          - generic [ref=e87]: TuCancha
+          - paragraph [ref=e88]: © 2024 TuCancha. Premium Soccer Field Booking.
+        - generic [ref=e89]:
+          - link "Privacidad" [ref=e90] [cursor=pointer]:
+            - /url: "#"
+          - link "Términos" [ref=e91] [cursor=pointer]:
+            - /url: "#"
+          - link "Contacto" [ref=e92] [cursor=pointer]:
+            - /url: "#"
+          - link "Soporte" [ref=e93] [cursor=pointer]:
+            - /url: "#"
+  - generic:
+    - img
+  - generic [ref=e94]:
+    - button "Toggle Nuxt DevTools" [ref=e95] [cursor=pointer]:
+      - img [ref=e96]
+    - generic "Page load time" [ref=e99]:
+      - generic [ref=e100]: "222"
+      - generic [ref=e101]: ms
+    - button "Toggle Component Inspector" [ref=e103] [cursor=pointer]:
+      - img [ref=e104]

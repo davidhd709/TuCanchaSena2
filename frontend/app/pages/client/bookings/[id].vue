@@ -336,10 +336,24 @@ onMounted(loadBooking)
 
 // —— Computed visuales ——
 
+/** Acepta `YYYY-MM-DD`, ISO con `T` o Date. Devuelve `null` si no es parseable. */
+const toLocalDate = (value: unknown): Date | null => {
+  if (!value) return null
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
+  if (typeof value !== 'string') return null
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (ymd) {
+    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
 const formattedDate = computed(() => {
-  if (!booking.value?.date) return ''
-  const [y, m, d] = booking.value.date.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
+  const d = toLocalDate(booking.value?.date)
+  if (!d) return 'Fecha no disponible'
+  return d.toLocaleDateString('es-CO', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -356,8 +370,9 @@ const durationLabel = computed(() => {
 })
 
 const createdAtLabel = computed(() => {
-  if (!booking.value?.createdAt) return ''
-  return new Date(booking.value.createdAt).toLocaleDateString('es-CO', {
+  const d = toLocalDate(booking.value?.createdAt)
+  if (!d) return 'Fecha no disponible'
+  return d.toLocaleDateString('es-CO', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

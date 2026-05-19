@@ -122,7 +122,7 @@
         rounded="lg"
       >
         <v-icon start>mdi-calendar-remove</v-icon>
-        No hay horarios disponibles para esta fecha. Intenta con otra.
+        No hay horarios disponibles para esta fecha. Intenta con otro día o consulta otro horario.
       </v-alert>
 
       <!-- Sin fecha seleccionada -->

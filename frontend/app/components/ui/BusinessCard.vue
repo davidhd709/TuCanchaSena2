@@ -3,11 +3,12 @@
     <!-- Imagen -->
     <div class="biz-card-media">
       <img
-        v-if="cover"
+        v-if="cover && !imgError"
         :src="cover"
         :alt="business.name"
         class="biz-card-img"
         loading="lazy"
+        @error="imgError = true"
       />
       <div v-else class="biz-card-img biz-card-img--ph">
         <span class="mdi mdi-stadium-variant" />
@@ -72,6 +73,7 @@ const props = defineProps<{
 }>()
 
 const cover = computed(() => props.business.images?.[0] ?? '')
+const imgError = ref(false)
 const courtCount = computed(() => props.business._count?.courts ?? 0)
 
 // Resumen de horario: toma el primer día abierto como referencia.

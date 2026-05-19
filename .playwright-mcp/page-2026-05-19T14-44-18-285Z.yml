@@ -1,0 +1,98 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e64]:
+    - banner [ref=e65]:
+      - generic [ref=e66]:
+        - link "TuCancha" [ref=e67] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e68]:
+          - link "Inicio" [ref=e69] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Explorar" [ref=e70] [cursor=pointer]:
+            - /url: /client/courts
+          - link "Mis Reservas" [ref=e71] [cursor=pointer]:
+            - /url: /client/bookings
+        - generic [ref=e72]:
+          - button "Notificaciones" [ref=e73] [cursor=pointer]:
+            - generic [ref=e74]: 󰂜
+          - button "Menú de usuario" [ref=e75] [cursor=pointer]:
+            - generic [ref=e76]: 󰭕
+    - main [ref=e77]:
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - heading "¡Hola, Ana! 👋" [level=1] [ref=e82]
+            - paragraph [ref=e83]: Reserva tu cancha y vive el partido.
+          - link "Explorar canchas" [ref=e84] [cursor=pointer]:
+            - /url: /client/courts
+            - generic [ref=e86]: 󰍉
+            - generic [ref=e87]: Explorar canchas
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e91]: 󰻗
+            - generic [ref=e92]:
+              - paragraph [ref=e93]: "1"
+              - paragraph [ref=e94]: Total Reservas
+          - generic [ref=e95]:
+            - generic [ref=e97]: 󰗠
+            - generic [ref=e98]:
+              - paragraph [ref=e99]: "1"
+              - paragraph [ref=e100]: Confirmadas
+          - generic [ref=e101]:
+            - generic [ref=e103]: 󰅐
+            - generic [ref=e104]:
+              - paragraph [ref=e105]: "0"
+              - paragraph [ref=e106]: Pendientes
+        - generic [ref=e107]:
+          - heading "Tu próxima reserva" [level=2] [ref=e108]
+          - link "Arena Sport Central Arena Sport Central 󰭧 2026-05-19T00:00:00.000Z 󰅐 08:00 – 09:00 󰗡 Confirmada" [ref=e109] [cursor=pointer]:
+            - /url: /client/bookings/8d2129ea-7d8e-43c7-828e-1f7662709895
+            - img "Arena Sport Central" [ref=e111]
+            - generic [ref=e112]:
+              - heading "Arena Sport Central" [level=3] [ref=e113]
+              - paragraph [ref=e114]:
+                - generic [ref=e115]: 󰭧
+                - text: 2026-05-19T00:00:00.000Z
+                - generic [ref=e116]: 󰅐
+                - text: 08:00 – 09:00
+            - generic [ref=e117]:
+              - generic [ref=e118]: 󰗡
+              - text: Confirmada
+            - generic [ref=e119]: 󰅂
+        - generic [ref=e120]:
+          - generic [ref=e121]:
+            - heading "Reservas recientes" [level=2] [ref=e122]
+            - link "Ver todas" [ref=e123] [cursor=pointer]:
+              - /url: /client/bookings
+          - link "Arena Sport Central Arena Sport Central 2026-05-19T00:00:00.000Z · 08:00–09:00 󰗡 Confirmada" [ref=e125] [cursor=pointer]:
+            - /url: /client/bookings/8d2129ea-7d8e-43c7-828e-1f7662709895
+            - img "Arena Sport Central" [ref=e127]
+            - generic [ref=e128]:
+              - generic [ref=e129]: Arena Sport Central
+              - generic [ref=e130]: 2026-05-19T00:00:00.000Z · 08:00–09:00
+            - generic [ref=e131]:
+              - generic [ref=e132]: 󰗡
+              - text: Confirmada
+    - contentinfo [ref=e133]:
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - generic [ref=e136]: TuCancha
+          - paragraph [ref=e137]: © 2024 TuCancha. Premium Soccer Field Booking.
+        - generic [ref=e138]:
+          - link "Privacidad" [ref=e139] [cursor=pointer]:
+            - /url: "#"
+          - link "Términos" [ref=e140] [cursor=pointer]:
+            - /url: "#"
+          - link "Contacto" [ref=e141] [cursor=pointer]:
+            - /url: "#"
+          - link "Soporte" [ref=e142] [cursor=pointer]:
+            - /url: "#"
+  - generic:
+    - img
+  - generic [ref=e49]:
+    - button "Toggle Nuxt DevTools" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+    - generic "Page load time" [ref=e54]:
+      - generic [ref=e55]: "348"
+      - generic [ref=e56]: ms
+    - button "Toggle Component Inspector" [ref=e58] [cursor=pointer]:
+      - img [ref=e59]

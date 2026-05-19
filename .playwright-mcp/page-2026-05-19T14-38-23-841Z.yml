@@ -1,0 +1,78 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e64]:
+    - banner [ref=e65]:
+      - generic [ref=e66]:
+        - link "TuCancha" [ref=e67] [cursor=pointer]:
+          - /url: /
+        - navigation [ref=e68]:
+          - link "Inicio" [ref=e69] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Explorar" [ref=e70] [cursor=pointer]:
+            - /url: /client/courts
+          - link "Mis Reservas" [ref=e71] [cursor=pointer]:
+            - /url: /client/bookings
+        - generic [ref=e72]:
+          - button "Notificaciones" [ref=e73] [cursor=pointer]:
+            - generic [ref=e74]: 󰂜
+          - button "Menú de usuario" [ref=e75] [cursor=pointer]:
+            - generic [ref=e76]: 󰭕
+    - main [ref=e77]:
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - heading "¡Hola, Ana! 👋" [level=1] [ref=e82]
+            - paragraph [ref=e83]: Reserva tu cancha y vive el partido.
+          - link "Explorar canchas" [ref=e84] [cursor=pointer]:
+            - /url: /client/courts
+            - generic [ref=e86]: 󰍉
+            - generic [ref=e87]: Explorar canchas
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e91]: 󰻗
+            - generic [ref=e92]:
+              - paragraph [ref=e93]: "0"
+              - paragraph [ref=e94]: Total Reservas
+          - generic [ref=e95]:
+            - generic [ref=e97]: 󰗠
+            - generic [ref=e98]:
+              - paragraph [ref=e99]: "0"
+              - paragraph [ref=e100]: Confirmadas
+          - generic [ref=e101]:
+            - generic [ref=e103]: 󰅐
+            - generic [ref=e104]:
+              - paragraph [ref=e105]: "0"
+              - paragraph [ref=e106]: Pendientes
+        - generic [ref=e107]:
+          - heading "Reservas recientes" [level=2] [ref=e109]
+          - generic [ref=e110]:
+            - generic [ref=e112]: 󰭦
+            - heading "Aún no tienes reservas" [level=3] [ref=e113]
+            - paragraph [ref=e114]: Explora las canchas disponibles y reserva tu primer partido.
+            - link "Explorar canchas" [ref=e115] [cursor=pointer]:
+              - /url: /client/courts
+              - generic [ref=e117]: 󰠴
+              - generic [ref=e118]: Explorar canchas
+    - contentinfo [ref=e119]:
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - generic [ref=e122]: TuCancha
+          - paragraph [ref=e123]: © 2024 TuCancha. Premium Soccer Field Booking.
+        - generic [ref=e124]:
+          - link "Privacidad" [ref=e125] [cursor=pointer]:
+            - /url: "#"
+          - link "Términos" [ref=e126] [cursor=pointer]:
+            - /url: "#"
+          - link "Contacto" [ref=e127] [cursor=pointer]:
+            - /url: "#"
+          - link "Soporte" [ref=e128] [cursor=pointer]:
+            - /url: "#"
+  - generic:
+    - img
+  - generic [ref=e49]:
+    - button "Toggle Nuxt DevTools" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+    - generic "Page load time" [ref=e54]:
+      - generic [ref=e55]: "1.1"
+      - generic [ref=e56]: s
+    - button "Toggle Component Inspector" [ref=e58] [cursor=pointer]:
+      - img [ref=e59]

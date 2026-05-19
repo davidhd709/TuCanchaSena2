@@ -1,6 +1,6 @@
 <template>
-  <!-- ─── Login Card ──────────────────────────────────── -->
   <div class="login-card">
+    <!-- ─── Login Card ──────────────────────────────────── -->
 
     <!-- Header -->
     <div class="card-header">

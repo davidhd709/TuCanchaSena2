@@ -197,7 +197,7 @@
 
             <div v-else-if="selectedDate && !slotsLoading" class="booking-empty">
               <span class="mdi mdi-calendar-remove-outline" />
-              No hay horarios disponibles para esta fecha.
+              No hay horarios disponibles para esta fecha. Intenta con otro día o consulta otro horario.
             </div>
 
             <div v-else class="booking-empty">

@@ -1,7 +1,12 @@
 <template>
   <article class="booking-card">
     <div class="booking-card-media">
-      <img v-if="booking.court?.images?.[0]" :src="booking.court.images[0]" :alt="booking.court?.name ?? 'Cancha'" />
+      <img
+        v-if="cover && !imgError"
+        :src="cover"
+        :alt="booking.court?.name ?? 'Cancha'"
+        @error="imgError = true"
+      />
       <div v-else class="booking-card-ph"><span class="mdi mdi-soccer-field" /></div>
       <span class="booking-badge" :class="`is-${booking.status}`">{{ label }}</span>
     </div>
@@ -45,12 +50,28 @@ const labels: Record<string, string> = {
 }
 
 const label = computed(() => labels[props.booking.status] ?? 'Reserva')
+const cover = computed(() => props.booking.court?.images?.[0] ?? '')
+const imgError = ref(false)
+
+/** Acepta `YYYY-MM-DD`, ISO con `T` o Date. Devuelve `null` si no es parseable. */
+const toLocalDate = (value: unknown): Date | null => {
+  if (!value) return null
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
+  if (typeof value !== 'string') return null
+  // Solo YYYY-MM-DD: construir en zona local para no sufrir el shift de UTC.
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (ymd) {
+    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
 const formattedDate = computed(() => {
-  const date = props.booking.date
-  if (!date) return ''
-  const [y, m, d] = date.split('-').map(Number)
-  if (!y || !m || !d) return date
-  return new Date(y, m - 1, d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
+  const d = toLocalDate(props.booking.date)
+  if (!d) return 'Fecha no disponible'
+  return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
 })
 const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleString('es-CO'))
 </script>

@@ -1,0 +1,216 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: Owner Panel
+        - paragraph [ref=e9]: Manage your fields
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e12]: 󰨝
+          - text: Dashboard
+        - link "Canchas" [ref=e13] [cursor=pointer]:
+          - /url: /business/courts
+          - generic [ref=e14]: 󰠴
+          - text: Canchas
+        - link "Reservas" [ref=e15] [cursor=pointer]:
+          - /url: /business/bookings
+          - generic [ref=e16]: 󰱄
+          - text: Reservas
+        - link "Ajustes" [ref=e17] [cursor=pointer]:
+          - /url: /business
+          - generic [ref=e18]: 󱍡
+          - text: Ajustes
+      - generic [ref=e19]:
+        - link "Nueva Cancha" [ref=e20] [cursor=pointer]:
+          - /url: /business/courts
+          - generic [ref=e22]: 󰐕
+          - generic [ref=e23]: Nueva Cancha
+        - generic [ref=e24]:
+          - generic [ref=e25]: CP
+          - generic [ref=e26]:
+            - generic [ref=e27]: Carlos Pérez
+            - generic [ref=e28]: Owner Admin
+        - button "Cerrar Sesión" [ref=e29] [cursor=pointer]:
+          - generic [ref=e31]: 󰍃
+          - generic [ref=e32]: Cerrar Sesión
+    - main [ref=e33]:
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: Negocio
+            - heading "Reservas" [level=1] [ref=e39]
+            - paragraph [ref=e40]: Calendario de movimiento y detalle de las reservas de tus canchas
+          - combobox [ref=e44] [cursor=pointer]:
+            - generic [ref=e46]: 󰠴
+            - generic [ref=e48]:
+              - generic [ref=e50]: Todas las canchas
+              - combobox "Filtrar por cancha": Todas las canchas
+            - generic [ref=e52]: 󰍝
+            - generic:
+              - generic:
+                - generic: Filtrar por cancha
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - button "Semana anterior" [ref=e55] [cursor=pointer]:
+              - generic [ref=e57]: 󰅁
+            - button "Hoy" [ref=e58] [cursor=pointer]:
+              - generic [ref=e59]: Hoy
+            - button "Semana siguiente" [ref=e60] [cursor=pointer]:
+              - generic [ref=e62]: 󰅂
+          - generic [ref=e63]: 18 de mayo – 24 de mayo de 2026
+        - generic [ref=e64]:
+          - generic [ref=e66]: Pendiente
+          - generic [ref=e68]: Confirmada
+          - generic [ref=e70]: Completada
+          - generic [ref=e72]: Cancelada
+          - generic [ref=e74]: No Show
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: lun
+              - generic [ref=e81]: "18"
+              - generic [ref=e82]: may.
+            - generic [ref=e83]:
+              - generic [ref=e84]: mar
+              - generic [ref=e86]: "19"
+              - generic [ref=e87]: may.
+            - generic [ref=e88]:
+              - generic [ref=e89]: mié
+              - generic [ref=e91]: "20"
+              - generic [ref=e92]: may.
+            - generic [ref=e93]:
+              - generic [ref=e94]: jue
+              - generic [ref=e96]: "21"
+              - generic [ref=e97]: may.
+            - generic [ref=e98]:
+              - generic [ref=e99]: vie
+              - generic [ref=e101]: "22"
+              - generic [ref=e102]: may.
+            - generic [ref=e103]:
+              - generic [ref=e104]: sáb
+              - generic [ref=e106]: "23"
+              - generic [ref=e107]: may.
+            - generic [ref=e108]:
+              - generic [ref=e109]: dom
+              - generic [ref=e111]: "24"
+              - generic [ref=e112]: may.
+          - separator [ref=e113]
+          - generic [ref=e116]:
+            - generic [ref=e117]: 06:00
+            - generic [ref=e118]: 07:00
+            - generic [ref=e119]: 08:00
+            - generic [ref=e120]: 09:00
+            - generic [ref=e121]: 10:00
+            - generic [ref=e122]: 11:00
+            - generic [ref=e123]: 12:00
+            - generic [ref=e124]: 13:00
+            - generic [ref=e125]: 14:00
+            - generic [ref=e126]: 15:00
+            - generic [ref=e127]: 16:00
+            - generic [ref=e128]: 17:00
+            - generic [ref=e129]: 18:00
+            - generic [ref=e130]: 19:00
+            - generic [ref=e131]: 20:00
+            - generic [ref=e132]: 21:00
+            - generic [ref=e133]: 22:00
+            - generic [ref=e134]: 23:00
+        - generic [ref=e394]:
+          - heading "Reservas de la semana 2" [level=2] [ref=e395]:
+            - text: Reservas de la semana
+            - generic [ref=e396]: "2"
+          - generic [ref=e397]:
+            - button "󰠴 Arena Sport Central 󰗡 Confirmada 󰀓 󰭧 Invalid Date 󰅐 08:00–09:00 $145.000 󱬦 Comprobante" [ref=e398] [cursor=pointer]:
+              - generic [ref=e399]:
+                - generic [ref=e400]:
+                  - generic [ref=e401]: 󰠴
+                  - text: Arena Sport Central
+                - generic [ref=e402]:
+                  - generic [ref=e403]: 󰗡
+                  - text: Confirmada
+              - generic [ref=e405]: 󰀓
+              - generic [ref=e406]:
+                - generic [ref=e407]:
+                  - generic [ref=e408]: 󰭧
+                  - text: Invalid Date
+                - generic [ref=e409]:
+                  - generic [ref=e410]: 󰅐
+                  - text: 08:00–09:00
+              - generic [ref=e411]:
+                - generic [ref=e412]: $145.000
+                - generic [ref=e413]:
+                  - generic [ref=e414]: 󱬦
+                  - text: Comprobante
+            - button "󰠴 Arena Sport Central 󰅚 Rechazada 󰀓 󰭧 Invalid Date 󰅐 09:00–10:00 $145.000 󱬦 Comprobante" [ref=e512] [cursor=pointer]:
+              - generic [ref=e416]:
+                - generic [ref=e417]:
+                  - generic [ref=e418]: 󰠴
+                  - text: Arena Sport Central
+                - generic [ref=e419]:
+                  - generic [ref=e420]: 󰅚
+                  - text: Rechazada
+              - generic [ref=e422]: 󰀓
+              - generic [ref=e423]:
+                - generic [ref=e424]:
+                  - generic [ref=e425]: 󰭧
+                  - text: Invalid Date
+                - generic [ref=e426]:
+                  - generic [ref=e427]: 󰅐
+                  - text: 09:00–10:00
+              - generic [ref=e428]:
+                - generic [ref=e429]: $145.000
+                - generic [ref=e430]:
+                  - generic [ref=e431]: 󱬦
+                  - text: Comprobante
+  - generic:
+    - img
+  - generic [ref=e432]:
+    - button "Toggle Nuxt DevTools" [ref=e433] [cursor=pointer]:
+      - img [ref=e434]
+    - generic "Page load time" [ref=e437]:
+      - generic [ref=e438]: "105"
+      - generic [ref=e439]: ms
+    - button "Toggle Component Inspector" [ref=e441] [cursor=pointer]:
+      - img [ref=e442]
+  - generic:
+    - dialog "Detalle de Reserva":
+      - generic [ref=e448]:
+        - generic [ref=e449]:
+          - generic [ref=e450]: 󰃯
+          - generic [ref=e451]: Detalle de Reserva
+          - generic [ref=e452]:
+            - generic [ref=e453]: 󰅚
+            - text: Rechazada
+        - separator [ref=e454]
+        - generic [ref=e456]:
+          - generic [ref=e457]:
+            - generic [ref=e458]: Cancha
+            - generic [ref=e459]: Arena Sport Central
+          - generic [ref=e460]:
+            - generic [ref=e461]: Fecha
+            - generic [ref=e462]: Invalid Date
+          - generic [ref=e463]:
+            - generic [ref=e464]: Horario
+            - generic [ref=e465]: 09:00 – 10:00
+          - generic [ref=e466]:
+            - generic [ref=e467]: Duración
+            - generic [ref=e468]: h
+          - generic [ref=e470]: Cliente
+          - generic [ref=e471]:
+            - generic [ref=e472]: Total
+            - generic [ref=e473]: $145.000
+          - generic [ref=e474]:
+            - generic [ref=e475]: Método de pago
+            - generic [ref=e476]: Transferencia
+          - generic [ref=e477]:
+            - generic [ref=e478]: Comprobante
+            - link "Ver imagen" [ref=e479] [cursor=pointer]:
+              - /url: http://localhost:8001/uploads/ee942635-e0ea-404e-9631-837aa1909bd7.pdf
+              - generic [ref=e481]: 󰋩
+              - generic [ref=e482]: Ver imagen
+          - generic [ref=e513]:
+            - generic [ref=e514]: Motivo de cancelación
+            - generic [ref=e515]: Comprobante ilegible en la prueba visual.
+        - separator [ref=e516]
+        - button "Cerrar" [ref=e518] [cursor=pointer]:
+          - generic [ref=e519]: Cerrar
