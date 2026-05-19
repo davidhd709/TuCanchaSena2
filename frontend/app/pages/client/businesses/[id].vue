@@ -55,20 +55,27 @@
             <p class="biz-text">{{ business.description }}</p>
           </section>
 
-          <section v-if="business.amenities?.length" class="biz-section">
-            <h2 class="biz-section-title">Servicios y comodidades</h2>
+          <details v-if="business.amenities?.length" class="biz-section biz-collapsible" open>
+            <summary class="biz-section-title biz-collapsible-head">
+              Servicios y comodidades
+              <span class="biz-section-count">{{ business.amenities.length }}</span>
+              <span class="biz-collapsible-caret mdi mdi-chevron-down" />
+            </summary>
             <div class="biz-amenities">
               <div v-for="am in business.amenities" :key="am" class="biz-amenity">
                 <span class="mdi" :class="amenityIcon(am)" />
                 {{ am }}
               </div>
             </div>
-          </section>
+          </details>
 
-          <section v-if="business.policies" class="biz-section">
-            <h2 class="biz-section-title">Reglas y políticas</h2>
+          <details v-if="business.policies" class="biz-section biz-collapsible" open>
+            <summary class="biz-section-title biz-collapsible-head">
+              Reglas y políticas
+              <span class="biz-collapsible-caret mdi mdi-chevron-down" />
+            </summary>
             <p class="biz-text">{{ business.policies }}</p>
-          </section>
+          </details>
 
           <section class="biz-section">
             <h2 class="biz-section-title">
@@ -95,35 +102,45 @@
         <!-- Panel lateral: contacto + horarios -->
         <aside class="biz-aside">
           <div class="biz-panel">
-            <h3 class="biz-panel-title">Horarios de atención</h3>
-            <ul class="biz-schedule">
-              <li
-                v-for="d in orderedSchedule"
-                :key="d.dayOfWeek"
-                class="biz-schedule-row"
-                :class="{ 'is-closed': !d.isOpen }"
-              >
-                <span class="biz-schedule-day">{{ dayLabel(d.dayOfWeek) }}</span>
-                <span class="biz-schedule-hours">
-                  {{ d.isOpen ? `${d.openTime} – ${d.closeTime}` : 'Cerrado' }}
+            <details class="biz-collapsible biz-panel-section" open>
+              <summary class="biz-panel-title biz-collapsible-head">
+                Horarios de atención
+                <span class="biz-collapsible-caret mdi mdi-chevron-down" />
+              </summary>
+              <ul class="biz-schedule">
+                <li
+                  v-for="d in orderedSchedule"
+                  :key="d.dayOfWeek"
+                  class="biz-schedule-row"
+                  :class="{ 'is-closed': !d.isOpen }"
+                >
+                  <span class="biz-schedule-day">{{ dayLabel(d.dayOfWeek) }}</span>
+                  <span class="biz-schedule-hours">
+                    {{ d.isOpen ? `${d.openTime} – ${d.closeTime}` : 'Cerrado' }}
+                  </span>
+                </li>
+                <li v-if="!orderedSchedule.length" class="biz-schedule-row">
+                  <span class="biz-schedule-hours">Sin horario definido</span>
+                </li>
+              </ul>
+            </details>
+
+            <v-divider class="my-4 biz-panel-divider" />
+
+            <details class="biz-collapsible biz-panel-section" open>
+              <summary class="biz-panel-title biz-collapsible-head">
+                Contacto
+                <span class="biz-collapsible-caret mdi mdi-chevron-down" />
+              </summary>
+              <div class="biz-contact">
+                <span v-if="business.phone" class="biz-contact-row">
+                  <span class="mdi mdi-phone-outline" /> {{ business.phone }}
                 </span>
-              </li>
-              <li v-if="!orderedSchedule.length" class="biz-schedule-row">
-                <span class="biz-schedule-hours">Sin horario definido</span>
-              </li>
-            </ul>
-
-            <v-divider class="my-4" />
-
-            <h3 class="biz-panel-title">Contacto</h3>
-            <div class="biz-contact">
-              <span v-if="business.phone" class="biz-contact-row">
-                <span class="mdi mdi-phone-outline" /> {{ business.phone }}
-              </span>
-              <span v-if="business.email" class="biz-contact-row">
-                <span class="mdi mdi-email-outline" /> {{ business.email }}
-              </span>
-            </div>
+                <span v-if="business.email" class="biz-contact-row">
+                  <span class="mdi mdi-email-outline" /> {{ business.email }}
+                </span>
+              </div>
+            </details>
           </div>
         </aside>
       </div>
@@ -373,6 +390,25 @@ onMounted(loadBusiness)
 }
 .biz-contact-row .mdi { font-size: 1rem; color: var(--green-primary); }
 
+/* Secciones colapsables — comportamiento <details> nativo en móvil,
+   forzadas siempre abiertas y sin caret en desktop. */
+.biz-collapsible > summary { list-style: none; cursor: pointer; }
+.biz-collapsible > summary::-webkit-details-marker { display: none; }
+.biz-collapsible-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+.biz-collapsible-caret {
+  margin-left: auto;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+  font-size: 1.25rem;
+}
+.biz-collapsible[open] > summary .biz-collapsible-caret { transform: rotate(180deg); }
+.biz-panel-section + .biz-panel-divider { margin-block: 12px; }
+
 /* Responsive */
 @media (max-width: 880px) {
   .biz-grid { grid-template-columns: 1fr; gap: 24px; }
@@ -382,5 +418,19 @@ onMounted(loadBusiness)
   .biz-gallery-side { grid-template-rows: none; grid-template-columns: 1fr 1fr; height: 130px; }
   .biz-amenities { grid-template-columns: 1fr; }
   .biz-courts-grid { grid-template-columns: 1fr; }
+}
+
+/* Desktop: deshabilitar el toggle del <details> y forzar contenido visible
+   aunque el usuario haya colapsado en móvil antes de redimensionar. */
+@media (min-width: 881px) {
+  .biz-collapsible > summary {
+    cursor: default;
+    pointer-events: none;
+  }
+  .biz-collapsible-caret { display: none; }
+  .biz-collapsible > *:not(summary) { display: revert; }
+  .biz-collapsible .biz-amenities { display: grid; }
+  .biz-collapsible .biz-schedule { display: flex; }
+  .biz-collapsible .biz-contact { display: flex; }
 }
 </style>

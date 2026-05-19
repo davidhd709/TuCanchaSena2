@@ -31,22 +31,18 @@ test.describe('Flujo business — aprobar reserva pendiente', () => {
     await page.goto('/business/bookings')
     await page.waitForLoadState('networkidle')
 
-    // Localizar la card de la reserva: filtramos por fecha visible y hora de inicio.
-    // No usamos el nombre del cliente porque el backend serializa la relación como
-    // `user.*` mientras esta vista del frontend la lee como `client.*` (bug aparte).
+    // Localizar la card pending por fecha + hora y clickear directamente el botón
+    // inline "Confirmar" que ahora existe sobre cada card pending.
     const dateLabel = formatDateForUi(date)
     const card = page
-      .locator('.bk-card')
+      .locator('.bk-card.is-pending')
       .filter({ hasText: dateLabel })
       .filter({ hasText: `${slot!.startTime}–${slot!.endTime}` })
       .first()
     await expect(card, 'reserva pendiente no visible en business/bookings').toBeVisible({
       timeout: 15_000,
     })
-    await card.click()
-
-    // Dialog → Confirmar
-    await page.getByRole('button', { name: 'Confirmar', exact: true }).click()
+    await card.getByRole('button', { name: 'Confirmar', exact: true }).click()
 
     // Verificación de servidor: el booking ahora es `confirmed`
     const businessToken = await loginViaApi('business')

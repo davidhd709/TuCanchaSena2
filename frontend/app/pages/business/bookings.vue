@@ -52,7 +52,16 @@
       </v-chip>
     </div>
 
-    <!-- ── Calendar card ───────────────────────────────────────────────────── -->
+    <!-- ── Calendar card ──────────────────────────────────────────────────────
+         En móvil queda dentro de un <details> colapsable (cerrado por default
+         para reducir densidad). En tablet/desktop el CSS lo fuerza siempre
+         visible y oculta el toggle. -->
+    <details class="cal-wrapper">
+      <summary class="cal-wrapper-toggle">
+        <span class="mdi mdi-calendar-month-outline" />
+        <span>Ver calendario semanal</span>
+        <span class="cal-wrapper-caret mdi mdi-chevron-down" />
+      </summary>
     <v-card rounded="lg" class="overflow-hidden">
 
       <!-- Day header row -->
@@ -161,6 +170,7 @@
         </div>
       </div>
     </v-card>
+    </details>
 
     <!-- ── Reservas en cards (detalle para toma de decisiones) ─────────────── -->
     <section class="bk-list">
@@ -170,43 +180,76 @@
       </h2>
 
       <div v-if="displayBookings.length" class="bk-cards">
-        <button
+        <div
           v-for="b in sortedDisplayBookings"
           :key="b.id"
-          type="button"
           class="bk-card"
-          @click="openDetail(b)"
+          :class="{ 'is-pending': b.status === 'pending' }"
         >
-          <div class="bk-card-head">
-            <div class="bk-card-court">
-              <span class="mdi mdi-soccer-field" />
-              {{ b.court?.name ?? 'Cancha' }}
+          <div
+            class="bk-card-body"
+            role="button"
+            tabindex="0"
+            :aria-label="`Ver detalle de la reserva del ${formatDate(b.date)} a las ${b.startTime?.slice(0,5)}`"
+            @click="openDetail(b)"
+            @keydown.enter.space.prevent="openDetail(b)"
+          >
+            <div class="bk-card-head">
+              <div class="bk-card-court">
+                <span class="mdi mdi-soccer-field" />
+                {{ b.court?.name ?? 'Cancha' }}
+              </div>
+              <BookingStatusChip :status="b.status" />
             </div>
-            <BookingStatusChip :status="b.status" />
+            <div class="bk-card-client">
+              <span class="mdi mdi-account-outline" />
+              {{ b.client?.firstName }} {{ b.client?.lastName }}
+            </div>
+            <div class="bk-card-rows">
+              <span class="bk-card-row">
+                <span class="mdi mdi-calendar-outline" /> {{ formatDate(b.date) }}
+              </span>
+              <span class="bk-card-row">
+                <span class="mdi mdi-clock-outline" />
+                {{ b.startTime?.slice(0,5) }}–{{ b.endTime?.slice(0,5) }}
+              </span>
+            </div>
+            <div class="bk-card-foot">
+              <span class="bk-card-total">${{ Number(b.totalPrice ?? 0).toLocaleString('es-CO') }}</span>
+              <span v-if="b.paymentProof" class="bk-card-proof">
+                <span class="mdi mdi-image-check-outline" /> Comprobante
+              </span>
+              <span v-else class="bk-card-proof is-missing">
+                <span class="mdi mdi-image-off-outline" /> Sin comprobante
+              </span>
+            </div>
           </div>
-          <div class="bk-card-client">
-            <span class="mdi mdi-account-outline" />
-            {{ b.client?.firstName }} {{ b.client?.lastName }}
+
+          <!-- Acciones rápidas solo para reservas pending. Reutilizan los handlers
+               del detail dialog para no duplicar lógica. -->
+          <div v-if="b.status === 'pending'" class="bk-card-quick">
+            <v-btn
+              color="success"
+              variant="flat"
+              size="small"
+              prepend-icon="mdi-check"
+              :disabled="actionLoading === 'quick-' + b.id"
+              :loading="actionLoading === 'quick-' + b.id"
+              @click.stop="quickConfirm(b)"
+            >
+              Confirmar
+            </v-btn>
+            <v-btn
+              color="error"
+              variant="tonal"
+              size="small"
+              prepend-icon="mdi-close"
+              @click.stop="quickReject(b)"
+            >
+              Rechazar
+            </v-btn>
           </div>
-          <div class="bk-card-rows">
-            <span class="bk-card-row">
-              <span class="mdi mdi-calendar-outline" /> {{ formatDate(b.date) }}
-            </span>
-            <span class="bk-card-row">
-              <span class="mdi mdi-clock-outline" />
-              {{ b.startTime?.slice(0,5) }}–{{ b.endTime?.slice(0,5) }}
-            </span>
-          </div>
-          <div class="bk-card-foot">
-            <span class="bk-card-total">${{ Number(b.totalPrice ?? 0).toLocaleString('es-CO') }}</span>
-            <span v-if="b.paymentProof" class="bk-card-proof">
-              <span class="mdi mdi-image-check-outline" /> Comprobante
-            </span>
-            <span v-else class="bk-card-proof is-missing">
-              <span class="mdi mdi-image-off-outline" /> Sin comprobante
-            </span>
-          </div>
-        </button>
+        </div>
       </div>
 
       <EmptyState
@@ -625,6 +668,24 @@ const openDetail = (booking: any) => {
   detailDialog.value = true
 }
 
+// ── Acciones rápidas (cards) — reutilizan el flujo del detail dialog. ─────
+const quickConfirm = async (booking: any) => {
+  actionLoading.value = `quick-${booking.id}`
+  try {
+    const updated = await apiFetch<any>(`/bookings/${booking.id}/confirm`, { method: 'POST' })
+    updateInList(booking.id, updated)
+    notify('Reserva confirmada correctamente')
+  } catch (e: any) { notify(e?.data?.message || 'Error al confirmar', 'error') }
+  finally { actionLoading.value = false }
+}
+
+const quickReject = (booking: any) => {
+  // Reusa el reject dialog existente para capturar el motivo obligatorio.
+  selectedBooking.value = booking
+  rejectReason.value = ''
+  rejectDialog.value = true
+}
+
 // ── Actions ────────────────────────────────────────────────────────────────
 const confirmBooking = async () => {
   actionLoading.value = 'confirm'
@@ -941,10 +1002,53 @@ onUnmounted(() => clearInterval(_timer))
 .bk-card-proof.is-missing { color: var(--text-faint); }
 .bk-card-proof .mdi { font-size: 0.9rem; }
 
+.bk-card.is-pending {
+  border-color: rgba(47, 161, 138, 0.35);
+  box-shadow: 0 0 0 1px rgba(47, 161, 138, 0.18), var(--shadow-sm);
+}
+.bk-card-quick {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--border-soft);
+  background: rgba(15, 20, 26, 0.4);
+}
+.bk-card-quick .v-btn { flex: 1; }
+
+/* Wrapper colapsable del calendario en móvil. */
+.cal-wrapper > summary { list-style: none; }
+.cal-wrapper > summary::-webkit-details-marker { display: none; }
+.cal-wrapper-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.cal-wrapper-toggle .mdi { color: var(--green-primary); font-size: 1.2rem; }
+.cal-wrapper-caret { margin-left: auto; transition: transform 0.2s ease; }
+.cal-wrapper[open] .cal-wrapper-caret { transform: rotate(180deg); }
+
 @media (max-width: 960px) {
   .bk-cards { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
   .bk-cards { grid-template-columns: 1fr; }
+  .cal-wrapper-toggle { display: inline-flex; }
+}
+
+/* Desktop/tablet: el calendario siempre visible, sin toggle. */
+@media (min-width: 601px) {
+  .cal-wrapper > summary {
+    display: none;
+    pointer-events: none;
+  }
+  .cal-wrapper > *:not(summary) { display: revert; }
 }
 </style>

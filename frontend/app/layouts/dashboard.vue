@@ -4,8 +4,8 @@
       <div class="owner-shell">
         <aside class="owner-sidebar">
           <div>
-            <div class="owner-brand">Owner Panel</div>
-            <p class="owner-brand-sub">Manage your fields</p>
+            <div class="owner-brand">Panel del negocio</div>
+            <p class="owner-brand-sub">Gestiona tus canchas</p>
           </div>
 
           <nav class="owner-nav">
@@ -20,7 +20,7 @@
               <span class="owner-avatar">{{ initials }}</span>
               <div>
                 <div class="owner-user-name">{{ authStore.fullName }}</div>
-                <div class="owner-user-role">Owner Admin</div>
+                <div class="owner-user-role">Dueño del negocio</div>
               </div>
             </div>
             <v-btn variant="text" color="error" prepend-icon="mdi-logout" @click="handleLogout">Cerrar Sesión</v-btn>
@@ -70,10 +70,10 @@ const adminNav = [
 ]
 
 const businessNav = [
-  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Dashboard' },
+  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Inicio' },
   { to: '/business/courts', icon: 'mdi-soccer-field', title: 'Canchas' },
   { to: '/business/bookings', icon: 'mdi-calendar-check-outline', title: 'Reservas' },
-  { to: '/business', icon: 'mdi-store-outline', title: 'Ajustes' },
+  { to: '/business', icon: 'mdi-store-outline', title: 'Mi Negocio' },
 ]
 
 const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/login') }

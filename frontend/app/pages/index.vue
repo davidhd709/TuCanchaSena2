@@ -1165,8 +1165,29 @@ const features = [
   }
   .nav-links--open { display: flex; }
   .hamburger { display: flex; z-index: 210; }
-  .hero-stats { flex-direction: column; gap: 16px; }
-  .stat-divider { width: 80px; height: 1px; }
+
+  /* Hero más compacto en móvil para que el CTA "Reservar ahora" quede sobre el pliegue. */
+  .hero {
+    min-height: auto;
+    padding: 90px 20px 32px;
+  }
+  .hero-content { gap: 28px; max-width: 100%; }
+  .hero-text { gap: 14px; }
+  .hero-title { font-size: clamp(1.7rem, 7vw, 2.3rem); line-height: 1.15; }
+  .hero-subtitle { font-size: .95rem; line-height: 1.5; }
+  .hero-badge { font-size: .72rem; padding: 4px 12px; }
+
+  /* Stats compactos en fila — más abajo del CTA, con divisores horizontales. */
+  .hero-stats {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 8px;
+    padding: 14px 12px;
+  }
+  .stat-divider { width: 1px; height: 28px; }
+  .stat-value { font-size: 1.1rem; }
+  .stat-label { font-size: .7rem; }
+
   .features-grid { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; text-align: center; }
   .footer-copy { order: 2; }
@@ -1177,5 +1198,11 @@ const features = [
   .hero-actions { flex-direction: column; width: 100%; }
   .btn-hero-primary,
   .btn-hero-secondary { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 390px) {
+  .hero { padding: 80px 16px 24px; }
+  .hero-title { font-size: 1.55rem; }
+  .hero-subtitle { font-size: .88rem; }
 }
 </style>

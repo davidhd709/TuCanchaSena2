@@ -32,20 +32,16 @@ test.describe('Flujo business — rechazar reserva y liberar slot', () => {
     await page.goto('/business/bookings')
     await page.waitForLoadState('networkidle')
 
+    // Localizar la card pending y clickear directamente el botón inline "Rechazar"
+    // que ahora existe sobre cada card pending — abre el reject dialog.
     const dateLabel = formatDateForUi(date)
     const card = page
-      .locator('.bk-card')
+      .locator('.bk-card.is-pending')
       .filter({ hasText: dateLabel })
       .filter({ hasText: `${slot!.startTime}–${slot!.endTime}` })
       .first()
     await expect(card).toBeVisible({ timeout: 15_000 })
-    await card.click()
-
-    // Detail dialog → click "Rechazar" (botón tonal del detalle) abre reject dialog
-    await page
-      .getByRole('button', { name: 'Rechazar', exact: true })
-      .first()
-      .click()
+    await card.getByRole('button', { name: 'Rechazar', exact: true }).click()
 
     // Reject dialog: motivo + confirm (botón flat dentro del dialog de motivo)
     const rejectDialog = page.locator('.v-dialog').filter({ hasText: 'Rechazar Reserva' })

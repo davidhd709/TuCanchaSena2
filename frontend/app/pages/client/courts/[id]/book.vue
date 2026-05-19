@@ -1,6 +1,6 @@
 <template>
   <section class="pay-page">
-    <div class="pay-steps">
+    <div class="pay-steps" aria-label="Pasos de la reserva">
       <div class="pay-step is-done"><span>✓</span><small>Cancha</small></div>
       <div class="pay-step is-active"><span>2</span><small>Pago</small></div>
       <div class="pay-step"><span>3</span><small>Confirmación</small></div>
@@ -10,10 +10,40 @@
     <v-alert v-else-if="courtError" type="error" variant="tonal" rounded="lg" class="mb-6">{{ courtError }}</v-alert>
 
     <div v-else class="pay-grid">
-      <div>
+      <div class="pay-main">
+        <!-- (a) Resumen de la reserva — visible arriba en móvil; en desktop sigue en el aside lateral. -->
+        <section class="pay-summary-mobile" v-if="court" aria-labelledby="pay-summary-title">
+          <div class="pay-summary-head">
+            <div class="pay-summary-media">
+              <img v-if="court.images?.[0]" :src="court.images[0]" :alt="court.name" />
+              <div v-else class="pay-summary-ph"><span class="mdi mdi-soccer-field" /></div>
+            </div>
+            <div class="pay-summary-body">
+              <h2 id="pay-summary-title" class="pay-summary-name">{{ court.name }}</h2>
+              <p class="pay-summary-place">
+                <span class="mdi mdi-map-marker-outline" />
+                {{ court.business?.address ?? 'Bogotá' }}
+              </p>
+              <div class="pay-summary-meta">
+                <span><span class="mdi mdi-calendar-blank-outline" /> {{ route.query.date }}</span>
+                <span><span class="mdi mdi-clock-outline" /> {{ route.query.startTime }} – {{ route.query.endTime }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="pay-summary-total">
+            <span>Total a pagar</span>
+            <strong>${{ Number(pricePerHour + 5000).toLocaleString('es-CO') }}</strong>
+          </div>
+        </section>
+
+        <!-- (b) Datos para transferir -->
         <v-card class="pay-card mb-4">
           <v-card-text class="pa-6">
-            <h2 class="pay-title"><v-icon icon="mdi-bank-outline" color="primary" /> Instrucciones de Transferencia</h2>
+            <h2 class="pay-title">
+              <v-icon icon="mdi-bank-outline" color="primary" />
+              Datos para transferir
+            </h2>
+            <p class="pay-sub">Realiza la transferencia con estos datos y sube tu comprobante abajo.</p>
             <div class="pay-table">
               <div><span>Banco</span><strong>Banco Premium Sports</strong></div>
               <div><span>Tipo de Cuenta</span><strong>Cuenta Corriente</strong></div>
@@ -21,13 +51,21 @@
               <div><span>RUT / ID</span><strong>76.543.210-K</strong></div>
               <div><span>Titular</span><strong>TuCancha Sports Ltda.</strong></div>
             </div>
-            <div class="pay-alert">Tu reserva quedará pendiente mientras se valida el pago. El propietario tiene <strong>30 minutos</strong> para confirmarla.</div>
+            <div class="pay-alert">
+              <span class="mdi mdi-timer-sand" />
+              Tu reserva queda pendiente mientras se valida el pago. El propietario tiene <strong>30 minutos</strong> para confirmar.
+            </div>
           </v-card-text>
         </v-card>
 
+        <!-- (c) Subir comprobante -->
         <v-card class="pay-card">
           <v-card-text class="pa-6">
-            <h2 class="pay-title"><v-icon icon="mdi-file-upload-outline" color="primary" /> Comprobante de Pago</h2>
+            <h2 class="pay-title">
+              <v-icon icon="mdi-file-upload-outline" color="primary" />
+              Subir comprobante
+            </h2>
+            <p class="pay-sub">Acepta imágenes (JPG, PNG) o PDF.</p>
             <v-form ref="formRef" @submit.prevent="submitBooking">
               <BookingPaymentUpload v-model="form.paymentProof" class="mb-4" @upload-state="onUploadStateChange" />
 
@@ -45,13 +83,44 @@
 
               <v-alert v-if="genericError" type="error" variant="tonal" rounded="lg" class="mb-3">{{ genericError }}</v-alert>
 
-              <v-btn type="submit" color="primary" block size="large" :loading="flowState === 'submitting'" :disabled="!canSubmit">Enviar Comprobante</v-btn>
+              <v-btn type="submit" color="primary" block size="large" :loading="flowState === 'submitting'" :disabled="!canSubmit">
+                Enviar comprobante
+              </v-btn>
+              <p class="pay-trust">
+                <span class="mdi mdi-lock-outline" />
+                Tu comprobante se envía de forma segura al negocio.
+              </p>
             </v-form>
+          </v-card-text>
+        </v-card>
+
+        <!-- (d) Qué pasa después -->
+        <v-card class="pay-card pay-next mt-4">
+          <v-card-text class="pa-6">
+            <h2 class="pay-title">
+              <v-icon icon="mdi-information-outline" color="primary" />
+              ¿Qué pasa después?
+            </h2>
+            <ol class="pay-next-list">
+              <li>
+                <span class="pay-next-step">1</span>
+                <span><strong>Revisión del comprobante.</strong> Tu comprobante será revisado por el negocio.</span>
+              </li>
+              <li>
+                <span class="pay-next-step">2</span>
+                <span><strong>Reserva pendiente.</strong> La reserva queda pendiente hasta la confirmación del pago.</span>
+              </li>
+              <li>
+                <span class="pay-next-step">3</span>
+                <span><strong>Si el pago no es aprobado,</strong> el horario será liberado y podrás intentar de nuevo.</span>
+              </li>
+            </ol>
           </v-card-text>
         </v-card>
       </div>
 
-      <aside class="pay-side" v-if="court">
+      <!-- Aside lateral (desktop). En móvil queda oculto porque el resumen está arriba. -->
+      <aside class="pay-side" v-if="court" aria-hidden="false">
         <div class="pay-side-media">
           <img v-if="court.images?.[0]" :src="court.images[0]" :alt="court.name" />
           <div v-else class="pay-side-ph"><span class="mdi mdi-soccer-field" /></div>
@@ -197,10 +266,72 @@ const submitBooking = async () => {
 }
 .pay-title {
   display: flex; align-items: center; gap: 8px;
-  margin-bottom: 14px;
-  font-size: clamp(1.2rem, 1.5vw, 1.9rem);
+  margin-bottom: 8px;
+  font-size: clamp(1.15rem, 1.4vw, 1.7rem);
   color: #e8edf3;
 }
+.pay-sub {
+  color: #9aa3ae;
+  font-size: .9rem;
+  margin-bottom: 14px;
+}
+.pay-trust {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .78rem;
+  color: #8a96a3;
+}
+.pay-trust .mdi { color: #6ee7b7; font-size: 1rem; }
+
+/* Resumen móvil compacto al tope (visible solo en móvil — ver media query). */
+.pay-summary-mobile {
+  display: none;
+  background: linear-gradient(160deg, rgba(47, 161, 138, 0.12), rgba(26, 32, 39, 0.95));
+  border: 1px solid rgba(47, 161, 138, 0.25);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.pay-summary-head { display: flex; gap: 12px; padding: 12px; }
+.pay-summary-media {
+  width: 88px; height: 88px; flex-shrink: 0;
+  border-radius: 12px; overflow: hidden;
+}
+.pay-summary-media img,
+.pay-summary-ph { width: 100%; height: 100%; object-fit: cover; }
+.pay-summary-ph {
+  display: grid; place-items: center;
+  background: linear-gradient(140deg, #1e2b35, #0f141c);
+  color: rgba(110, 231, 183, .55);
+}
+.pay-summary-body { flex: 1; min-width: 0; }
+.pay-summary-name {
+  font-size: 1rem; font-weight: 800; color: #e8edf3;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pay-summary-place {
+  font-size: .78rem; color: #a6b0bc; margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pay-summary-place .mdi { color: #6ee7b7; vertical-align: -1px; }
+.pay-summary-meta {
+  display: flex; flex-wrap: wrap; gap: 8px 14px;
+  margin-top: 8px; font-size: .8rem; color: #c8ced6;
+}
+.pay-summary-meta .mdi { color: #6ee7b7; vertical-align: -1px; margin-right: 2px; }
+.pay-summary-total {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(15, 20, 26, 0.6);
+  border-top: 1px solid rgba(47, 161, 138, 0.25);
+}
+.pay-summary-total span { color: #adbac6; font-size: .85rem; }
+.pay-summary-total strong { color: #63de8b; font-size: 1.15rem; font-weight: 800; }
 .pay-table {
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.06);
@@ -224,6 +355,40 @@ const submitBooking = async () => {
   background: rgba(130, 94, 43, 0.15);
   color: #d8cab4;
   padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.pay-alert .mdi { font-size: 1.1rem; color: #f0c27a; margin-top: 1px; }
+
+/* (d) ¿Qué pasa después? */
+.pay-next .pay-title { margin-bottom: 12px; }
+.pay-next-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pay-next-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #c8ced6;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.pay-next-list strong { color: #e7edf3; font-weight: 700; }
+.pay-next-step {
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(47, 161, 138, 0.18);
+  color: #6ee7b7;
+  font-weight: 800;
+  font-size: .82rem;
 }
 
 .pay-side {
@@ -276,5 +441,12 @@ const submitBooking = async () => {
 
 @media (max-width: 980px) {
   .pay-grid { grid-template-columns: 1fr; }
+  /* En móvil mostramos el resumen compacto arriba y ocultamos el aside lateral
+     para evitar duplicar la información al final de la página. */
+  .pay-summary-mobile { display: block; }
+  .pay-side { display: none; }
+  .pay-steps { margin-bottom: 10px; }
+  .pay-step span { width: 36px; height: 36px; font-size: .9rem; }
+  .pay-step small { font-size: .82rem; }
 }
 </style>
