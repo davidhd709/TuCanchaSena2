@@ -419,6 +419,169 @@ form { display: grid; gap: 10px; }
   .app-form-grid.cols-3 { grid-template-columns: 1fr; }
 }
 
+/* ── Editor de horarios / disponibilidad (reutilizable) ────────────────── */
+.schedule-info-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: var(--space-5);
+  background: var(--green-soft);
+  border: 1px solid rgba(52, 198, 146, 0.26);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.schedule-info-callout .mdi {
+  color: var(--green-bright);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.schedule-info-callout strong { color: var(--text-primary); }
+
+.schedule-day-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.schedule-day-card.is-closed { opacity: 0.7; }
+
+.schedule-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.schedule-day-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.schedule-day-name {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.schedule-day-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.schedule-day-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+.schedule-day-closed .mdi { font-size: 1.1rem; }
+
+/* Una fila de slot: inicio · fin · precio · acciones (grid en desktop). */
+.schedule-slot-row {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+.schedule-slot-times {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.schedule-slot-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 7px 10px;
+  font-size: 0.88rem;
+  font-family: 'Manrope', sans-serif;
+  outline: none;
+  color-scheme: dark;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.schedule-slot-input:focus {
+  border-color: var(--green-bright);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+.schedule-slot-sep { color: var(--text-faint); }
+.schedule-slot-price {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding-left: 10px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.schedule-slot-price:focus-within {
+  border-color: var(--green-bright);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+.schedule-slot-price-prefix { color: var(--text-muted); font-size: 0.88rem; }
+.schedule-slot-price-input {
+  width: 100px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  padding: 7px 8px;
+  font-size: 0.88rem;
+  font-family: 'Manrope', sans-serif;
+  outline: none;
+}
+.schedule-slot-price-input::placeholder { color: var(--text-faint); }
+
+.schedule-slot-tag {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--green-bright);
+  background: var(--green-soft);
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.schedule-slot-tag.is-custom {
+  color: var(--accent-warning);
+  background: var(--accent-warning-soft);
+}
+
+.schedule-slot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.schedule-add-btn { margin-top: 4px; }
+.schedule-empty {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+  padding: 6px 2px 10px;
+}
+
+@media (max-width: 600px) {
+  .schedule-slot-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .schedule-slot-times { justify-content: space-between; }
+  .schedule-slot-input { flex: 1; }
+  .schedule-slot-price { width: 100%; }
+  .schedule-slot-price-input { width: 100%; flex: 1; }
+  .schedule-slot-actions { justify-content: flex-end; }
+  .schedule-day-header { flex-wrap: wrap; }
+}
+
 /* Chips dentro de campos (multiselect / combobox): spacing y altura cómodos. */
 .v-field--variant-outlined.v-field--active .v-field__input,
 .v-select .v-field__input,

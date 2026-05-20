@@ -1,110 +1,103 @@
 <template>
-  <div>
-    <!-- Precio base info -->
-    <v-alert type="info" variant="tonal" rounded="lg" class="mb-4" density="compact">
-      <div class="text-body-2">
-        <strong>Precio base de la cancha:</strong>
-        ${{ Number(courtBasePrice).toLocaleString('es-CO') }}/hr
-        · Los slots sin precio propio usarán este valor.
-      </div>
-    </v-alert>
+  <div class="court-avail">
+    <!-- Callout precio base -->
+    <div class="schedule-info-callout">
+      <span class="mdi mdi-information-outline" />
+      <span>
+        <strong>Precio base de la cancha: ${{ Number(courtBasePrice).toLocaleString('es-CO') }}/hr.</strong>
+        Los horarios sin precio propio usarán este valor.
+      </span>
+    </div>
 
-    <!-- Panel por día -->
-    <div v-for="day in days" :key="day.value" class="mb-3">
-
-      <!-- Negocio cerrado -->
-      <v-card v-if="!isBusinessOpen(day.value)" variant="tonal" color="grey" rounded="lg">
-        <v-card-text class="pa-3 d-flex align-center gap-3">
-          <v-icon color="grey">mdi-store-off</v-icon>
-          <span class="text-body-2 font-weight-medium" style="min-width:90px">
-            {{ day.label }}
+    <!-- Una card por día -->
+    <div
+      v-for="day in days"
+      :key="day.value"
+      class="schedule-day-card"
+      :class="{ 'is-closed': !isBusinessOpen(day.value) }"
+    >
+      <div class="schedule-day-header">
+        <div class="schedule-day-title">
+          <span class="schedule-day-name">{{ day.label }}</span>
+          <span v-if="isBusinessOpen(day.value)" class="schedule-day-sub">
+            Horario del negocio: {{ businessHours(day.value) }}
           </span>
-          <span class="text-caption text-medium-emphasis">Negocio cerrado este día</span>
-        </v-card-text>
-      </v-card>
+        </div>
 
-      <!-- Negocio abierto -->
-      <v-card v-else variant="outlined" rounded="lg">
-        <v-card-text class="pa-4">
-          <!-- Cabecera del día -->
-          <div class="d-flex align-center justify-space-between mb-3">
-            <div class="d-flex align-center gap-2">
-              <v-icon color="primary" size="18">mdi-calendar-check</v-icon>
-              <span class="text-body-2 font-weight-bold">{{ day.label }}</span>
-              <v-chip size="x-small" color="success" variant="tonal">
-                Negocio: {{ businessHours(day.value) }}
-              </v-chip>
-            </div>
-            <v-btn
-              size="small"
-              variant="tonal"
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="addSlot(day.value)"
-            >
-              Agregar slot
-            </v-btn>
-          </div>
+        <!-- Negocio cerrado: sin acciones -->
+        <span v-if="!isBusinessOpen(day.value)" class="schedule-day-closed">
+          <span class="mdi mdi-store-off-outline" /> Negocio cerrado
+        </span>
+        <!-- Agregar horario (acción secundaria discreta) -->
+        <v-btn
+          v-else
+          class="schedule-add-btn"
+          size="small"
+          variant="text"
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="addSlot(day.value)"
+        >
+          Agregar horario
+        </v-btn>
+      </div>
 
-          <!-- Sin slots -->
-          <div
-            v-if="slotsForDay(day.value).length === 0"
-            class="text-caption text-medium-emphasis py-1"
-          >
-            Sin slots definidos. Haz clic en "Agregar slot" para configurar horarios.
-          </div>
+      <template v-if="isBusinessOpen(day.value)">
+        <!-- Sin slots -->
+        <p v-if="slotsForDay(day.value).length === 0" class="schedule-empty">
+          Sin horarios definidos. Usa "Agregar horario" para crear el primero.
+        </p>
 
-          <!-- Lista de slots -->
-          <div
-            v-for="slot in slotsForDay(day.value)"
-            :key="slot._key"
-            class="slot-row"
-          >
-            <div class="slot-fields">
+        <!-- Slots -->
+        <template v-for="slot in slotsForDay(day.value)" :key="slot._key">
+          <div class="schedule-slot-row">
+            <div class="schedule-slot-times">
               <input
                 v-model="slot.startTime"
                 type="time"
-                class="slot-time"
+                class="schedule-slot-input"
                 aria-label="Hora de inicio"
                 @input="() => validateSlot(slot, day.value)"
               />
-              <span class="slot-sep">—</span>
+              <span class="schedule-slot-sep">—</span>
               <input
                 v-model="slot.endTime"
                 type="time"
-                class="slot-time"
+                class="schedule-slot-input"
                 aria-label="Hora de fin"
                 @input="() => validateSlot(slot, day.value)"
               />
-              <div class="slot-price">
-                <span class="slot-price-prefix">$</span>
-                <input
-                  v-model="slot.pricePerHourInput"
-                  type="number"
-                  min="0"
-                  class="slot-price-input"
-                  :placeholder="`${Number(courtBasePrice).toLocaleString('es-CO')} (base)`"
-                  aria-label="Precio por hora (opcional)"
-                />
-              </div>
             </div>
 
-            <div class="slot-actions">
-              <span
-                class="slot-price-tag"
-                :class="{ 'is-custom': slot.pricePerHourInput !== '' && slot.pricePerHourInput !== null }"
-              >
-                {{
-                  (slot.pricePerHourInput !== '' && slot.pricePerHourInput !== null)
-                    ? `$${Number(slot.pricePerHourInput).toLocaleString('es-CO')}`
-                    : `$${Number(courtBasePrice).toLocaleString('es-CO')}`
-                }}/hr
-              </span>
-              <v-tooltip :text="slot.isAvailable ? 'Disponible' : 'No disponible'">
+            <div class="schedule-slot-price">
+              <span class="schedule-slot-price-prefix">$</span>
+              <input
+                v-model="slot.pricePerHourInput"
+                type="number"
+                min="0"
+                class="schedule-slot-price-input"
+                :placeholder="Number(courtBasePrice).toLocaleString('es-CO')"
+                aria-label="Precio por hora (opcional)"
+              />
+            </div>
+
+            <span
+              class="schedule-slot-tag"
+              :class="{ 'is-custom': slot.pricePerHourInput !== '' && slot.pricePerHourInput !== null }"
+            >
+              {{
+                (slot.pricePerHourInput !== '' && slot.pricePerHourInput !== null)
+                  ? `$${Number(slot.pricePerHourInput).toLocaleString('es-CO')}`
+                  : `$${Number(courtBasePrice).toLocaleString('es-CO')} base`
+              }}
+            </span>
+
+            <div class="schedule-slot-actions">
+              <v-tooltip :text="slot.isAvailable ? 'Disponible · clic para desactivar' : 'No disponible · clic para activar'">
                 <template #activator="{ props: tp }">
                   <v-btn
                     v-bind="tp"
-                    :icon="slot.isAvailable ? 'mdi-check-circle' : 'mdi-minus-circle-outline'"
+                    :icon="slot.isAvailable ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
                     :color="slot.isAvailable ? 'success' : 'grey'"
                     variant="text"
                     size="small"
@@ -113,28 +106,28 @@
                 </template>
               </v-tooltip>
               <v-btn
-                icon="mdi-close"
+                icon="mdi-trash-can-outline"
                 variant="text"
                 color="error"
                 size="small"
                 @click="removeSlot(slot._key)"
               />
             </div>
-
-            <!-- Error de validación -->
-            <v-alert
-              v-if="slot._error"
-              type="error"
-              density="compact"
-              variant="tonal"
-              rounded="lg"
-              class="slot-error"
-            >
-              {{ slot._error }}
-            </v-alert>
           </div>
-        </v-card-text>
-      </v-card>
+
+          <!-- Error de validación -->
+          <v-alert
+            v-if="slot._error"
+            type="error"
+            density="compact"
+            variant="tonal"
+            rounded="lg"
+            class="mb-2"
+          >
+            {{ slot._error }}
+          </v-alert>
+        </template>
+      </template>
     </div>
   </div>
 </template>
@@ -287,95 +280,3 @@ const removeSlot = (key: number) => {
   if (idx !== -1) slots.value.splice(idx, 1)
 }
 </script>
-
-<style scoped>
-.slot-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 8px 12px;
-  background: var(--bg-elev);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  margin-bottom: 8px;
-}
-.slot-fields {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.slot-time {
-  background: var(--bg-card);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  padding: 7px 10px;
-  font-size: 0.88rem;
-  font-family: 'Manrope', sans-serif;
-  outline: none;
-  color-scheme: dark;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-.slot-time:focus,
-.slot-price-input:focus {
-  border-color: var(--green-bright);
-  box-shadow: 0 0 0 3px var(--green-soft);
-}
-.slot-sep { color: var(--text-faint); }
-.slot-price {
-  display: inline-flex;
-  align-items: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-sm);
-  padding-left: 10px;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-.slot-price:focus-within {
-  border-color: var(--green-bright);
-  box-shadow: 0 0 0 3px var(--green-soft);
-}
-.slot-price-prefix { color: var(--text-muted); font-size: 0.88rem; }
-.slot-price-input {
-  width: 130px;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  padding: 7px 10px;
-  font-size: 0.88rem;
-  font-family: 'Manrope', sans-serif;
-  outline: none;
-}
-.slot-price-input::placeholder { color: var(--text-faint); }
-
-.slot-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.slot-price-tag {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--green-bright);
-  background: var(--green-soft);
-  padding: 4px 9px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-}
-.slot-price-tag.is-custom {
-  color: var(--accent-warning);
-  background: var(--accent-warning-soft);
-}
-.slot-error { flex: 1 1 100%; margin-top: 2px; }
-
-@media (max-width: 600px) {
-  .slot-row { gap: 8px; }
-  .slot-fields { flex: 1 1 100%; }
-  .slot-actions { flex: 1 1 100%; justify-content: flex-end; }
-  .slot-price-input { width: 100%; }
-  .slot-price { flex: 1; }
-}
-</style>

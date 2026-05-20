@@ -234,7 +234,7 @@
         />
       </template>
       <template #footer>
-        <v-btn variant="text" prepend-icon="mdi-broom" color="error" @click="availabilitySlots = []">
+        <v-btn variant="text" size="small" prepend-icon="mdi-broom" class="text-medium-emphasis" @click="availabilitySlots = []">
           Limpiar todo
         </v-btn>
         <v-spacer />
