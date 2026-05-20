@@ -127,71 +127,64 @@
     >
       <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
       <template #body>
-        <v-form ref="formRef" class="mn-form-grid">
-            <p class="mn-form-section">Información general</p>
+        <v-form ref="formRef">
+          <!-- Información general -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-store" /> Información general</h3>
+            </div>
             <v-text-field
               v-model="form.name"
               label="Nombre del negocio"
               prepend-inner-icon="mdi-store"
               :rules="[r.required]"
-              class="mb-2"
             />
-            <v-textarea
-              v-model="form.description"
-              label="Descripción"
-              rows="2"
-              class="mb-2"
-            />
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="form.phone"
-                  label="Teléfono"
-                  prepend-inner-icon="mdi-phone"
-                  :rules="[r.required]"
-                />
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="form.email"
-                  label="Email del negocio"
-                  type="email"
-                  prepend-inner-icon="mdi-email"
-                />
-              </v-col>
-            </v-row>
+            <v-textarea v-model="form.description" label="Descripción" rows="2" />
+            <div class="app-form-grid cols-2">
+              <v-text-field
+                v-model="form.phone"
+                label="Teléfono"
+                prepend-inner-icon="mdi-phone"
+                :rules="[r.required]"
+              />
+              <v-text-field
+                v-model="form.email"
+                label="Email del negocio"
+                type="email"
+                prepend-inner-icon="mdi-email"
+              />
+            </div>
             <v-text-field
               v-model="form.address"
               label="Dirección"
               prepend-inner-icon="mdi-map-marker"
               :rules="[r.required]"
-              class="mb-2"
             />
-            <v-row dense>
-              <v-col cols="6">
-                <v-text-field
-                  v-model.number="form.latitude"
-                  label="Latitud"
-                  type="number"
-                  :rules="[r.required, r.lat]"
-                  hint="Ej: 4.6097"
-                  persistent-hint
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model.number="form.longitude"
-                  label="Longitud"
-                  type="number"
-                  :rules="[r.required, r.lon]"
-                  hint="Ej: -74.0817"
-                  persistent-hint
-                />
-              </v-col>
-            </v-row>
+            <div class="app-form-grid cols-2">
+              <v-text-field
+                v-model.number="form.latitude"
+                label="Latitud"
+                type="number"
+                :rules="[r.required, r.lat]"
+                hint="Ej: 4.6097"
+                persistent-hint
+              />
+              <v-text-field
+                v-model.number="form.longitude"
+                label="Longitud"
+                type="number"
+                :rules="[r.required, r.lon]"
+                hint="Ej: -74.0817"
+                persistent-hint
+              />
+            </div>
+          </section>
 
-            <v-divider class="my-4" />
-            <p class="mn-form-section">Servicios y comodidades</p>
+          <!-- Servicios -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-room-service-outline" /> Servicios y comodidades</h3>
+            </div>
             <v-select
               v-model="form.amenities"
               :items="AMENITY_OPTIONS"
@@ -200,10 +193,15 @@
               chips
               closable-chips
               prepend-inner-icon="mdi-room-service-outline"
-              class="mb-3"
             />
+          </section>
 
-            <p class="mn-form-section">Fotos del negocio</p>
+          <!-- Imágenes -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-image-multiple-outline" /> Fotos del negocio</h3>
+              <p class="app-form-section-sub">Pega la URL de cada foto. Si no agregas ninguna, mostramos el logo de TuCancha.</p>
+            </div>
             <v-combobox
               v-model="form.images"
               label="URLs de fotos (Enter para agregar)"
@@ -211,21 +209,25 @@
               chips
               closable-chips
               prepend-inner-icon="mdi-image-multiple-outline"
-              class="mb-3"
             />
+          </section>
 
-            <p class="mn-form-section">Reglas y políticas</p>
-            <v-textarea
-              v-model="form.policies"
-              label="Reglas o políticas del negocio"
-              rows="2"
-              class="mb-2"
-            />
+          <!-- Reglas -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-clipboard-text-outline" /> Reglas y políticas</h3>
+            </div>
+            <v-textarea v-model="form.policies" label="Reglas o políticas del negocio" rows="2" />
+          </section>
 
-            <v-divider class="my-4" />
-            <p class="mn-form-section">Horario de funcionamiento</p>
+          <!-- Horarios -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-clock-outline" /> Horario de funcionamiento</h3>
+            </div>
             <BusinessScheduleEditor :key="scheduleEditorKey" v-model="form.schedules" />
-          </v-form>
+          </section>
+        </v-form>
       </template>
       <template #footer>
         <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
@@ -589,20 +591,6 @@ onMounted(loadBusiness)
   max-width: 440px;
   line-height: 1.65;
   margin-bottom: 22px;
-}
-
-.mn-form-section {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-
-.mn-form-grid {
-  display: grid;
-  gap: 12px;
 }
 
 @media (max-width: 880px) {

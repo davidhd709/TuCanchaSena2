@@ -95,13 +95,11 @@
       <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
       <template #body>
         <v-form ref="formRef">
-
-            <!-- Section: Datos básicos -->
-            <p class="text-caption font-weight-bold text-medium-emphasis text-uppercase mb-3">
-              Información General
-            </p>
-
-            <!-- Owner (only on create) -->
+          <!-- Información general -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-store" /> Información general</h3>
+            </div>
             <v-autocomplete
               v-if="!editMode"
               v-model="form.ownerId"
@@ -111,88 +109,67 @@
               item-value="id"
               prepend-inner-icon="mdi-account"
               :rules="[r.required]"
-              class="mb-2"
               :loading="usersLoading"
               no-data-text="No hay usuarios con rol Negocio"
             />
-
             <v-text-field
               v-model="form.name"
               label="Nombre del negocio"
               prepend-inner-icon="mdi-store"
               :rules="[r.required]"
-              class="mb-2"
             />
-
-            <v-textarea
-              v-model="form.description"
-              label="Descripción"
-              rows="2"
-              class="mb-2"
-            />
-
-            <v-row dense>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="form.phone"
-                  label="Teléfono"
-                  prepend-inner-icon="mdi-phone"
-                  :rules="[r.required]"
-                />
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="form.email"
-                  label="Email del negocio"
-                  type="email"
-                  prepend-inner-icon="mdi-email"
-                />
-              </v-col>
-            </v-row>
-
+            <v-textarea v-model="form.description" label="Descripción" rows="2" />
+            <div class="app-form-grid cols-2">
+              <v-text-field
+                v-model="form.phone"
+                label="Teléfono"
+                prepend-inner-icon="mdi-phone"
+                :rules="[r.required]"
+              />
+              <v-text-field
+                v-model="form.email"
+                label="Email del negocio"
+                type="email"
+                prepend-inner-icon="mdi-email"
+              />
+            </div>
             <v-text-field
               v-model="form.address"
               label="Dirección"
               prepend-inner-icon="mdi-map-marker"
               :rules="[r.required]"
-              class="mb-2"
             />
+            <div class="app-form-grid cols-2">
+              <v-text-field
+                v-model.number="form.latitude"
+                label="Latitud"
+                type="number"
+                prepend-inner-icon="mdi-crosshairs-gps"
+                :rules="[r.required, r.lat]"
+                hint="Ej: 4.6097"
+                persistent-hint
+              />
+              <v-text-field
+                v-model.number="form.longitude"
+                label="Longitud"
+                type="number"
+                prepend-inner-icon="mdi-crosshairs-gps"
+                :rules="[r.required, r.lon]"
+                hint="Ej: -74.0817"
+                persistent-hint
+              />
+            </div>
+          </section>
 
-            <v-row dense>
-              <v-col cols="6">
-                <v-text-field
-                  v-model.number="form.latitude"
-                  label="Latitud"
-                  type="number"
-                  prepend-inner-icon="mdi-crosshairs-gps"
-                  :rules="[r.required, r.lat]"
-                  hint="Ej: 4.6097"
-                  persistent-hint
-                />
-              </v-col>
-              <v-col cols="6">
-                <v-text-field
-                  v-model.number="form.longitude"
-                  label="Longitud"
-                  type="number"
-                  prepend-inner-icon="mdi-crosshairs-gps"
-                  :rules="[r.required, r.lon]"
-                  hint="Ej: -74.0817"
-                  persistent-hint
-                />
-              </v-col>
-            </v-row>
-
-            <v-divider class="my-4" />
-
-            <!-- Section: Horario -->
-            <p class="text-caption font-weight-bold text-medium-emphasis text-uppercase mb-3">
-              Horario de Funcionamiento
-            </p>
+          <!-- Horarios -->
+          <section class="app-form-section">
+            <div class="app-form-section-head">
+              <h3 class="app-form-section-title"><span class="mdi mdi-clock-outline" /> Horario de funcionamiento</h3>
+            </div>
             <!-- :key fuerza remount al abrir el diálogo, evitando loops reactivos -->
             <BusinessScheduleEditor :key="scheduleEditorKey" v-model="form.schedules" />
-
-          </v-form>
+          </section>
+        </v-form>
       </template>
       <template #footer>
         <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
