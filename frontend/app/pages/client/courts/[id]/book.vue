@@ -365,15 +365,9 @@ const submitBooking = async () => {
   width: 88px; height: 88px; flex-shrink: 0;
   border-radius: 12px; overflow: hidden;
 }
-.pay-summary-media img,
-.pay-summary-ph { width: 100%; height: 100%; object-fit: cover; }
-.pay-summary-ph {
-  display: grid; place-items: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.18), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-  color: rgba(52, 198, 146, 0.55);
-}
+.pay-summary-media img { width: 100%; height: 100%; object-fit: cover; }
+/* Contenedor del placeholder; el visual lo provee AppMediaPlaceholder. */
+.pay-summary-ph { width: 100%; height: 100%; }
 .pay-summary-body { flex: 1; min-width: 0; }
 .pay-summary-name {
   font-size: 1rem; font-weight: 800; color: var(--text-primary);
@@ -465,16 +459,9 @@ const submitBooking = async () => {
   top: 88px;
 }
 .pay-side-media { height: 200px; }
-.pay-side-media img,
-.pay-side-ph { width: 100%; height: 100%; object-fit: cover; }
-.pay-side-ph {
-  display: grid; place-items: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.18), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-  color: rgba(52, 198, 146, 0.55);
-  font-size: 3rem;
-}
+.pay-side-media img { width: 100%; height: 100%; object-fit: cover; }
+/* Contenedor del placeholder; el visual lo provee AppMediaPlaceholder. */
+.pay-side-ph { width: 100%; height: 100%; }
 .pay-side-body { padding: 18px; }
 .pay-side-body h3 { color: var(--text-primary); font-size: 1.15rem; font-weight: 800; line-height: 1.25; }
 .pay-side-body p { color: var(--text-muted); margin-top: 4px; font-size: .85rem; }

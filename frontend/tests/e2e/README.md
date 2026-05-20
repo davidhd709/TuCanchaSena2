@@ -97,20 +97,45 @@ producción local:
 
 ```bash
 cd frontend
-npm run build            # genera .output/
-npm run preview          # alias de `nuxt preview` — sirve el build en :3000
+npm run build                 # genera .output/
+PORT=3100 npm run preview     # sirve el build (usa :3100 para no chocar con el dev en :3000)
 ```
 
 `preview` sirve los chunks finales de Nitro/Vite tal como van a producción:
-sin HMR, sin source-maps inline, con tree-shaking aplicado. Es lo que debes
-abrir en el navegador para validar:
+sin HMR, sin source-maps inline, con tree-shaking aplicado. Ábrelo en el
+navegador (DevTools → Toggle device) y recorre estos breakpoints:
+`360 / 390 / 768 / 1024 / 1440`.
 
-- Responsivo en `360 / 390 / 768 / 1024 / 1440` (DevTools → Toggle device).
-- Pantalla de pago: bloque de confianza visible antes del CTA.
-- Detalle de negocio: acordeones se ven claramente como expansión en móvil.
-- Hero home: CTA principal + 3 beneficios sobre el primer pliegue en 360/390.
-- Panel business → Reservas: botones Confirmar/Rechazar tocables en cards
-  pending (mínimo 44 px de alto en móvil).
+### Checklist de QA visual (Design System F0–F6)
+
+Tema dark premium / branding:
+- [ ] Toda la app cliente/business/admin se ve dark premium consistente (no quedan
+      zonas en tema claro ni verdes "forest" sueltos en el landing).
+- [ ] Placeholders de imagen muestran el **logo de TuCancha** (no icono genérico
+      ni paisajes de picsum) en: cards de negocio/cancha, "Mis reservas", galería
+      de detalle de cancha/negocio y aside de pago.
+
+Formularios y modales:
+- [ ] "Editar negocio" y "Editar cancha" muestran bloques con encabezado
+      (Información general / Detalles / Fotos / Horarios) y separadores.
+- [ ] Inputs sin borde verde permanente; el verde aparece solo en focus.
+- [ ] Chips de multiselect ("Características", "URLs de fotos") con spacing
+      correcto, sin iconos montados.
+- [ ] Modales largos: header fijo, body con scroll interno, footer sticky.
+
+Horarios:
+- [ ] Horario de negocio: una fila limpia por día (switch + día + horas).
+- [ ] Disponibilidad de cancha: cada slot ordenado (inicio—fin + precio + tag +
+      acciones), sin chips compitiendo. Apila bien en móvil.
+
+Flujos clave (ya cubiertos por E2E, revisar visualmente):
+- [ ] Pantalla de pago: card de confianza visible antes del CTA.
+- [ ] Detalle de negocio: acordeones claros como expansión en móvil.
+- [ ] Hero home cliente: CTA principal + 3 beneficios sobre el primer pliegue
+      en 360/390.
+- [ ] Panel business → Reservas: botones Confirmar/Rechazar tocables (≥44 px) en
+      cards pending; nombre del cliente visible (fix user/client).
+- [ ] Fechas de reserva muestran el día correcto (sin shift de un día).
 
 Para reproducir botones inline Confirmar/Rechazar en QA: crea una reserva
 desde el cliente y sube comprobante; quedará `pending` y aparecerá en el

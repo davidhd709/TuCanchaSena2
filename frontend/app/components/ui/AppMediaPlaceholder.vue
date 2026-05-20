@@ -1,6 +1,6 @@
 <template>
   <div class="app-media-ph" :class="{ 'is-dense': dense }">
-    <img src="/logo-transparent.png" alt="TuCancha" class="app-media-ph-logo" />
+    <img src="/logo-placeholder.webp" alt="TuCancha" class="app-media-ph-logo" loading="lazy" />
     <span v-if="label && !dense" class="app-media-ph-label">{{ label }}</span>
   </div>
 </template>

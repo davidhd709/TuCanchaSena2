@@ -367,18 +367,8 @@ onMounted(async () => {
   height: 100%;
   object-fit: cover;
 }
-.court-gallery-ph {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.18), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-}
-.court-gallery-ph .mdi { font-size: 6rem; color: rgba(52, 198, 146, 0.55); }
+/* Contenedor del placeholder; el visual lo provee AppMediaPlaceholder. */
+.court-gallery-ph { width: 100%; height: 100%; }
 .court-gallery-status {
   position: absolute;
   top: 16px;

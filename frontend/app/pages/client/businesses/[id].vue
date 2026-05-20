@@ -252,18 +252,8 @@ onMounted(loadBusiness)
 .biz-gallery-main { border-radius: var(--radius-xl); }
 .biz-gallery-main img,
 .biz-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.biz-gallery-ph {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(47, 161, 138, 0.18), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(47, 161, 138, 0.12), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-}
-.biz-gallery-ph .mdi { font-size: 6rem; color: rgba(31, 122, 103, 0.55); }
+/* Contenedor del placeholder; el visual lo provee AppMediaPlaceholder. */
+.biz-gallery-ph { width: 100%; height: 100%; }
 .biz-gallery-side { display: grid; grid-template-rows: 1fr 1fr; gap: 12px; }
 .biz-gallery-thumb { position: relative; }
 .biz-gallery-more {
