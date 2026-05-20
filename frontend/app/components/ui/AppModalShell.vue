@@ -157,13 +157,23 @@ const titleId = computed(() => `app-modal-title-${Math.random().toString(36).sli
 }
 .app-modal-close .mdi { font-size: 1.2rem; }
 
-/* Body con scroll interno */
+/* Body con scroll interno y scrollbar fino. */
 .app-modal-body {
   padding: 18px 24px;
   overflow-y: auto;
   flex: 1 1 auto;
   color: var(--text-secondary);
+  scrollbar-width: thin;
 }
+.app-modal-body::-webkit-scrollbar { width: 8px; }
+.app-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.app-modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+/* La primera/última sección no necesitan su borde superior dentro del modal. */
+.app-modal-body :deep(.app-form-section:first-child) { margin-top: 0; }
+.app-modal-body :deep(.app-form-section:last-child) { margin-bottom: 0; }
 
 /* Footer sticky con buttons alineados a la derecha por default */
 .app-modal-foot {

@@ -7,9 +7,7 @@
         :alt="booking.court?.name ?? 'Cancha'"
         @error="imgError = true"
       />
-      <div v-else class="booking-card-ph">
-        <span class="mdi mdi-soccer-field" />
-      </div>
+      <AppMediaPlaceholder v-else dense class="booking-card-ph" />
     </div>
 
     <div class="booking-card-info">
@@ -119,15 +117,7 @@ const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleStri
   height: 100%;
   object-fit: cover;
 }
-.booking-card-ph {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-}
-.booking-card-ph .mdi { font-size: 2.2rem; color: rgba(52, 198, 146, 0.55); }
+.booking-card-ph { border-radius: var(--radius-md); }
 
 .booking-card-info {
   flex: 1;

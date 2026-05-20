@@ -363,6 +363,80 @@ body {
    ─────────────────────────────────────────────────────────── */
 form { display: grid; gap: 10px; }
 
+/* Sistema de formularios premium reutilizable.
+   Uso dentro de modales o páginas:
+     <div class="app-form-section">
+       <div class="app-form-section-head">
+         <h3 class="app-form-section-title">Información general</h3>
+         <p class="app-form-section-sub">Datos visibles del negocio</p>
+       </div>
+       <div class="app-form-grid cols-2"> ...campos... </div>
+     </div>
+     <div class="app-form-actions"> ...botones... </div>
+*/
+.app-form-section { margin-bottom: var(--space-6); }
+.app-form-section + .app-form-section {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-soft);
+}
+.app-form-section-head { margin-bottom: var(--space-4); }
+.app-form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green-bright);
+}
+.app-form-section-title .mdi { font-size: 1rem; }
+.app-form-section-sub {
+  margin-top: 3px;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+.app-form-grid { display: grid; gap: var(--space-3); }
+.app-form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.app-form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.app-form-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-top: -4px;
+  margin-bottom: var(--space-2);
+}
+.app-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .app-form-grid.cols-2,
+  .app-form-grid.cols-3 { grid-template-columns: 1fr; }
+}
+
+/* Chips dentro de campos (multiselect / combobox): spacing y altura cómodos. */
+.v-field--variant-outlined.v-field--active .v-field__input,
+.v-select .v-field__input,
+.v-combobox .v-field__input {
+  gap: 6px;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  row-gap: 6px;
+}
+.v-field .v-chip {
+  margin: 2px !important;
+  height: 28px !important;
+  font-size: 0.78rem !important;
+  border-radius: var(--radius-sm) !important;
+}
+.v-field .v-chip .v-chip__close,
+.v-field .v-chip .v-icon { font-size: 0.95rem !important; }
+
 /* ─────────────────────────────────────────────────────────────
    MOTION / TRANSICIONES DE PÁGINA
    ─────────────────────────────────────────────────────────── */

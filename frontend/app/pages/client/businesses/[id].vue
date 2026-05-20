@@ -20,7 +20,7 @@
       <div class="biz-gallery">
         <div class="biz-gallery-main">
           <img v-if="images[0]" :src="images[0]" :alt="business.name" />
-          <div v-else class="biz-gallery-ph"><span class="mdi mdi-stadium-variant" /></div>
+          <AppMediaPlaceholder v-else label="Foto del negocio" class="biz-gallery-ph" />
         </div>
         <div v-if="images.length > 1" class="biz-gallery-side">
           <div v-for="(im, i) in images.slice(1, 3)" :key="i" class="biz-gallery-thumb">

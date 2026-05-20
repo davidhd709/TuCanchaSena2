@@ -1,62 +1,47 @@
 <template>
-  <div>
-    <p class="text-body-2 text-medium-emphasis mb-3">
-      Activa cada día y define su horario de apertura y cierre.
-    </p>
-    <v-row dense>
-      <v-col v-for="day in days" :key="day.value" cols="12">
-        <v-card
-          :variant="local[day.value].isOpen ? 'outlined' : 'tonal'"
-          rounded="lg"
-          class="mb-1"
-        >
-          <v-card-text class="pa-3">
-            <div class="d-flex align-center gap-3 flex-wrap">
+  <div class="sched">
+    <p class="app-form-hint">Activa cada día y define su horario de apertura y cierre.</p>
 
-              <!-- Toggle abierto/cerrado -->
-              <v-switch
-                v-model="local[day.value].isOpen"
-                color="primary"
-                density="compact"
-                hide-details
-              />
+    <div class="sched-list">
+      <div
+        v-for="day in days"
+        :key="day.value"
+        class="sched-row"
+        :class="{ 'is-open': local[day.value].isOpen }"
+      >
+        <!-- Día + switch -->
+        <label class="sched-day">
+          <v-switch
+            v-model="local[day.value].isOpen"
+            color="primary"
+            density="compact"
+            hide-details
+            inset
+          />
+          <span class="sched-day-name">{{ day.label }}</span>
+        </label>
 
-              <span
-                class="text-body-2 font-weight-medium"
-                style="min-width: 88px"
-                :class="!local[day.value].isOpen ? 'text-medium-emphasis' : ''"
-              >
-                {{ day.label }}
-              </span>
-
-              <template v-if="local[day.value].isOpen">
-                <v-text-field
-                  v-model="local[day.value].openTime"
-                  type="time"
-                  label="Apertura"
-                  hide-details
-                  density="compact"
-                  style="max-width: 140px"
-                />
-                <span class="text-medium-emphasis px-1">—</span>
-                <v-text-field
-                  v-model="local[day.value].closeTime"
-                  type="time"
-                  label="Cierre"
-                  hide-details
-                  density="compact"
-                  style="max-width: 140px"
-                />
-              </template>
-
-              <span v-else class="text-caption text-medium-emphasis">
-                Cerrado
-              </span>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+        <!-- Horarios o cerrado -->
+        <div class="sched-times">
+          <template v-if="local[day.value].isOpen">
+            <input
+              v-model="local[day.value].openTime"
+              type="time"
+              class="sched-time-input"
+              aria-label="Apertura"
+            />
+            <span class="sched-sep">—</span>
+            <input
+              v-model="local[day.value].closeTime"
+              type="time"
+              class="sched-time-input"
+              aria-label="Cierre"
+            />
+          </template>
+          <span v-else class="sched-closed">Cerrado</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -119,3 +104,79 @@ watch(
   { deep: true }
 )
 </script>
+
+<style scoped>
+.sched-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sched-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.sched-row.is-open { border-color: rgba(52, 198, 146, 0.28); }
+
+.sched-day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  min-width: 150px;
+}
+.sched-day-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.sched-row.is-open .sched-day-name { color: var(--text-primary); }
+
+.sched-times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sched-time-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 7px 10px;
+  font-size: 0.88rem;
+  font-family: 'Manrope', sans-serif;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  color-scheme: dark;
+}
+.sched-time-input:focus {
+  border-color: var(--green-bright);
+  box-shadow: 0 0 0 3px var(--green-soft);
+}
+.sched-sep { color: var(--text-faint); }
+.sched-closed {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+/* Switch más compacto. */
+.sched-day :deep(.v-switch) { flex: none; }
+.sched-day :deep(.v-selection-control) { min-height: auto; }
+
+@media (max-width: 600px) {
+  .sched-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .sched-day { min-width: 0; }
+  .sched-times { justify-content: flex-start; }
+}
+</style>

@@ -16,7 +16,7 @@
           <div class="pay-summary-head">
             <div class="pay-summary-media">
               <img v-if="cleanCover" :src="cleanCover" :alt="court.name" />
-              <div v-else class="pay-summary-ph"><span class="mdi mdi-soccer-field" /></div>
+              <AppMediaPlaceholder v-else dense class="pay-summary-ph" />
             </div>
             <div class="pay-summary-body">
               <h2 id="pay-summary-title" class="pay-summary-name">{{ court.name }}</h2>
@@ -149,7 +149,7 @@
       <aside class="pay-side" v-if="court" aria-hidden="false">
         <div class="pay-side-media">
           <img v-if="cleanCover" :src="cleanCover" :alt="court.name" />
-          <div v-else class="pay-side-ph"><span class="mdi mdi-soccer-field" /></div>
+          <AppMediaPlaceholder v-else label="Imagen de cancha" class="pay-side-ph" />
         </div>
         <div class="pay-side-body">
           <h3>{{ court.name }}</h3>

@@ -14,7 +14,7 @@
       <div class="court-gallery">
         <div class="court-gallery-main">
           <img v-if="images[0]" :src="images[0]" :alt="court.name" />
-          <div v-else class="court-gallery-ph"><span class="mdi mdi-soccer-field" /></div>
+          <AppMediaPlaceholder v-else label="Imagen de cancha" class="court-gallery-ph" />
           <span
             class="court-gallery-status"
             :class="court.status === 'available' ? 'is-available' : 'is-unavailable'"

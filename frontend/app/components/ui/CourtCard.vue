@@ -10,7 +10,7 @@
         @error="imgError = true"
       />
       <div v-else class="court-card-img court-card-img--ph">
-        <span class="mdi mdi-soccer-field" />
+        <AppMediaPlaceholder />
       </div>
       <span class="court-card-type">{{ typeLabel }}</span>
     </div>
@@ -109,29 +109,8 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
 }
 .court-card:hover .court-card-img { transform: scale(1.04); }
 
-.court-card-img--ph {
-  display: flex; align-items: center; justify-content: center;
-  position: relative;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
-    radial-gradient(circle at 80% 75%, rgba(52, 198, 146, 0.10), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-}
-.court-card-img--ph::before,
-.court-card-img--ph::after {
-  content: '';
-  position: absolute;
-  border: 1.5px solid rgba(52, 198, 146, 0.20);
-  border-radius: 50%;
-}
-.court-card-img--ph::before { width: 78%; height: 78%; top: 11%; left: 11%; }
-.court-card-img--ph::after { width: 34%; height: 34%; top: 33%; left: 33%; }
-.court-card-img--ph .mdi {
-  position: relative;
-  z-index: 1;
-  font-size: 3rem;
-  color: rgba(52, 198, 146, 0.55);
-}
+/* Placeholder con logo real (visual provisto por AppMediaPlaceholder). */
+.court-card-img--ph { padding: 0; }
 
 .court-card-type {
   position: absolute;
