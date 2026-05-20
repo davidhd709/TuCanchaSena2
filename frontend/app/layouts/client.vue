@@ -4,8 +4,7 @@
       <header class="client-nav">
         <div class="client-nav-inner">
           <NuxtLink to="/dashboard" class="client-brand" aria-label="TuCancha — Inicio">
-            <span class="client-brand-icon mdi mdi-soccer" />
-            TuCancha
+            <img src="/logo-nav.webp" alt="TuCancha" class="client-brand-logo" />
           </NuxtLink>
 
           <nav class="client-links" aria-label="Navegación principal">
@@ -55,8 +54,7 @@
         <div class="client-footer-inner">
           <div>
             <div class="client-footer-brand">
-              <span class="client-brand-icon mdi mdi-soccer" />
-              TuCancha
+              <img src="/logo-nav.webp" alt="TuCancha" class="client-footer-logo" />
             </div>
             <p>© 2026 TuCancha · Reserva canchas sintéticas en minutos.</p>
           </div>
@@ -134,23 +132,12 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 .client-brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--green-bright);
   text-decoration: none;
-  font-family: 'Sora', 'Manrope', sans-serif;
-  font-weight: 800;
-  font-size: 1.25rem;
-  letter-spacing: -0.01em;
 }
-.client-brand-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  background: var(--green-soft);
-  color: var(--green-bright);
-  font-size: 1.15rem;
+.client-brand-logo {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 .client-links {
   display: flex;
@@ -231,10 +218,13 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 .client-footer-brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: var(--green-bright);
-  font-weight: 800;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+}
+.client-footer-logo {
+  height: 30px;
+  width: auto;
+  display: block;
+  opacity: 0.9;
 }
 .client-footer-links { display: flex; gap: 22px; }
 .client-footer-links a {

@@ -4,8 +4,10 @@
       <div class="owner-shell">
         <aside class="owner-sidebar">
           <div>
-            <div class="owner-brand">Panel del negocio</div>
-            <p class="owner-brand-sub">Gestiona tus canchas</p>
+            <NuxtLink to="/dashboard" aria-label="TuCancha — Inicio">
+              <img src="/logo-nav.webp" alt="TuCancha" class="owner-brand-logo" />
+            </NuxtLink>
+            <p class="owner-brand-sub">Panel del negocio</p>
           </div>
 
           <nav class="owner-nav">
@@ -36,7 +38,9 @@
     <template v-else>
       <header class="dash-nav">
         <div class="dash-nav-inner">
-          <NuxtLink to="/" class="dash-nav-brand">TuCancha</NuxtLink>
+          <NuxtLink to="/dashboard" class="dash-nav-brand" aria-label="TuCancha — Inicio">
+            <img src="/logo-nav.webp" alt="TuCancha" class="dash-nav-logo" />
+          </NuxtLink>
           <nav class="dash-nav-links">
             <NuxtLink v-for="item in adminNav" :key="item.to" :to="item.to" class="dash-nav-link">{{ item.title }}</NuxtLink>
           </nav>
@@ -93,17 +97,15 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   flex-direction: column;
   gap: 24px;
 }
-.owner-brand {
-  color: var(--green-bright);
-  font-family: 'Sora', 'Manrope', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+.owner-brand-logo {
+  height: 38px;
+  width: auto;
+  display: block;
 }
 .owner-brand-sub {
   color: var(--text-muted);
   font-size: .82rem;
-  margin-top: 2px;
+  margin-top: 8px;
 }
 .owner-nav { display: flex; flex-direction: column; gap: 4px; }
 .owner-link {
@@ -183,12 +185,14 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   display: flex; align-items: center; justify-content: space-between;
 }
 .dash-nav-brand {
-  color: var(--green-bright);
-  font-family: 'Sora', 'Manrope', sans-serif;
-  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
-  font-size: 1.4rem;
-  letter-spacing: -0.01em;
+}
+.dash-nav-logo {
+  height: 34px;
+  width: auto;
+  display: block;
 }
 .dash-nav-links { display: flex; gap: 22px; }
 .dash-nav-link {
