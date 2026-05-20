@@ -41,14 +41,12 @@
       <div v-for="court in courts" :key="court.id" class="bc-card">
         <div class="bc-card-media">
           <img
-            v-if="court.images?.[0]"
-            :src="court.images[0]"
+            v-if="safeCover(court.images?.[0])"
+            :src="safeCover(court.images?.[0])"
             :alt="court.name"
             class="bc-card-img"
           />
-          <div v-else class="bc-card-img bc-card-img--ph">
-            <span class="mdi mdi-soccer-field" />
-          </div>
+          <AppMediaPlaceholder v-else type="court" class="bc-card-img bc-card-img--ph" />
           <span class="bc-card-status" :class="statusClass(court.status)">
             <span class="bc-card-status-dot" />
             {{ statusLabel(court.status) }}
@@ -546,15 +544,8 @@ onMounted(async () => {
 
 .bc-card-media { position: relative; height: 150px; overflow: hidden; }
 .bc-card-img { width: 100%; height: 100%; object-fit: cover; }
-.bc-card-img--ph {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(52, 198, 146, 0.16), transparent 55%),
-    linear-gradient(135deg, #182230 0%, #0f141a 100%);
-}
-.bc-card-img--ph .mdi { font-size: 2.8rem; color: rgba(52, 198, 146, 0.55); }
+/* Contenedor del placeholder; el visual lo provee AppMediaPlaceholder. */
+.bc-card-img--ph { display: block; }
 .bc-card-status {
   position: absolute;
   top: 10px;

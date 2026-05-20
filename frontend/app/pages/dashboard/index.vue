@@ -213,7 +213,7 @@
               :src="nextBookingCover"
               :alt="nextBooking.court?.name ?? 'Cancha'"
             />
-            <span v-else class="mdi mdi-soccer-field" />
+            <AppMediaPlaceholder v-else compact />
           </div>
           <div class="client-home-next-body">
             <h3>{{ nextBooking.court?.name ?? 'Cancha' }}</h3>
@@ -241,7 +241,7 @@
             <NuxtLink :to="`/client/bookings/${booking.id}`" class="client-home-recent-row">
               <div class="client-home-recent-thumb">
                 <img v-if="recentCover(booking)" :src="recentCover(booking)!" :alt="booking.court?.name ?? 'Cancha'" />
-                <span v-else class="mdi mdi-soccer-field" />
+                <AppMediaPlaceholder v-else compact />
               </div>
               <div class="client-home-recent-text">
                 <span class="client-home-recent-name">{{ booking.court?.name ?? 'Cancha' }}</span>

@@ -146,9 +146,14 @@
             :style="`animation-delay: ${i * 0.12}s`"
           >
             <div class="court-img-wrap">
-              <div class="court-img-placeholder">
-                <span class="mdi mdi-soccer-field"></span>
-              </div>
+              <img
+                v-if="safeCover(court.images?.[0])"
+                :src="safeCover(court.images?.[0])"
+                :alt="court.name"
+                class="court-img"
+                loading="lazy"
+              />
+              <AppMediaPlaceholder v-else type="court" class="court-img-placeholder" />
               <div class="court-img-overlay"></div>
               <span class="court-badge">
                 {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
@@ -798,19 +803,15 @@ const features = [
 }
 
 .court-img-wrap { position: relative; height: 200px; overflow: hidden; }
+.court-img,
 .court-img-placeholder {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(47, 161, 138, 0.22), transparent 55%),
-    linear-gradient(135deg, #1e2b35, #0f141c);
+  object-fit: cover;
   transition: transform 0.5s ease;
 }
+.court-card:hover .court-img,
 .court-card:hover .court-img-placeholder { transform: scale(1.06); }
-.court-img-placeholder .mdi { font-size: 3.6rem; color: rgba(47, 161, 138, 0.5); }
 .court-img-overlay {
   position: absolute;
   inset: 0;
