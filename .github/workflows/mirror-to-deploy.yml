@@ -28,11 +28,12 @@ jobs:
           MIRROR_SSH_KEY_B64: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "$MIRROR_SSH_KEY_B64" | base64 --decode > ~/.ssh/mirror_key
+          cat <<EOF > ~/.ssh/mirror_key
+          $MIRROR_SSH_KEY
+          EOF
           chmod 600 ~/.ssh/mirror_key
-          # Falla temprano y claro si la llave quedó mal formada.
           ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
-          ssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
       - name: Push main al repo de deploy
         env:
