@@ -28,7 +28,7 @@ jobs:
           MIRROR_SSH_KEY_B64: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$MIRROR_SSH_KEY_B64" | base64 -d > ~/.ssh/mirror_key
+          printf '%s' "$MIRROR_SSH_KEY_B64" | base64 -d > ~/.ssh/mirror_key
           chmod 600 ~/.ssh/mirror_key
           # Falla temprano y claro si la llave quedó mal formada.
           ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
