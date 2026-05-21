@@ -23,15 +23,24 @@ jobs:
 
       - name: Configurar deploy key
         env:
-          # El secret guarda la llave privada codificada en base64 (una sola línea,
-          # inmune a problemas de copia/pegado). Aquí se decodifica.
-          MIRROR_SSH_KEY_B64: ${{ secrets.MIRROR_SSH_KEY }}
+          # Llave privada del deploy key. Acepta dos formatos de secret:
+          #  - PEM cruda multilínea (-----BEGIN OPENSSH PRIVATE KEY----- ...)
+          #  - misma llave codificada en base64 (una sola línea)
+          MIRROR_SSH_KEY: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf "%s" "$MIRROR_SSH_KEY" > ~/.ssh/mirror_key
+          # Detecta el formato y normaliza a un archivo de llave válido.
+          if printf '%s' "$MIRROR_SSH_KEY" | head -n1 | grep -q -- "-----BEGIN"; then
+            # Llave PEM cruda: garantizar salto de línea final (evita "error in libcrypto").
+            printf '%s\n' "$MIRROR_SSH_KEY" > ~/.ssh/mirror_key
+          else
+            # Llave en base64: decodificar.
+            printf '%s' "$MIRROR_SSH_KEY" | base64 -d > ~/.ssh/mirror_key
+          fi
           chmod 600 ~/.ssh/mirror_key
+          # Valida la llave; si está mal, el job falla aquí con un mensaje claro.
           ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
-          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Push main al repo de deploy
         env:
