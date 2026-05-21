@@ -23,24 +23,40 @@ jobs:
 
       - name: Configurar deploy key
         env:
-          # Llave privada del deploy key. Acepta dos formatos de secret:
+          # Llave privada del deploy key. Acepta dos formatos:
           #  - PEM cruda multilínea (-----BEGIN OPENSSH PRIVATE KEY----- ...)
-          #  - misma llave codificada en base64 (una sola línea)
+          #  - la misma llave codificada en base64 (una sola línea)
           MIRROR_SSH_KEY: ${{ secrets.MIRROR_SSH_KEY }}
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
+
+          if [ -z "${MIRROR_SSH_KEY:-}" ]; then
+            echo "::error::Falta el secret MIRROR_SSH_KEY."
+            exit 1
+          fi
+
           # Detecta el formato y normaliza a un archivo de llave válido.
           if printf '%s' "$MIRROR_SSH_KEY" | head -n1 | grep -q -- "-----BEGIN"; then
-            # Llave PEM cruda: garantizar salto de línea final (evita "error in libcrypto").
-            printf '%s\n' "$MIRROR_SSH_KEY" > ~/.ssh/mirror_key
+            # Llave PEM cruda: asegurar LF al final y limpiar CRLF.
+            printf '%s\n' "$MIRROR_SSH_KEY" | sed 's/\r$//' > ~/.ssh/mirror_key
           else
-            # Llave en base64: decodificar.
-            printf '%s' "$MIRROR_SSH_KEY" | base64 -d > ~/.ssh/mirror_key
+            # Llave en base64: limpiar espacios/saltos accidentales y decodificar.
+            SANITIZED_KEY="$(printf '%s' "$MIRROR_SSH_KEY" | tr -d '[:space:]')"
+            if ! printf '%s' "$SANITIZED_KEY" | base64 -d > ~/.ssh/mirror_key 2>/dev/null; then
+              echo "::error::MIRROR_SSH_KEY no parece PEM ni base64 válido."
+              echo "Si usas base64, genera con: base64 -w0 < tu_llave_privada"
+              exit 1
+            fi
           fi
+
           chmod 600 ~/.ssh/mirror_key
-          # Valida la llave; si está mal, el job falla aquí con un mensaje claro.
-          ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          # Diagnóstico claro: valida que la llave cargue antes de intentar el push.
+          if ! ssh-keygen -y -f ~/.ssh/mirror_key > /dev/null 2>&1; then
+            echo "::error::La llave en MIRROR_SSH_KEY no es válida."
+            exit 1
+          fi
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 
       - name: Push main al repo de deploy
         env:
