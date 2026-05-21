@@ -82,14 +82,14 @@
               Canchas de este negocio
               <span class="biz-section-count">{{ courts.length }}</span>
             </h2>
-            <div v-if="courts.length" class="biz-courts-grid">
+            <AppGrid v-if="courts.length" :min="240">
               <CourtCard
                 v-for="court in courts"
                 :key="court.id"
                 :court="{ ...court, business: { name: business.name } }"
                 :to="`/client/courts/${court.id}`"
               />
-            </div>
+            </AppGrid>
             <EmptyState
               v-else
               icon="mdi-soccer-field"
@@ -342,11 +342,6 @@ onMounted(loadBusiness)
 }
 .biz-amenity .mdi { font-size: 1.1rem; color: var(--green-primary); }
 
-.biz-courts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
-}
 
 /* Panel lateral */
 .biz-aside { position: sticky; top: 92px; }
@@ -464,7 +459,6 @@ onMounted(loadBusiness)
   .biz-gallery-main { height: 230px; }
   .biz-gallery-side { grid-template-rows: none; grid-template-columns: 1fr 1fr; height: 130px; }
   .biz-amenities { grid-template-columns: 1fr; }
-  .biz-courts-grid { grid-template-columns: 1fr; }
 }
 
 /* Desktop: deshabilitar el toggle del <details> y forzar contenido visible

@@ -201,11 +201,8 @@
       </section>
 
       <!-- Próxima reserva destacada -->
-      <section v-if="nextBooking" class="client-home-section">
-        <div class="client-home-section-head">
-          <h2 class="client-home-section-title">Tu próxima reserva</h2>
-          <NuxtLink to="/client/bookings" class="client-home-section-link">Ver todas</NuxtLink>
-        </div>
+      <AppSection v-if="nextBooking" title="Tu próxima reserva">
+        <template #action><NuxtLink to="/client/bookings" class="client-home-section-link">Ver todas</NuxtLink></template>
         <NuxtLink :to="`/client/bookings/${nextBooking.id}`" class="client-home-next">
           <div class="client-home-next-thumb">
             <img
@@ -228,14 +225,11 @@
             <span class="client-home-next-caret mdi mdi-chevron-right" />
           </div>
         </NuxtLink>
-      </section>
+      </AppSection>
 
       <!-- Reservas recientes (modo lista compacta) -->
-      <section v-if="myBookings.length" class="client-home-section">
-        <div class="client-home-section-head">
-          <h2 class="client-home-section-title">Reservas recientes</h2>
-          <NuxtLink to="/client/bookings" class="client-home-section-link">Ver todas</NuxtLink>
-        </div>
+      <AppSection v-if="myBookings.length" title="Reservas recientes">
+        <template #action><NuxtLink to="/client/bookings" class="client-home-section-link">Ver todas</NuxtLink></template>
         <ul class="client-home-recent">
           <li v-for="booking in myBookings" :key="booking.id">
             <NuxtLink :to="`/client/bookings/${booking.id}`" class="client-home-recent-row">
@@ -253,7 +247,7 @@
             </NuxtLink>
           </li>
         </ul>
-      </section>
+      </AppSection>
 
       <section v-else class="client-home-section">
         <div class="client-home-empty">

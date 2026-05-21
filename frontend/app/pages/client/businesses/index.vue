@@ -1,34 +1,27 @@
 <template>
   <div>
     <!-- ─── Hero buscador ─── -->
-    <section class="explore-hero">
-      <div class="explore-hero-bg" aria-hidden="true" />
-      <div class="explore-hero-content">
-        <span class="explore-hero-eyebrow">Negocios deportivos</span>
-        <h1 class="explore-hero-title">¿Dónde vas a jugar hoy?</h1>
-        <p class="explore-hero-sub">
-          Descubre canchas sintéticas cerca de ti y revisa servicios, horarios y precios antes de reservar.
-        </p>
-        <div class="explore-search">
-          <span class="mdi mdi-magnify explore-search-icon" />
-          <input
-            v-model="search"
-            type="search"
-            placeholder="Busca por nombre o ubicación..."
-            class="explore-search-input"
-          />
-          <button
-            v-if="search"
-            type="button"
-            class="explore-search-clear"
-            aria-label="Limpiar búsqueda"
-            @click="search = ''"
-          >
-            <span class="mdi mdi-close" />
-          </button>
-        </div>
+    <AppHero eyebrow="Negocios deportivos" title="¿Dónde vas a jugar hoy?"
+             subtitle="Descubre canchas sintéticas cerca de ti y revisa servicios, horarios y precios antes de reservar.">
+      <div class="explore-search">
+        <span class="mdi mdi-magnify explore-search-icon" />
+        <input
+          v-model="search"
+          type="search"
+          placeholder="Busca por nombre o ubicación..."
+          class="explore-search-input"
+        />
+        <button
+          v-if="search"
+          type="button"
+          class="explore-search-clear"
+          aria-label="Limpiar búsqueda"
+          @click="search = ''"
+        >
+          <span class="mdi mdi-close" />
+        </button>
       </div>
-    </section>
+    </AppHero>
 
     <!-- ─── Filtros tipo chip group ─── -->
     <div v-if="allAmenities.length" class="explore-chips" aria-label="Filtrar por servicio">
@@ -64,9 +57,9 @@
       @retry="loadBusinesses"
     />
 
-    <div v-else-if="filtered.length" class="explore-grid">
+    <AppGrid v-else-if="filtered.length" :min="280">
       <BusinessCard v-for="biz in filtered" :key="biz.id" :business="biz" />
-    </div>
+    </AppGrid>
 
     <EmptyState
       v-else
@@ -134,49 +127,7 @@ onMounted(loadBusinesses)
 </script>
 
 <style scoped>
-/* Hero buscador */
-.explore-hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: 22px;
-  padding: 36px 32px 32px;
-  margin-bottom: 24px;
-  background:
-    radial-gradient(circle at 85% 25%, rgba(52, 198, 146, 0.16), transparent 50%),
-    radial-gradient(circle at 12% 80%, rgba(52, 198, 146, 0.08), transparent 55%),
-    linear-gradient(135deg, #15211f 0%, #0e1418 100%);
-  border: 1px solid var(--border-soft);
-}
-.explore-hero-content { position: relative; max-width: 720px; }
-.explore-hero-eyebrow {
-  display: inline-block;
-  font-size: .76rem;
-  font-weight: 800;
-  color: var(--green-bright);
-  background: var(--green-soft);
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  margin-bottom: 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.explore-hero-title {
-  font-family: 'Sora', 'Manrope', sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-size: clamp(1.6rem, 3.3vw, 2.2rem);
-  line-height: 1.15;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
-.explore-hero-sub {
-  font-size: .94rem;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-  max-width: 540px;
-}
-
-/* Buscador grande estilo marketplace */
+/* Buscador grande estilo marketplace (vive dentro del slot de AppHero) */
 .explore-search {
   position: relative;
   display: flex;
@@ -255,18 +206,7 @@ onMounted(loadBusinesses)
   color: var(--text-muted);
 }
 
-.explore-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-@media (max-width: 960px) {
-  .explore-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-}
 @media (max-width: 600px) {
-  .explore-hero { padding: 24px 18px; }
-  .explore-grid { grid-template-columns: 1fr; gap: 14px; }
   .explore-search { padding: 4px 8px 4px 16px; }
   .explore-search-input { padding: 12px 4px; font-size: .9rem; }
 }

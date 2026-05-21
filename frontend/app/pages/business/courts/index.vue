@@ -37,7 +37,7 @@
     </div>
 
     <!-- Grid de canchas -->
-    <div v-else class="bc-grid">
+    <AppGrid v-else :min="260">
       <div v-for="court in courts" :key="court.id" class="bc-card">
         <div class="bc-card-media">
           <img
@@ -110,7 +110,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </AppGrid>
 
     <!-- ─── Court Form Dialog (AppModalShell) ─── -->
     <AppModalShell
@@ -519,12 +519,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* ─── Grid de canchas ─── */
-.bc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
 
 .bc-card {
   display: flex;
@@ -659,10 +653,4 @@ onMounted(async () => {
   margin-bottom: 20px;
 }
 
-@media (max-width: 960px) {
-  .bc-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 600px) {
-  .bc-grid { grid-template-columns: 1fr; }
-}
 </style>

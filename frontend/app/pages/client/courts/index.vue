@@ -19,9 +19,9 @@
     <LoadingState v-if="loading" :count="6" :sm="6" :lg="4" />
     <ErrorState v-else-if="fetchError" message="No pudimos cargar las canchas." @retry="loadCourts" />
 
-    <div v-else-if="filteredCourts.length" class="explore-grid">
+    <AppGrid v-else-if="filteredCourts.length" :min="280">
       <CourtCard v-for="court in filteredCourts" :key="court.id" :court="court" :to="`/client/courts/${court.id}`" />
-    </div>
+    </AppGrid>
 
     <EmptyState
       v-else
@@ -154,12 +154,7 @@ onMounted(loadCourts)
   font-weight: 800;
 }
 
-.explore-grid {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
+.app-grid { margin-top: 18px; }
 .explore-more-wrap { display: flex; justify-content: center; margin-top: 18px; }
 .explore-more {
   border: 1px solid rgba(52, 198, 146, 0.42);
@@ -174,12 +169,10 @@ onMounted(loadCourts)
 }
 .explore-more:hover { background: var(--green-soft); }
 
-@media (max-width: 1100px) { .explore-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 760px) {
   .explore-toolbar { flex-wrap: wrap; border-radius: 18px; padding: 12px; }
   .explore-search { min-width: 100%; }
   .explore-pill { max-width: none; flex: 1; min-width: 120px; }
   .explore-filter-btn { width: 100%; }
-  .explore-grid { grid-template-columns: 1fr; }
 }
 </style>
