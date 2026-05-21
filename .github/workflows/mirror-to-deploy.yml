@@ -9,8 +9,9 @@ on:
 
 jobs:
   mirror:
-    # Solo si el CI pasó y corrió sobre main.
+    # Solo si el CI pasó sobre main y estamos en el repo origen.
     if: >-
+      github.repository == 'davidhd709/TuCanchaSena2' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
