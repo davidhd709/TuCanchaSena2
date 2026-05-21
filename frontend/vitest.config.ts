@@ -36,10 +36,11 @@ export default defineConfig({
     globals: true,
 
     /**
-     * Dónde buscar los archivos de test:
-     * Busca en tests/unit/ y también dentro de src/ o app/ si hay archivos *.spec.ts
+     * Dónde buscar los archivos de test unitarios.
+     * Excluimos tests/e2e/ explícitamente: esos specs usan el runner de Playwright
+     * (`@playwright/test`) y fallan si Vitest intenta recolectarlos.
      */
-    include: ['tests/**/*.spec.ts', 'app/**/*.spec.ts'],
+    include: ['tests/unit/**/*.spec.ts', 'app/**/*.spec.ts'],
 
     /**
      * Archivos de configuración que se ejecutan ANTES de cada test suite.

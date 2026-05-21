@@ -215,7 +215,7 @@
               </span>
             </div>
             <div class="bk-card-foot">
-              <span class="bk-card-total">${{ Number(b.totalPrice ?? 0).toLocaleString('es-CO') }}</span>
+              <span class="bk-card-total">{{ formatCurrency(b.totalPrice) }}</span>
               <span v-if="b.paymentProof" class="bk-card-proof">
                 <span class="mdi mdi-image-check-outline" /> Comprobante
               </span>
@@ -233,6 +233,7 @@
               variant="flat"
               size="small"
               prepend-icon="mdi-check"
+              data-testid="confirm-booking"
               :disabled="actionLoading === 'quick-' + b.id"
               :loading="actionLoading === 'quick-' + b.id"
               @click.stop="quickConfirm(b)"
@@ -244,6 +245,7 @@
               variant="tonal"
               size="small"
               prepend-icon="mdi-close"
+              data-testid="reject-booking"
               @click.stop="quickReject(b)"
             >
               Rechazar
@@ -298,7 +300,7 @@
           <v-col cols="6">
             <div class="text-caption text-medium-emphasis mb-1">Total</div>
             <div class="text-body-2 font-weight-bold text-success">
-              ${{ Number(selectedBooking.totalPrice ?? 0).toLocaleString('es-CO') }}
+              {{ formatCurrency(selectedBooking.totalPrice) }}
             </div>
           </v-col>
           <v-col cols="6">
@@ -335,6 +337,7 @@
         <template v-if="selectedBooking.status === 'pending'">
           <v-btn
             color="success" variant="flat" size="small" prepend-icon="mdi-check"
+            data-testid="detail-confirm-booking"
             :loading="actionLoading === 'confirm'"
             @click="confirmBooking"
           >
@@ -342,6 +345,7 @@
           </v-btn>
           <v-btn
             color="error" variant="tonal" size="small" prepend-icon="mdi-close"
+            data-testid="detail-reject-booking"
             @click="openReject"
           >
             Rechazar
@@ -420,6 +424,7 @@
       title="Rechazar Reserva"
       subtitle="Explica el motivo al cliente para que pueda entender la decisión."
       :width="460"
+      test-id="reject-modal"
     >
       <template #tag>Atención</template>
       <template #body>
@@ -435,6 +440,7 @@
         <v-btn variant="text" @click="rejectDialog = false">Cancelar</v-btn>
         <v-btn
           color="error" variant="flat"
+          data-testid="reject-submit"
           :loading="actionLoading === 'reject'"
           @click="rejectBooking"
         >
@@ -622,27 +628,9 @@ const statusLegend = [
 ]
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-/** Acepta `YYYY-MM-DD`, ISO con `T` o Date. Devuelve `null` si no es parseable. */
-const toLocalDate = (value: unknown): Date | null => {
-  if (!value) return null
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
-  if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
-  if (ymd) {
-    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
-    return Number.isNaN(d.getTime()) ? null : d
-  }
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? null : d
-}
-
-const formatDate = (dateStr: unknown) => {
-  const d = toLocalDate(dateStr)
-  if (!d) return 'Fecha no disponible'
-  return d.toLocaleDateString('es-CO', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  })
-}
+// `formatDate` y `formatCurrency` provienen de app/utils/* (auto-import Nuxt).
+// El formato de fecha por defecto (weekday largo) coincide exactamente con el
+// que esperan los E2E (helpers/api.ts → formatDateForUi).
 
 const notify = (text: string, color = 'success') => {
   snackbar.text = text; snackbar.color = color; snackbar.show = true

@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="`/client/businesses/${business.id}`" class="biz-card">
+  <NuxtLink :to="`/client/businesses/${business.id}`" class="biz-card" data-testid="business-card">
     <div class="biz-card-media">
       <img
         v-if="cover && !imgError"

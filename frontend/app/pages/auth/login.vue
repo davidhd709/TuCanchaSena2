@@ -67,6 +67,7 @@
         class="submit-btn"
         :disabled="loading"
         id="login-submit"
+        data-testid="login-submit"
       >
         <span v-if="!loading">
           <span class="mdi mdi-login"></span>&nbsp;Iniciar Sesión

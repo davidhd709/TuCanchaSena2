@@ -35,8 +35,8 @@ test.describe('Regresión UX', () => {
 
     // Entramos a la primera cancha activa por la vía pública (no requiere conocer ids).
     await page.goto('/client/businesses')
-    await page.locator('a.biz-card').first().click()
-    await page.locator('a.court-card').first().click()
+    await page.getByTestId('business-card').first().click()
+    await page.getByTestId('court-card').first().click()
 
     // Forzamos una fecha muy lejana para que con alta probabilidad la disponibilidad
     // del seed esté vacía o la cancha esté cerrada — el código devuelve `slots: []`

@@ -37,6 +37,6 @@ export async function loginViaForm(page: Page, role: Role) {
   await expect(email).toBeVisible({ timeout: 10_000 })
   await email.fill(DEMO[role].email)
   await password.fill(DEMO[role].password)
-  await page.getByRole('button', { name: /Iniciar Sesión/i }).click()
+  await page.getByTestId('login-submit').click()
   await expect(page).not.toHaveURL(/\/auth\/login$/, { timeout: 15_000 })
 }

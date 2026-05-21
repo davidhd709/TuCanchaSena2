@@ -197,7 +197,7 @@
                 Total reserva
               </div>
               <div class="text-h4 font-weight-bold text-primary mb-1">
-                ${{ Number(booking.totalPrice ?? 0).toLocaleString('es-CO') }}
+                {{ formatCurrency(booking.totalPrice) }}
               </div>
               <div class="text-caption text-medium-emphasis">COP</div>
             </v-card-text>
@@ -339,31 +339,9 @@ const loadBooking = async () => {
 onMounted(loadBooking)
 
 // —— Computed visuales ——
+// Fecha/moneda usan los helpers centralizados (app/utils/datetime.ts, currency.ts).
 
-/** Acepta `YYYY-MM-DD`, ISO con `T` o Date. Devuelve `null` si no es parseable. */
-const toLocalDate = (value: unknown): Date | null => {
-  if (!value) return null
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
-  if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
-  if (ymd) {
-    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
-    return Number.isNaN(d.getTime()) ? null : d
-  }
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? null : d
-}
-
-const formattedDate = computed(() => {
-  const d = toLocalDate(booking.value?.date)
-  if (!d) return 'Fecha no disponible'
-  return d.toLocaleDateString('es-CO', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-})
+const formattedDate = computed(() => formatDate(booking.value?.date))
 
 const durationLabel = computed(() => {
   if (!booking.value) return ''
@@ -373,20 +351,8 @@ const durationLabel = computed(() => {
   return hours === 1 ? '1 hora' : `${hours} horas`
 })
 
-const createdAtLabel = computed(() => {
-  // createdAt es un timestamp real (con hora); no aplicar normalización de día.
-  const raw = booking.value?.createdAt
-  if (!raw) return 'Fecha no disponible'
-  const d = new Date(raw)
-  if (Number.isNaN(d.getTime())) return 'Fecha no disponible'
-  return d.toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-})
+// createdAt es un timestamp real (con hora); formatDateTime conserva la hora.
+const createdAtLabel = computed(() => formatDateTime(booking.value?.createdAt))
 
 const isPdfProof = computed(() =>
   booking.value?.paymentProof?.toLowerCase().endsWith('.pdf'),
@@ -500,13 +466,13 @@ const confirmCancel = async () => {
 }
 /* Hero de estado alineado con la paleta del design system. */
 .hero-pending {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, var(--accent-warning), #d97706);
 }
 .hero-confirmed {
   background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
 }
 .hero-rejected {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, var(--accent-error), #dc2626);
 }
 .hero-cancelled {
   background: linear-gradient(135deg, #6b7280, #4b5563);

@@ -71,7 +71,7 @@
             <div class="court-feature">
               <div class="court-feature-icon"><span class="mdi mdi-cash" /></div>
               <div>
-                <div class="court-feature-value">${{ Number(court.pricePerHour).toLocaleString('es-CO') }}</div>
+                <div class="court-feature-value">{{ formatCurrency(court.pricePerHour) }}</div>
                 <div class="court-feature-label">por hora</div>
               </div>
             </div>
@@ -134,7 +134,7 @@
         <aside class="court-booking">
           <div class="booking-panel">
             <div class="booking-panel-price">
-              <span class="booking-panel-amount">${{ Number(court.pricePerHour).toLocaleString('es-CO') }}</span>
+              <span class="booking-panel-amount">{{ formatCurrency(court.pricePerHour) }}</span>
               <span class="booking-panel-unit"> / hora</span>
             </div>
 
@@ -162,6 +162,7 @@
                   :key="slot.startTime"
                   type="button"
                   class="slot-chip"
+                  data-testid="slot-chip"
                   :class="{
                     'is-selected': isSelected(slot),
                     'is-disabled': !slot.isAvailable,
@@ -171,7 +172,7 @@
                 >
                   <span class="slot-chip-time">{{ slot.startTime }} – {{ slot.endTime }}</span>
                   <span class="slot-chip-price">
-                    ${{ effectivePrice(slot).toLocaleString('es-CO') }}
+                    {{ formatCurrency(effectivePrice(slot)) }}
                     <span v-if="effectivePrice(slot) !== Number(court.pricePerHour)">★</span>
                   </span>
                 </button>
@@ -187,9 +188,9 @@
               <div v-if="selectedSlots.length > 0" class="booking-summary">
                 <div class="booking-summary-row">
                   <span>{{ selectedSlots.length }} hora{{ selectedSlots.length > 1 ? 's' : '' }}</span>
-                  <strong>${{ totalSelected.toLocaleString('es-CO') }}</strong>
+                  <strong>{{ formatCurrency(totalSelected) }}</strong>
                 </div>
-                <v-btn color="primary" size="large" block @click="goToBook">
+                <v-btn color="primary" size="large" block data-testid="create-booking" @click="goToBook">
                   Reservar ahora
                 </v-btn>
               </div>

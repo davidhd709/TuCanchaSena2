@@ -1,38 +1,22 @@
 <template>
-  <span class="status-badge" :class="`is-${status}`">
-    <span class="mdi" :class="chipIcon" />
-    {{ chipLabel }}
+  <span
+    class="status-badge"
+    :class="meta.badgeClass"
+    :data-status="meta.value"
+    data-testid="booking-status-chip"
+  >
+    <span class="mdi" :class="meta.icon" />
+    {{ meta.label }}
   </span>
 </template>
 
 <script setup lang="ts">
+// Catálogo único de estados (label, icono, color, clase CSS, final/pendiente).
+// Ver app/utils/bookingStatus.ts. Mantiene las clases `status-badge is-<status>`
+// y los labels exactos de los que dependen los E2E.
 const props = defineProps<{ status: string }>()
 
-const chipIcon = computed(() => {
-  const map: Record<string, string> = {
-    pending: 'mdi-clock-outline',
-    confirmed: 'mdi-check-circle-outline',
-    rejected: 'mdi-close-circle-outline',
-    cancelled: 'mdi-close-circle-outline',
-    completed: 'mdi-flag-checkered',
-    no_show: 'mdi-account-off-outline',
-    expired: 'mdi-timer-off-outline',
-  }
-  return map[props.status] ?? 'mdi-help-circle-outline'
-})
-
-const chipLabel = computed(() => {
-  const map: Record<string, string> = {
-    pending: 'Pendiente',
-    confirmed: 'Confirmada',
-    rejected: 'Rechazada',
-    cancelled: 'Cancelada',
-    completed: 'Completada',
-    no_show: 'No Show',
-    expired: 'Vencida',
-  }
-  return map[props.status] ?? props.status
-})
+const meta = computed(() => getBookingStatusMeta(props.status))
 </script>
 
 <style scoped>

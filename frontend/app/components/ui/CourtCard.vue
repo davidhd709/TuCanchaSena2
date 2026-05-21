@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="to" class="court-card">
+  <NuxtLink :to="to" class="court-card" data-testid="court-card">
     <div class="court-card-media">
       <img
         v-if="cover && !imgError"
@@ -31,7 +31,7 @@
       <div class="court-card-footer">
         <div class="court-card-price">
           <span class="court-card-price-label">Desde</span>
-          <span class="court-card-price-amount">${{ formattedPrice }}</span>
+          <span class="court-card-price-amount">{{ formatCurrency(court.pricePerHour) }}</span>
           <span class="court-card-price-unit">/ hora</span>
         </div>
         <span class="court-card-cta">
@@ -64,7 +64,6 @@ const props = withDefaults(
 const to = computed(() => props.to ?? `/client/courts/${props.court.id}`)
 const cover = computed(() => safeCover(props.court.images?.[0]))
 const imgError = ref(false)
-const formattedPrice = computed(() => Number(props.court.pricePerHour).toLocaleString('es-CO'))
 
 const TYPE_LABELS: Record<string, string> = {
   football_5: 'Fútbol 5',

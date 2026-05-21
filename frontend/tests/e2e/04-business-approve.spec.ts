@@ -42,7 +42,7 @@ test.describe('Flujo business — aprobar reserva pendiente', () => {
     await expect(card, 'reserva pendiente no visible en business/bookings').toBeVisible({
       timeout: 15_000,
     })
-    await card.getByRole('button', { name: 'Confirmar', exact: true }).click()
+    await card.getByTestId('confirm-booking').click()
 
     // Verificación de servidor: el booking ahora es `confirmed`
     const businessToken = await loginViaApi('business')

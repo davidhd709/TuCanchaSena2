@@ -30,7 +30,7 @@
     :aria-labelledby="titleId"
     @update:model-value="(v) => emit('update:modelValue', v)"
   >
-    <v-card class="app-modal" rounded="lg">
+    <v-card class="app-modal" rounded="lg" :data-testid="testId || undefined">
       <header class="app-modal-head">
         <div class="app-modal-head-text">
           <span v-if="$slots.tag" class="app-modal-tag"><slot name="tag" /></span>
@@ -74,6 +74,8 @@ const props = withDefaults(
     scrollable?: boolean
     /** Muestra el botón X del header (por default sí). */
     closable?: boolean
+    /** `data-testid` estable para apuntar el modal desde E2E (opcional). */
+    testId?: string
   }>(),
   {
     subtitle: '',
@@ -81,6 +83,7 @@ const props = withDefaults(
     persistent: false,
     scrollable: true,
     closable: true,
+    testId: undefined,
   },
 )
 const emit = defineEmits<{

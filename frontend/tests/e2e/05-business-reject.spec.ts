@@ -41,12 +41,12 @@ test.describe('Flujo business — rechazar reserva y liberar slot', () => {
       .filter({ hasText: `${slot!.startTime}–${slot!.endTime}` })
       .first()
     await expect(card).toBeVisible({ timeout: 15_000 })
-    await card.getByRole('button', { name: 'Rechazar', exact: true }).click()
+    await card.getByTestId('reject-booking').click()
 
-    // Reject dialog: motivo + confirm (botón flat dentro del dialog de motivo)
-    const rejectDialog = page.locator('.v-dialog').filter({ hasText: 'Rechazar Reserva' })
+    // Reject dialog: motivo + confirm (modal apuntado por data-testid estable)
+    const rejectDialog = page.getByTestId('reject-modal')
     await rejectDialog.locator('textarea').fill('Comprobante inválido (E2E)')
-    await rejectDialog.getByRole('button', { name: 'Rechazar', exact: true }).click()
+    await rejectDialog.getByTestId('reject-submit').click()
 
     // Verificación 1: status del booking es `rejected`
     const businessToken = await loginViaApi('business')

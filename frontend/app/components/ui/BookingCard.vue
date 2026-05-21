@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="`/client/bookings/${booking.id}`" class="booking-card">
+  <NuxtLink :to="`/client/bookings/${booking.id}`" class="booking-card" data-testid="booking-card">
     <div class="booking-card-thumb">
       <img
         v-if="cover && !imgError"
@@ -27,11 +27,11 @@
         </span>
         <span class="booking-card-row">
           <span class="mdi mdi-clock-outline" />
-          {{ booking.startTime?.slice(0,5) }} – {{ booking.endTime?.slice(0,5) }}
+          {{ formatTimeRange(booking.startTime, booking.endTime) }}
         </span>
         <span class="booking-card-row booking-card-price">
           <span class="mdi mdi-cash-multiple" />
-          ${{ amount }}
+          {{ formatCurrency(booking.totalPrice) }}
         </span>
       </div>
 
@@ -63,25 +63,8 @@ const emit = defineEmits<{ (e: 'cancel', booking: any): void }>()
 const cover = computed(() => safeCover(props.booking.court?.images?.[0]))
 const imgError = ref(false)
 
-const toLocalDate = (value: unknown): Date | null => {
-  if (!value) return null
-  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
-  if (typeof value !== 'string') return null
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
-  if (ymd) {
-    const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]))
-    return Number.isNaN(d.getTime()) ? null : d
-  }
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? null : d
-}
-
-const formattedDate = computed(() => {
-  const d = toLocalDate(props.booking.date)
-  if (!d) return 'Fecha no disponible'
-  return d.toLocaleDateString('es-CO', { weekday: 'short', day: '2-digit', month: 'short' })
-})
-const amount = computed(() => Number(props.booking.totalPrice ?? 0).toLocaleString('es-CO'))
+// Formato corto reutilizable (helper centralizado en app/utils/datetime.ts).
+const formattedDate = computed(() => formatDate(props.booking.date, DATE_FORMAT_SHORT))
 </script>
 
 <style scoped>

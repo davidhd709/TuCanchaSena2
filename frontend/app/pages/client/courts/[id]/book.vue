@@ -32,7 +32,7 @@
           </div>
           <div class="pay-summary-total">
             <span>Total a pagar</span>
-            <strong>${{ Number(pricePerHour + 5000).toLocaleString('es-CO') }}</strong>
+            <strong>{{ formatCurrency(pricePerHour + 5000) }}</strong>
           </div>
         </section>
 
@@ -109,7 +109,7 @@
                 </ul>
               </aside>
 
-              <v-btn type="submit" color="primary" block size="large" :loading="flowState === 'submitting'" :disabled="!canSubmit">
+              <v-btn type="submit" color="primary" block size="large" data-testid="submit-booking" :loading="flowState === 'submitting'" :disabled="!canSubmit">
                 Enviar comprobante
               </v-btn>
               <p class="pay-trust">
@@ -160,24 +160,24 @@
           <div class="pay-side-row"><span>Hora</span><strong>{{ route.query.startTime }} - {{ route.query.endTime }}</strong></div>
 
           <div class="pay-side-total">
-            <div><span>Precio por hora</span><strong>${{ Number(pricePerHour).toLocaleString('es-CO') }}</strong></div>
-            <div><span>Cargos de gestión</span><strong>$5.000</strong></div>
+            <div><span>Precio por hora</span><strong>{{ formatCurrency(pricePerHour) }}</strong></div>
+            <div><span>Cargos de gestión</span><strong>{{ formatCurrency(5000) }}</strong></div>
             <hr>
-            <div class="is-total"><span>Total a pagar</span><strong>${{ Number(pricePerHour + 5000).toLocaleString('es-CO') }}</strong></div>
+            <div class="is-total"><span>Total a pagar</span><strong>{{ formatCurrency(pricePerHour + 5000) }}</strong></div>
           </div>
         </div>
       </aside>
     </div>
 
     <v-dialog v-model="successDialog" max-width="420" persistent>
-      <v-card rounded="xl" class="text-center overflow-hidden">
+      <v-card rounded="xl" class="text-center overflow-hidden" data-testid="booking-success">
         <div class="success-header pa-8 pb-6">
           <v-icon size="80" color="white" class="mb-4">mdi-check-circle</v-icon>
           <h2 class="text-h6 font-weight-bold text-white mb-1">¡Reserva Enviada!</h2>
           <p class="text-body-2 text-white" style="opacity: 0.9">Tu reserva está pendiente de confirmación.</p>
         </div>
         <v-card-text class="pa-6">
-          <v-btn color="success" variant="flat" block size="large" prepend-icon="mdi-eye" @click="goToBookingDetail">Ver mi reserva</v-btn>
+          <v-btn color="success" variant="flat" block size="large" prepend-icon="mdi-eye" data-testid="view-booking" @click="goToBookingDetail">Ver mi reserva</v-btn>
         </v-card-text>
       </v-card>
     </v-dialog>

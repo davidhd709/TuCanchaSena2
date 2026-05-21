@@ -15,7 +15,7 @@ test.describe('Flujo cliente — reserva con comprobante (UI completa)', () => {
 
     await page.goto(`/client/businesses/${businessId}`)
 
-    const firstCourt = page.locator('a.court-card').first()
+    const firstCourt = page.getByTestId('court-card').first()
     await expect(firstCourt).toBeVisible()
     await firstCourt.click()
 
@@ -32,13 +32,13 @@ test.describe('Flujo cliente — reserva con comprobante (UI completa)', () => {
     })
     await firstAvailableSlot.click()
 
-    await page.getByRole('button', { name: 'Reservar ahora' }).click()
+    await page.getByTestId('create-booking').click()
 
     // Página de pago
     await expect(page).toHaveURL(/\/client\/courts\/.+\/book/)
 
     // Upload del comprobante PDF (input oculto en el componente)
-    const fileInput = page.locator('input[type="file"]')
+    const fileInput = page.getByTestId('payment-proof-input')
     await fileInput.setInputFiles({
       name: proofPdf.name,
       mimeType: proofPdf.mimeType,
@@ -46,16 +46,16 @@ test.describe('Flujo cliente — reserva con comprobante (UI completa)', () => {
     })
 
     // El botón se habilita cuando uploadState === 'uploaded'
-    const submitBtn = page.getByRole('button', { name: 'Enviar Comprobante' })
+    const submitBtn = page.getByTestId('submit-booking')
     await expect(submitBtn).toBeEnabled({ timeout: 15_000 })
     await submitBtn.click()
 
     // Diálogo de éxito → ver reserva
-    await expect(page.getByText('¡Reserva Enviada!')).toBeVisible({ timeout: 20_000 })
-    await page.getByRole('button', { name: 'Ver mi reserva' }).click()
+    await expect(page.getByTestId('booking-success')).toBeVisible({ timeout: 20_000 })
+    await page.getByTestId('view-booking').click()
 
-    // Detalle de la reserva: chip "Pendiente"
+    // Detalle de la reserva: chip "Pendiente" (estado vía data-status, no clase visual)
     await expect(page).toHaveURL(/\/client\/bookings\/.+/)
-    await expect(page.locator('.status-badge.is-pending').first()).toContainText('Pendiente')
+    await expect(page.locator('[data-status="pending"]').first()).toContainText('Pendiente')
   })
 })

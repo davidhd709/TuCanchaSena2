@@ -140,6 +140,7 @@
       type="file"
       accept="image/png,image/jpeg,image/jpg,application/pdf"
       style="display: none"
+      data-testid="payment-proof-input"
       @change="onFileChange"
     />
   </div>

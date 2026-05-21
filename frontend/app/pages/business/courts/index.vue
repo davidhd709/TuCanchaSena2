@@ -118,6 +118,7 @@
       :title="editMode ? 'Editar cancha' : 'Nueva cancha'"
       :subtitle="editMode ? 'Actualiza los datos de tu cancha.' : 'Crea una cancha y define sus características.'"
       :width="820"
+      test-id="court-form-modal"
     >
       <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
       <template #body>
