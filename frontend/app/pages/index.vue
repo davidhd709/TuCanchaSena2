@@ -327,6 +327,7 @@ type HomeCourt = {
   capacity: number
   status: string
   pricePerHour: number
+  images: string[]
   business: { name: string }
 }
 
@@ -368,6 +369,7 @@ onMounted(async () => {
         capacity: Number(c.capacity ?? 0),
         status: c.status,
         pricePerHour: Number(c.pricePerHour),
+        images: Array.isArray(c.images) ? c.images : [],
         business: { name: c.business.name },
       }))
   } catch {
