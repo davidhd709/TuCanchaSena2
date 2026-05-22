@@ -154,9 +154,8 @@ definePageMeta({ layout: 'client', middleware: 'auth' })
 const route = useRoute()
 const { apiFetch } = useApi()
 
-const business = ref<any>(null)
-const loading = ref(false)
-const fetchError = ref(false)
+const { data: business, loading, error: fetchError, execute: loadBusiness } =
+  useAsyncState<any>(() => apiFetch<any>(`/businesses/${route.params.id}`), null)
 
 /** Filtramos picsum: si no hay imágenes reales, la galería usa placeholder local. */
 const images = computed<string[]>(() => {
@@ -204,18 +203,6 @@ const AMENITY_ICONS: Record<string, string> = {
   'Cancha techada': 'mdi-home-roof',
 }
 const amenityIcon = (name: string) => AMENITY_ICONS[name] ?? 'mdi-check-circle-outline'
-
-const loadBusiness = async () => {
-  loading.value = true
-  fetchError.value = false
-  try {
-    business.value = await apiFetch<any>(`/businesses/${route.params.id}`)
-  } catch {
-    fetchError.value = true
-  } finally {
-    loading.value = false
-  }
-}
 
 onMounted(loadBusiness)
 </script>

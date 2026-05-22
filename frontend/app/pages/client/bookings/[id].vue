@@ -286,10 +286,6 @@
       </template>
     </AppModalShell>
 
-    <!-- Snackbar -->
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" timeout="4000">
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -316,7 +312,6 @@ const loading = ref(false)
 const error = ref('')
 const cancelling = ref(false)
 const cancelDialog = ref(false)
-const snackbar = reactive({ show: false, text: '', color: 'success' })
 
 // —— Cargar reserva ——
 const loadBooking = async () => {
@@ -446,13 +441,8 @@ const confirmCancel = async () => {
     booking.value = { ...booking.value, status: 'cancelled' }
     cancelDialog.value = false
     toast.success('Reserva cancelada correctamente.')
-    snackbar.text = 'Reserva cancelada.'
-    snackbar.color = 'success'
-    snackbar.show = true
   } catch (e: any) {
-    snackbar.text = e?.data?.message ?? 'Error al cancelar. Intenta de nuevo.'
-    snackbar.color = 'error'
-    snackbar.show = true
+    toast.error(e?.data?.message ?? 'Error al cancelar. Intenta de nuevo.')
   } finally {
     cancelling.value = false
     cancelDialog.value = false

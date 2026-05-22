@@ -43,8 +43,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'client', middleware: 'auth' })
 const { apiList } = useApi()
-const courts = ref<any[]>([])
-const loading = ref(false)
+const { data: courts, loading, error: fetchError, execute: loadCourts } =
+  useAsyncState<any[]>(() => apiList<any>('/courts'), [])
 const search = ref('')
 const typeFilter = ref<string | null>(null)
 const sortBy = ref('name')
@@ -77,14 +77,6 @@ const filteredCourts = computed(() => {
 })
 
 const clearFilters = () => { search.value = ''; typeFilter.value = null }
-const fetchError = ref(false)
-const loadCourts = async () => {
-  loading.value = true
-  fetchError.value = false
-  try { courts.value = await apiList<any>('/courts') }
-  catch { fetchError.value = true }
-  finally { loading.value = false }
-}
 onMounted(loadCourts)
 </script>
 

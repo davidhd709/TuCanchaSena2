@@ -286,10 +286,6 @@
     </AppModalShell>
 
     <!-- Snackbar -->
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
-      <v-icon start>{{ snackbar.color === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle' }}</v-icon>
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -318,7 +314,7 @@ const actionLoading = ref(false)
 const showPwd = ref(false)
 const formRef = ref()
 
-const snackbar = reactive({ show: false, text: '', color: 'success' })
+const toast = useToast()
 
 // ── Form ───────────────────────────────────────────────────────────────────
 const form = reactive({
@@ -381,8 +377,8 @@ const roleIcon = (role: string) => {
   return m[role] ?? 'mdi-account'
 }
 
-const notify = (text: string, color = 'success') => {
-  snackbar.text = text; snackbar.color = color; snackbar.show = true
+const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+  toast[color](text)
 }
 
 const updateUserInList = (id: string, data: Partial<any>) => {

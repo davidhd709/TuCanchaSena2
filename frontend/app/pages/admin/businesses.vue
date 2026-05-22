@@ -204,9 +204,6 @@
       </template>
     </AppModalShell>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -227,7 +224,7 @@ const editMode = ref(false)
 const selectedBiz = ref<any>(null)
 const actionLoading = ref(false)
 const formRef = ref()
-const snackbar = reactive({ show: false, text: '', color: 'success' })
+const toast = useToast()
 
 // ── Form ───────────────────────────────────────────────────────────────────
 const defaultSchedules = () => [
@@ -273,8 +270,8 @@ const dayShort = (d: string) => {
 const openDays = (schedules: any[]) =>
   (schedules ?? []).filter(s => s.isOpen)
 
-const notify = (text: string, color = 'success') => {
-  snackbar.text = text; snackbar.color = color; snackbar.show = true
+const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+  toast[color](text)
 }
 
 // ── CRUD ───────────────────────────────────────────────────────────────────

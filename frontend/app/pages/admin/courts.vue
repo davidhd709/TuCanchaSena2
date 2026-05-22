@@ -74,7 +74,6 @@
       </template>
     </AppModalShell>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg">{{ snackbar.text }}</v-snackbar>
   </div>
 </template>
 
@@ -88,7 +87,7 @@ const search = ref('')
 const deleteDialog = ref(false)
 const selectedCourt = ref<any>(null)
 const actionLoading = ref(false)
-const snackbar = reactive({ show: false, text: '', color: 'success' })
+const toast = useToast()
 
 const headers = [
   { title: 'Cancha', key: 'name', sortable: false },
@@ -123,15 +122,12 @@ const deleteCourt = async () => {
   try {
     await apiFetch(`/courts/${selectedCourt.value.id}`, { method: 'DELETE' })
     courts.value = courts.value.filter(c => c.id !== selectedCourt.value.id)
-    snackbar.text = 'Cancha eliminada'
-    snackbar.color = 'success'
+    toast.success('Cancha eliminada')
   } catch (e: any) {
-    snackbar.text = e?.data?.message || 'Error'
-    snackbar.color = 'error'
+    toast.error(e?.data?.message || 'Error')
   } finally {
     actionLoading.value = false
     deleteDialog.value = false
-    snackbar.show = true
   }
 }
 

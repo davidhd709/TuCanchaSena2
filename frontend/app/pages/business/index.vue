@@ -237,9 +237,6 @@
       </template>
     </AppModalShell>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -255,7 +252,7 @@ const editMode = ref(false)
 const scheduleEditorKey = ref(0)
 const actionLoading = ref(false)
 const formRef = ref()
-const snackbar = reactive({ show: false, text: '', color: 'success' })
+const toast = useToast()
 
 const ALL_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 const DAY_LABELS: Record<string, string> = {
@@ -307,8 +304,8 @@ const r = {
   lon: (v: number) => (v >= -180 && v <= 180) || 'Longitud entre -180 y 180',
 }
 
-const notify = (text: string, color = 'success') => {
-  snackbar.text = text; snackbar.color = color; snackbar.show = true
+const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+  toast[color](text)
 }
 
 const defaultSchedules = () =>

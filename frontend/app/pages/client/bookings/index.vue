@@ -77,21 +77,19 @@
         </v-btn>
       </template>
     </AppModalShell>
-
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg">{{ snackbar.text }}</v-snackbar>
   </section>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: 'client', middleware: 'auth' })
 const { apiFetch, apiList } = useApi()
-const bookings = ref<any[]>([])
-const loading = ref(false)
+const toast = useToast()
+const { data: bookings, loading, error: fetchError, execute: loadBookings } =
+  useAsyncState<any[]>(() => apiList<any>('/bookings/my-bookings'), [])
 const activeTab = ref('all')
 const cancelLoading = ref<string | false>(false)
 const cancelDialog = ref(false)
 const bookingToCancel = ref<any>(null)
-const snackbar = reactive({ show: false, text: '', color: 'success' })
 
 const tabs = [
   { value: 'all',       label: 'Todas' },
@@ -139,20 +137,12 @@ const confirmCancel = async () => {
     const idx = bookings.value.findIndex((b) => b.id === bookingToCancel.value.id)
     if (idx !== -1) bookings.value[idx] = { ...bookings.value[idx], status: 'cancelled' }
     cancelDialog.value = false
-    snackbar.text = 'Reserva cancelada'; snackbar.color = 'success'
+    toast.success('Reserva cancelada')
   } catch (e: any) {
-    snackbar.text = e?.data?.message || 'Error al cancelar'; snackbar.color = 'error'
-  } finally { cancelLoading.value = false; snackbar.show = true }
+    toast.error(e?.data?.message || 'Error al cancelar')
+  } finally { cancelLoading.value = false }
 }
 
-const fetchError = ref(false)
-const loadBookings = async () => {
-  loading.value = true
-  fetchError.value = false
-  try { bookings.value = await apiList<any>('/bookings/my-bookings') }
-  catch { fetchError.value = true }
-  finally { loading.value = false }
-}
 onMounted(loadBookings)
 </script>
 

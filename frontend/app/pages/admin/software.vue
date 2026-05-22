@@ -111,7 +111,6 @@
       </template>
     </AppModalShell>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg">{{ snackbar.text }}</v-snackbar>
   </div>
 </template>
 
@@ -127,7 +126,7 @@ const editMode = ref(false)
 const selectedSw = ref<any>(null)
 const actionLoading = ref(false)
 const formRef = ref()
-const snackbar = reactive({ show: false, text: '', color: 'success' })
+const toast = useToast()
 
 const form = reactive({ nombre: '', descripcion: '', version: '', status: 'activo', tags: [] as string[] })
 const r = { required: (v: string) => !!v || 'Requerido' }
@@ -161,14 +160,11 @@ const saveSoftware = async () => {
       softwareList.value.unshift(created)
     }
     formDialog.value = false
-    snackbar.text = editMode.value ? 'Software actualizado' : 'Software creado'
-    snackbar.color = 'success'
+    toast.success(editMode.value ? 'Software actualizado' : 'Software creado')
   } catch (e: any) {
-    snackbar.text = e?.data?.message || 'Error'
-    snackbar.color = 'error'
+    toast.error(e?.data?.message || 'Error')
   } finally {
     actionLoading.value = false
-    snackbar.show = true
   }
 }
 
@@ -177,15 +173,12 @@ const deleteSoftware = async () => {
   try {
     await apiFetch(`/software/${selectedSw.value.id}`, { method: 'DELETE' })
     softwareList.value = softwareList.value.filter(s => s.id !== selectedSw.value.id)
-    snackbar.text = 'Software eliminado'
-    snackbar.color = 'success'
+    toast.success('Software eliminado')
   } catch (e: any) {
-    snackbar.text = e?.data?.message || 'Error'
-    snackbar.color = 'error'
+    toast.error(e?.data?.message || 'Error')
   } finally {
     actionLoading.value = false
     deleteDialog.value = false
-    snackbar.show = true
   }
 }
 

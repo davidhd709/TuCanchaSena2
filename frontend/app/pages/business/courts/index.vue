@@ -267,9 +267,6 @@
       </template>
     </AppModalShell>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -290,7 +287,7 @@ const editMode = ref(false)
 const selectedCourt = ref<any>(null)
 const actionLoading = ref(false)
 const formRef = ref()
-const snackbar = reactive({ show: false, text: '', color: 'success' })
+const toast = useToast()
 
 const availabilitySlots = ref<any[]>([])
 const currentBusinessSchedules = ref<any[]>([])
@@ -363,8 +360,8 @@ const groupedAvailability = (availability: any[]) => {
   return order.filter(d => map[d]).map(d => map[d])
 }
 
-const notify = (text: string, color = 'success') => {
-  snackbar.text = text; snackbar.color = color; snackbar.show = true
+const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+  toast[color](text)
 }
 
 // ── CRUD ───────────────────────────────────────────────────────────────────

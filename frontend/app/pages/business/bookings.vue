@@ -448,10 +448,6 @@
         </v-btn>
       </template>
     </AppModalShell>
-
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" rounded="lg" location="bottom end">
-      {{ snackbar.text }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -499,7 +495,7 @@ const actionLoading  = ref<string | false>(false)
 const rejectDialog   = ref(false)
 const rejectReason   = ref('')
 const cancelDialog   = ref(false)
-const snackbar       = reactive({ show: false, text: '', color: 'success' })
+const toast          = useToast()
 const calBodyRef     = ref<HTMLElement | null>(null)
 
 // ── Week navigation ────────────────────────────────────────────────────────
@@ -632,8 +628,10 @@ const statusLegend = [
 // El formato de fecha por defecto (weekday largo) coincide exactamente con el
 // que esperan los E2E (helpers/api.ts → formatDateForUi).
 
-const notify = (text: string, color = 'success') => {
-  snackbar.text = text; snackbar.color = color; snackbar.show = true
+// Notificación unificada vía el toast global (useToast). `color` se mapea a los
+// métodos del composable (success/error/info/warning).
+const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+  toast[color](text)
 }
 
 const updateInList = (id: string, patch: any) => {

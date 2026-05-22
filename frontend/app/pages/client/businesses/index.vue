@@ -78,9 +78,8 @@
 definePageMeta({ layout: 'client', middleware: 'auth' })
 
 const { apiList } = useApi()
-const businesses = ref<any[]>([])
-const loading = ref(false)
-const fetchError = ref(false)
+const { data: businesses, loading, error: fetchError, execute: loadBusinesses } =
+  useAsyncState<any[]>(() => apiList<any>('/businesses'), [])
 const search = ref('')
 const amenityFilter = ref<string | null>(null)
 
@@ -109,18 +108,6 @@ const filtered = computed(() => {
 const clearFilters = () => {
   search.value = ''
   amenityFilter.value = null
-}
-
-const loadBusinesses = async () => {
-  loading.value = true
-  fetchError.value = false
-  try {
-    businesses.value = await apiList<any>('/businesses')
-  } catch {
-    fetchError.value = true
-  } finally {
-    loading.value = false
-  }
 }
 
 onMounted(loadBusinesses)
