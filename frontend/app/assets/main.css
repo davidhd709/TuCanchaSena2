@@ -361,7 +361,7 @@ body {
 /* ─────────────────────────────────────────────────────────────
    FORM HELPERS
    ─────────────────────────────────────────────────────────── */
-form { display: grid; gap: 10px; }
+form { display: grid; gap: 10px; min-width: 0; width: 100%; }
 
 /* Sistema de formularios premium reutilizable.
    Uso dentro de modales o páginas:
@@ -374,7 +374,7 @@ form { display: grid; gap: 10px; }
      </div>
      <div class="app-form-actions"> ...botones... </div>
 */
-.app-form-section { margin-bottom: var(--space-6); }
+.app-form-section { margin-bottom: var(--space-6); min-width: 0; width: 100%; }
 .app-form-section + .app-form-section {
   padding-top: var(--space-6);
   border-top: 1px solid var(--border-soft);
@@ -397,7 +397,7 @@ form { display: grid; gap: 10px; }
   font-size: 0.84rem;
   color: var(--text-muted);
 }
-.app-form-grid { display: grid; gap: var(--space-3); }
+.app-form-grid { display: grid; gap: var(--space-3); min-width: 0; width: 100%; }
 .app-form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
 .app-form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .app-form-hint {
@@ -571,14 +571,15 @@ form { display: grid; gap: 10px; }
 
 @media (max-width: 600px) {
   .schedule-slot-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
     gap: 8px;
   }
-  .schedule-slot-times { justify-content: space-between; }
-  .schedule-slot-input { flex: 1; }
-  .schedule-slot-price { width: 100%; }
-  .schedule-slot-price-input { width: 100%; flex: 1; }
-  .schedule-slot-actions { justify-content: flex-end; }
+  .schedule-slot-times { grid-column: 1 / -1; justify-content: space-between; min-width: 0; width: 100%; }
+  .schedule-slot-input { flex: 1; min-width: 0; width: 100%; }
+  .schedule-slot-price { grid-column: 1 / -1; width: 100%; min-width: 0; }
+  .schedule-slot-price-input { width: 100%; flex: 1; min-width: 0; }
+  .schedule-slot-tag { grid-column: 1; justify-self: start; align-self: center; }
+  .schedule-slot-actions { grid-column: 2; justify-self: end; }
   .schedule-day-header { flex-wrap: wrap; }
 }
 

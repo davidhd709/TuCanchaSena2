@@ -514,5 +514,21 @@ onMounted(async () => {
   line-height: 1.6;
   margin-bottom: 20px;
 }
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  /* Estado vacío más compacto */
+  .bc-empty { padding: 40px 16px; }
+  .bc-empty-icon { width: 64px; height: 64px; margin-bottom: 12px; }
+  .bc-empty-icon .mdi { font-size: 2rem; }
+  .bc-empty-title { font-size: 1rem; }
+  .bc-empty-text { font-size: 0.86rem; }
+
+  /* Cards: padding más ajustado */
+  .bc-card-body { padding: 12px 14px 14px; }
+  .bc-card-media { height: 130px; }
+
+  /* Acciones: gap más amplio para touch */
+  .bc-card-actions { gap: 6px; margin-top: 12px; }
+}
 
 </style>

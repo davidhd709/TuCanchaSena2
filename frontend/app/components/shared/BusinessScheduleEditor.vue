@@ -174,9 +174,10 @@ watch(
   .sched-row {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 10px;
   }
   .sched-day { min-width: 0; }
-  .sched-times { justify-content: flex-start; }
+  .sched-times { justify-content: space-between; width: 100%; min-width: 0; gap: 6px; }
+  .sched-time-input { flex: 1; min-width: 0; width: 100%; padding: 7px 6px; }
 }
 </style>
