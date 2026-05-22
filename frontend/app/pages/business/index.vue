@@ -118,124 +118,14 @@
       </div>
     </template>
 
-    <!-- ─── Dialog crear / editar (AppModalShell) ─── -->
-    <AppModalShell
+    <!-- ─── Dialog crear / editar ─── -->
+    <BusinessFormModal
       v-model="formDialog"
-      :title="editMode ? 'Editar negocio' : 'Crear mi negocio'"
-      :subtitle="editMode ? 'Actualiza los datos públicos de tu negocio.' : 'Completa estos datos para empezar a recibir reservas.'"
-      :width="720"
-    >
-      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
-      <template #body>
-        <v-form ref="formRef">
-          <!-- Información general -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-store" /> Información general</h3>
-            </div>
-            <v-text-field
-              v-model="form.name"
-              label="Nombre del negocio"
-              prepend-inner-icon="mdi-store"
-              :rules="[r.required]"
-            />
-            <v-textarea v-model="form.description" label="Descripción" rows="2" />
-            <div class="app-form-grid cols-2">
-              <v-text-field
-                v-model="form.phone"
-                label="Teléfono"
-                prepend-inner-icon="mdi-phone"
-                :rules="[r.required]"
-              />
-              <v-text-field
-                v-model="form.email"
-                label="Email del negocio"
-                type="email"
-                prepend-inner-icon="mdi-email"
-              />
-            </div>
-            <v-text-field
-              v-model="form.address"
-              label="Dirección"
-              prepend-inner-icon="mdi-map-marker"
-              :rules="[r.required]"
-            />
-            <div class="app-form-grid cols-2">
-              <v-text-field
-                v-model.number="form.latitude"
-                label="Latitud"
-                type="number"
-                :rules="[r.required, r.lat]"
-                hint="Ej: 4.6097"
-                persistent-hint
-              />
-              <v-text-field
-                v-model.number="form.longitude"
-                label="Longitud"
-                type="number"
-                :rules="[r.required, r.lon]"
-                hint="Ej: -74.0817"
-                persistent-hint
-              />
-            </div>
-          </section>
-
-          <!-- Servicios -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-room-service-outline" /> Servicios y comodidades</h3>
-            </div>
-            <v-select
-              v-model="form.amenities"
-              :items="AMENITY_OPTIONS"
-              label="Lo que ofrece tu negocio"
-              multiple
-              chips
-              closable-chips
-              prepend-inner-icon="mdi-room-service-outline"
-            />
-          </section>
-
-          <!-- Imágenes -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-image-multiple-outline" /> Fotos del negocio</h3>
-              <p class="app-form-section-sub">Pega la URL de cada foto. Si no agregas ninguna, mostramos el logo de TuCancha.</p>
-            </div>
-            <v-combobox
-              v-model="form.images"
-              label="URLs de fotos (Enter para agregar)"
-              multiple
-              chips
-              closable-chips
-              prepend-inner-icon="mdi-image-multiple-outline"
-            />
-          </section>
-
-          <!-- Reglas -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-clipboard-text-outline" /> Reglas y políticas</h3>
-            </div>
-            <v-textarea v-model="form.policies" label="Reglas o políticas del negocio" rows="2" />
-          </section>
-
-          <!-- Horarios -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-clock-outline" /> Horario de funcionamiento</h3>
-            </div>
-            <BusinessScheduleEditor :key="scheduleEditorKey" v-model="form.schedules" />
-          </section>
-        </v-form>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveBusiness">
-          {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
-        </v-btn>
-      </template>
-    </AppModalShell>
+      :edit-mode="editMode"
+      :initial="business"
+      :loading="actionLoading"
+      @save="saveBusiness"
+    />
 
   </div>
 </template>
@@ -254,9 +144,7 @@ const { data: business, loading, execute: loadBusiness } = useAsyncState<any>(
 )
 const formDialog = ref(false)
 const editMode = ref(false)
-const scheduleEditorKey = ref(0)
 const actionLoading = ref(false)
-const formRef = ref()
 const toast = useToast()
 
 const ALL_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -266,11 +154,6 @@ const DAY_LABELS: Record<string, string> = {
 }
 const dayLabel = (d: string) => DAY_LABELS[d] ?? d
 
-const AMENITY_OPTIONS = [
-  'WiFi', 'Baños', 'Parqueadero', 'Cancha techada', 'Bar', 'Restaurante',
-  'Cafetería', 'Tienda deportiva', 'Vestidores', 'Duchas', 'Iluminación nocturna',
-  'Seguridad', 'Graderías', 'Zona de descanso', 'Zona familiar',
-]
 const AMENITY_ICONS: Record<string, string> = {
   WiFi: 'mdi-wifi', Baños: 'mdi-toilet', Parqueadero: 'mdi-parking',
   'Cancha techada': 'mdi-home-roof', Bar: 'mdi-glass-cocktail',
@@ -294,88 +177,38 @@ const orderedSchedule = computed(() => {
   )
 })
 
-const form = reactive({
-  name: '', description: '', phone: '', email: '',
-  address: '', latitude: 0, longitude: 0,
-  images: [] as string[],
-  amenities: [] as string[],
-  policies: '',
-  schedules: [] as Array<{ dayOfWeek: string; openTime: string; closeTime: string; isOpen: boolean }>,
-})
-
-const r = {
-  required: (v: any) => (v !== '' && v !== null && v !== undefined) || 'Requerido',
-  lat: (v: number) => (v >= -90 && v <= 90) || 'Latitud entre -90 y 90',
-  lon: (v: number) => (v >= -180 && v <= 180) || 'Longitud entre -180 y 180',
-}
-
 const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
   toast[color](text)
 }
 
-const defaultSchedules = () =>
-  ALL_DAYS.map((day) => ({ dayOfWeek: day, openTime: '08:00', closeTime: '22:00', isOpen: day !== 'sunday' }))
-
 const openCreate = () => {
   editMode.value = false
-  Object.assign(form, {
-    name: '', description: '', phone: '', email: '',
-    address: '', latitude: 0, longitude: 0,
-    images: [], amenities: [], policies: '',
-    schedules: defaultSchedules(),
-  })
-  scheduleEditorKey.value++
   formDialog.value = true
 }
 
 const openEdit = () => {
   if (!business.value) return
   editMode.value = true
-  const b = business.value
-  Object.assign(form, {
-    name: b.name,
-    description: b.description ?? '',
-    phone: b.phone ?? '',
-    email: b.email ?? '',
-    address: b.address ?? '',
-    latitude: Number(b.latitude ?? 0),
-    longitude: Number(b.longitude ?? 0),
-    images: [...(b.images ?? [])],
-    amenities: [...(b.amenities ?? [])],
-    policies: b.policies ?? '',
-    schedules: ALL_DAYS.map((day) => {
-      const existing = (b.schedules ?? []).find((s: any) => s.dayOfWeek === day)
-      return existing
-        ? {
-            dayOfWeek: day,
-            openTime: existing.openTime.slice(0, 5),
-            closeTime: existing.closeTime.slice(0, 5),
-            isOpen: existing.isOpen,
-          }
-        : { dayOfWeek: day, openTime: '08:00', closeTime: '22:00', isOpen: false }
-    }),
-  })
-  scheduleEditorKey.value++
   formDialog.value = true
 }
 
-const saveBusiness = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+// El payload llega validado desde BusinessFormModal; aquí se filtran los
+// horarios abiertos y se omiten campos opcionales vacíos (igual que antes).
+const saveBusiness = async (formData: any) => {
   actionLoading.value = true
   try {
     const payload: any = {
-      name: form.name,
-      description: form.description || undefined,
-      phone: form.phone,
-      email: form.email || undefined,
-      address: form.address,
-      latitude: form.latitude,
-      longitude: form.longitude,
-      images: form.images,
-      amenities: form.amenities,
-      policies: form.policies || undefined,
-      schedules: form.schedules.filter((s) => s.isOpen),
+      name: formData.name,
+      description: formData.description || undefined,
+      phone: formData.phone,
+      email: formData.email || undefined,
+      address: formData.address,
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      images: formData.images,
+      amenities: formData.amenities,
+      policies: formData.policies || undefined,
+      schedules: formData.schedules.filter((s: any) => s.isOpen),
     }
     if (editMode.value) {
       business.value = await apiFetch<any>(`/businesses/${business.value.id}`, {

@@ -85,99 +85,16 @@
       </v-col>
     </v-row>
 
-    <!-- ─── Create / Edit Dialog (AppModalShell) ────────────────────────── -->
-    <AppModalShell
+    <!-- ─── Create / Edit Dialog ─────────────────────────────────────────── -->
+    <AdminBusinessFormModal
       v-model="formDialog"
-      :title="editMode ? 'Editar negocio' : 'Crear nuevo negocio'"
-      :subtitle="editMode ? 'Actualiza los datos públicos del negocio.' : 'Asigna el propietario y completa la información.'"
-      :width="680"
-    >
-      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
-      <template #body>
-        <v-form ref="formRef">
-          <!-- Información general -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-store" /> Información general</h3>
-            </div>
-            <v-autocomplete
-              v-if="!editMode"
-              v-model="form.ownerId"
-              label="Propietario (usuario con rol Negocio)"
-              :items="businessUsers"
-              item-title="label"
-              item-value="id"
-              prepend-inner-icon="mdi-account"
-              :rules="[r.required]"
-              :loading="usersLoading"
-              no-data-text="No hay usuarios con rol Negocio"
-            />
-            <v-text-field
-              v-model="form.name"
-              label="Nombre del negocio"
-              prepend-inner-icon="mdi-store"
-              :rules="[r.required]"
-            />
-            <v-textarea v-model="form.description" label="Descripción" rows="2" />
-            <div class="app-form-grid cols-2">
-              <v-text-field
-                v-model="form.phone"
-                label="Teléfono"
-                prepend-inner-icon="mdi-phone"
-                :rules="[r.required]"
-              />
-              <v-text-field
-                v-model="form.email"
-                label="Email del negocio"
-                type="email"
-                prepend-inner-icon="mdi-email"
-              />
-            </div>
-            <v-text-field
-              v-model="form.address"
-              label="Dirección"
-              prepend-inner-icon="mdi-map-marker"
-              :rules="[r.required]"
-            />
-            <div class="app-form-grid cols-2">
-              <v-text-field
-                v-model.number="form.latitude"
-                label="Latitud"
-                type="number"
-                prepend-inner-icon="mdi-crosshairs-gps"
-                :rules="[r.required, r.lat]"
-                hint="Ej: 4.6097"
-                persistent-hint
-              />
-              <v-text-field
-                v-model.number="form.longitude"
-                label="Longitud"
-                type="number"
-                prepend-inner-icon="mdi-crosshairs-gps"
-                :rules="[r.required, r.lon]"
-                hint="Ej: -74.0817"
-                persistent-hint
-              />
-            </div>
-          </section>
-
-          <!-- Horarios -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-clock-outline" /> Horario de funcionamiento</h3>
-            </div>
-            <!-- :key fuerza remount al abrir el diálogo, evitando loops reactivos -->
-            <BusinessScheduleEditor :key="scheduleEditorKey" v-model="form.schedules" />
-          </section>
-        </v-form>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveBusiness">
-          {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
-        </v-btn>
-      </template>
-    </AppModalShell>
+      :edit-mode="editMode"
+      :initial="selectedBiz"
+      :loading="actionLoading"
+      :business-users="businessUsers"
+      :users-loading="usersLoading"
+      @save="saveBusiness"
+    />
 
     <!-- Delete confirm -->
     <AppConfirmDialog
@@ -209,45 +126,11 @@ const businessUsers = ref<any[]>([])
 const loading = ref(false)
 const usersLoading = ref(false)
 const formDialog = ref(false)
-const scheduleEditorKey = ref(0)
 const deleteDialog = ref(false)
 const editMode = ref(false)
 const selectedBiz = ref<any>(null)
 const actionLoading = ref(false)
-const formRef = ref()
 const toast = useToast()
-
-// ── Form ───────────────────────────────────────────────────────────────────
-const defaultSchedules = () => [
-  { dayOfWeek: 'monday', openTime: '08:00', closeTime: '22:00', isOpen: true },
-  { dayOfWeek: 'tuesday', openTime: '08:00', closeTime: '22:00', isOpen: true },
-  { dayOfWeek: 'wednesday', openTime: '08:00', closeTime: '22:00', isOpen: true },
-  { dayOfWeek: 'thursday', openTime: '08:00', closeTime: '22:00', isOpen: true },
-  { dayOfWeek: 'friday', openTime: '08:00', closeTime: '22:00', isOpen: true },
-  { dayOfWeek: 'saturday', openTime: '08:00', closeTime: '22:00', isOpen: true },
-  { dayOfWeek: 'sunday', openTime: '08:00', closeTime: '22:00', isOpen: false },
-]
-
-const form = reactive({
-  ownerId: '',
-  name: '',
-  description: '',
-  phone: '',
-  email: '',
-  address: '',
-  latitude: 0,
-  longitude: 0,
-  schedules: defaultSchedules() as Array<{
-    dayOfWeek: string; openTime: string; closeTime: string; isOpen: boolean
-  }>,
-})
-
-// ── Validation ─────────────────────────────────────────────────────────────
-const r = {
-  required: (v: any) => (v !== '' && v !== null && v !== undefined) || 'Requerido',
-  lat: (v: number) => (v >= -90 && v <= 90) || 'Latitud entre -90 y 90',
-  lon: (v: number) => (v >= -180 && v <= 180) || 'Longitud entre -180 y 180',
-}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const dayShort = (d: string) => {
@@ -268,13 +151,9 @@ const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 
 // ── CRUD ───────────────────────────────────────────────────────────────────
 const openCreate = async () => {
   editMode.value = false
-  Object.assign(form, {
-    ownerId: '', name: '', description: '', phone: '', email: '',
-    address: '', latitude: 0, longitude: 0, schedules: defaultSchedules(),
-  })
-  scheduleEditorKey.value++   // remount editor con datos frescos
+  selectedBiz.value = null
   formDialog.value = true
-  // Load business-role users
+  // Carga lazy de usuarios con rol Negocio para el selector de propietario.
   if (businessUsers.value.length === 0) {
     usersLoading.value = true
     try {
@@ -291,48 +170,27 @@ const openCreate = async () => {
 const openEdit = (biz: any) => {
   editMode.value = true
   selectedBiz.value = biz
-  form.ownerId = biz.ownerId
-  form.name = biz.name
-  form.description = biz.description ?? ''
-  form.phone = biz.phone ?? ''
-  form.email = biz.email ?? ''
-  form.address = biz.address ?? ''
-  form.latitude = Number(biz.latitude ?? 0)
-  form.longitude = Number(biz.longitude ?? 0)
-  // Map existing schedules, fill missing days as closed
-  const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-  form.schedules = allDays.map(day => {
-    const existing = (biz.schedules ?? []).find((s: any) => s.dayOfWeek === day)
-    return existing
-      ? { dayOfWeek: day, openTime: existing.openTime.slice(0, 5), closeTime: existing.closeTime.slice(0, 5), isOpen: existing.isOpen }
-      : { dayOfWeek: day, openTime: '08:00', closeTime: '22:00', isOpen: false }
-  })
-  scheduleEditorKey.value++   // remount editor con datos del negocio seleccionado
   formDialog.value = true
 }
 
-const saveBusiness = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
-
-  // Only include open days in schedules
-  const schedulesToSend = form.schedules.filter(s => s.isOpen)
-
+// El payload llega validado desde AdminBusinessFormModal. La creación agrega
+// ownerId; ambos filtran los horarios abiertos (igual que antes).
+const saveBusiness = async (formData: any) => {
   actionLoading.value = true
   try {
     const payload: any = {
-      name: form.name,
-      description: form.description || undefined,
-      phone: form.phone,
-      email: form.email || undefined,
-      address: form.address,
-      latitude: form.latitude,
-      longitude: form.longitude,
-      schedules: schedulesToSend,
+      name: formData.name,
+      description: formData.description || undefined,
+      phone: formData.phone,
+      email: formData.email || undefined,
+      address: formData.address,
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      schedules: formData.schedules.filter((s: any) => s.isOpen),
     }
 
     if (!editMode.value) {
-      payload.ownerId = form.ownerId
+      payload.ownerId = formData.ownerId
       const created = await apiFetch<any>('/businesses', { method: 'POST', body: payload })
       businesses.value.unshift(created)
       notify('Negocio creado exitosamente')
