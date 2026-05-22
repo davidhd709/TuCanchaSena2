@@ -53,41 +53,14 @@
       </v-col>
     </v-row>
 
-    <!-- Create/Edit Dialog (AppModalShell) -->
-    <AppModalShell
+    <!-- Create/Edit Dialog -->
+    <SoftwareFormModal
       v-model="formDialog"
-      :title="editMode ? 'Editar software' : 'Crear software'"
-      :width="560"
-    >
-      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
-      <template #body>
-        <v-form ref="formRef">
-          <v-text-field v-model="form.nombre" label="Nombre" :rules="[r.required]" class="mb-2" />
-          <v-textarea v-model="form.descripcion" label="Descripción" rows="2" class="mb-2" />
-          <v-text-field v-model="form.version" label="Versión" class="mb-2" />
-          <v-select
-            v-model="form.status"
-            label="Estado"
-            :items="[{title:'Activo',value:'activo'},{title:'Inactivo',value:'inactivo'}]"
-            class="mb-2"
-          />
-          <v-combobox
-            v-model="form.tags"
-            label="Tags (Enter para agregar)"
-            multiple
-            chips
-            closable-chips
-            class="mb-2"
-          />
-        </v-form>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveSoftware">
-          {{ editMode ? 'Guardar cambios' : 'Crear' }}
-        </v-btn>
-      </template>
-    </AppModalShell>
+      :edit-mode="editMode"
+      :initial="selectedSw"
+      :loading="actionLoading"
+      @save="saveSoftware"
+    />
 
     <!-- Delete Dialog -->
     <AppConfirmDialog
@@ -118,38 +91,32 @@ const deleteDialog = ref(false)
 const editMode = ref(false)
 const selectedSw = ref<any>(null)
 const actionLoading = ref(false)
-const formRef = ref()
 const toast = useToast()
-
-const form = reactive({ nombre: '', descripcion: '', version: '', status: 'activo', tags: [] as string[] })
-const r = { required: (v: string) => !!v || 'Requerido' }
 
 const openCreateDialog = () => {
   editMode.value = false
-  Object.assign(form, { nombre: '', descripcion: '', version: '', status: 'activo', tags: [] })
+  selectedSw.value = null
   formDialog.value = true
 }
 
 const openEditDialog = (sw: any) => {
   editMode.value = true
   selectedSw.value = sw
-  Object.assign(form, { nombre: sw.nombre, descripcion: sw.descripcion, version: sw.version, status: sw.status, tags: sw.tags ?? [] })
   formDialog.value = true
 }
 
 const confirmDelete = (sw: any) => { selectedSw.value = sw; deleteDialog.value = true }
 
-const saveSoftware = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+// El payload llega validado desde SoftwareFormModal.
+const saveSoftware = async (payload: any) => {
   actionLoading.value = true
   try {
     if (editMode.value) {
-      const updated = await apiFetch<any>(`/software/${selectedSw.value.id}`, { method: 'PATCH', body: form })
+      const updated = await apiFetch<any>(`/software/${selectedSw.value.id}`, { method: 'PATCH', body: payload })
       const idx = softwareList.value.findIndex(s => s.id === selectedSw.value.id)
       if (idx !== -1) softwareList.value[idx] = updated
     } else {
-      const created = await apiFetch<any>('/software', { method: 'POST', body: form })
+      const created = await apiFetch<any>('/software', { method: 'POST', body: payload })
       softwareList.value.unshift(created)
     }
     formDialog.value = false

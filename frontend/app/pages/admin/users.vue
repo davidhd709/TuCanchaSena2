@@ -145,84 +145,14 @@
       </v-data-table>
     </v-card>
 
-    <!-- ─── Create / Edit Dialog (AppModalShell) ────────────────────────── -->
-    <AppModalShell
+    <!-- ─── Create / Edit Dialog ─────────────────────────────────────────── -->
+    <UserFormModal
       v-model="formDialog"
-      :title="editMode ? 'Editar usuario' : 'Crear usuario'"
-      :subtitle="editMode ? 'Actualiza los datos del usuario.' : 'Crea una cuenta y asigna su rol.'"
-      :width="520"
-    >
-      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
-      <template #body>
-        <v-form ref="formRef">
-          <v-row>
-            <v-col cols="6">
-              <v-text-field
-                v-model="form.firstName"
-                label="Nombre"
-                prepend-inner-icon="mdi-account-outline"
-                :rules="[r.required]"
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-model="form.lastName"
-                label="Apellido"
-                :rules="[r.required]"
-              />
-            </v-col>
-          </v-row>
-
-          <v-text-field
-            v-model="form.email"
-            label="Correo electrónico"
-            type="email"
-            prepend-inner-icon="mdi-email-outline"
-            :rules="[r.required, r.email]"
-            :disabled="editMode"
-            class="mb-1"
-          />
-
-          <v-text-field
-            v-model="form.phone"
-            label="Teléfono (opcional)"
-            prepend-inner-icon="mdi-phone-outline"
-            class="mb-1"
-          />
-
-          <v-select
-            v-model="form.role"
-            label="Rol"
-            :items="roleOptions"
-            prepend-inner-icon="mdi-account-key-outline"
-            :rules="[r.required]"
-            class="mb-1"
-          />
-
-          <v-text-field
-            v-if="!editMode"
-            v-model="form.password"
-            label="Contraseña"
-            :type="showPwd ? 'text' : 'password'"
-            prepend-inner-icon="mdi-lock-outline"
-            :append-inner-icon="showPwd ? 'mdi-eye-off' : 'mdi-eye'"
-            :rules="[r.required, r.minLength]"
-            @click:append-inner="showPwd = !showPwd"
-          />
-        </v-form>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-        <v-btn
-          color="primary"
-          variant="flat"
-          :loading="actionLoading"
-          @click="saveUser"
-        >
-          {{ editMode ? 'Guardar cambios' : 'Crear usuario' }}
-        </v-btn>
-      </template>
-    </AppModalShell>
+      :edit-mode="editMode"
+      :initial="selectedUser"
+      :loading="actionLoading"
+      @save="saveUser"
+    />
 
     <!-- ─── Suspend Confirm Dialog ──────────────────────────────────────── -->
     <AppConfirmDialog
@@ -285,22 +215,11 @@ const deleteDialog = ref(false)
 const editMode = ref(false)
 const selectedUser = ref<any>(null)
 const actionLoading = ref(false)
-const showPwd = ref(false)
-const formRef = ref()
 
 const toast = useToast()
 
-// ── Form ───────────────────────────────────────────────────────────────────
-const form = reactive({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  role: 'client',
-  password: '',
-})
-
 // ── Constants ──────────────────────────────────────────────────────────────
+// roleOptions alimenta el filtro de rol del toolbar (el form tiene su propia copia).
 const roleOptions = [
   { title: 'Super Admin', value: 'admin' },
   { title: 'Negocio', value: 'business' },
@@ -363,36 +282,26 @@ const updateUserInList = (id: string, data: Partial<any>) => {
 // ── Actions ────────────────────────────────────────────────────────────────
 const openCreate = () => {
   editMode.value = false
-  Object.assign(form, { firstName: '', lastName: '', email: '', phone: '', role: 'client', password: '' })
-  showPwd.value = false
+  selectedUser.value = null
   formDialog.value = true
 }
 
 const openEdit = (user: any) => {
   editMode.value = true
   selectedUser.value = user
-  Object.assign(form, {
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    phone: user.phone ?? '',
-    role: user.role,
-    password: '',
-  })
   formDialog.value = true
 }
 
-const saveUser = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+// El payload llega validado desde UserFormModal.
+const saveUser = async (formData: any) => {
   actionLoading.value = true
   try {
     if (editMode.value) {
       const payload: any = {
-        firstName: form.firstName,
-        lastName: form.lastName,
-        phone: form.phone || undefined,
-        role: form.role,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone || undefined,
+        role: formData.role,
       }
       const updated = await apiFetch<any>(`/users/${selectedUser.value.id}`, {
         method: 'PATCH',
@@ -406,12 +315,12 @@ const saveUser = async () => {
       await apiFetch<any>('/users', {
         method: 'POST',
         body: {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email,
-          phone: form.phone || undefined,
-          role: form.role,
-          password: form.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || undefined,
+          role: formData.role,
+          password: formData.password,
         },
       })
       users.value = await apiFetch<any[]>('/users')
@@ -474,13 +383,6 @@ const deleteUser = async () => {
   } finally {
     actionLoading.value = false
   }
-}
-
-// ── Validation rules ───────────────────────────────────────────────────────
-const r = {
-  required: (v: string) => !!v || 'Este campo es requerido',
-  email: (v: string) => /.+@.+\..+/.test(v) || 'Email inválido',
-  minLength: (v: string) => v.length >= 6 || 'Mínimo 6 caracteres',
 }
 
 // ── Load ───────────────────────────────────────────────────────────────────
