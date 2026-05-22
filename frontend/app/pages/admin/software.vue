@@ -111,8 +111,8 @@
 definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'] })
 
 const { apiFetch } = useApi()
-const softwareList = ref<any[]>([])
-const loading = ref(false)
+const { data: softwareList, loading, execute: loadSoftware } =
+  useAsyncState<any[]>(() => apiFetch<any[]>('/software/admin'), [])
 const formDialog = ref(false)
 const deleteDialog = ref(false)
 const editMode = ref(false)
@@ -175,11 +175,7 @@ const deleteSoftware = async () => {
   }
 }
 
-onMounted(async () => {
-  loading.value = true
-  try { softwareList.value = await apiFetch<any[]>('/software/admin') }
-  finally { loading.value = false }
-})
+onMounted(loadSoftware)
 </script>
 
 <style scoped>

@@ -74,8 +74,8 @@
 definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'] })
 
 const { apiFetch, apiList } = useApi()
-const courts = ref<any[]>([])
-const loading = ref(false)
+const { data: courts, loading, execute: loadCourts } =
+  useAsyncState<any[]>(() => apiList<any>('/courts'), [])
 const search = ref('')
 const deleteDialog = ref(false)
 const selectedCourt = ref<any>(null)
@@ -124,11 +124,7 @@ const deleteCourt = async () => {
   }
 }
 
-onMounted(async () => {
-  loading.value = true
-  try { courts.value = await apiList<any>('/courts') }
-  finally { loading.value = false }
-})
+onMounted(loadCourts)
 </script>
 
 <style scoped>

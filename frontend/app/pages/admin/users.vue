@@ -273,8 +273,8 @@ const { apiFetch } = useApi()
 const authStore = useAuthStore()
 
 // ── State ──────────────────────────────────────────────────────────────────
-const users = ref<any[]>([])
-const loading = ref(false)
+const { data: users, loading, execute: loadUsers } =
+  useAsyncState<any[]>(() => apiFetch<any[]>('/users'), [])
 const search = ref('')
 const roleFilter = ref<string | null>(null)
 const statusFilter = ref<boolean | null>(null)
@@ -484,16 +484,7 @@ const r = {
 }
 
 // ── Load ───────────────────────────────────────────────────────────────────
-onMounted(async () => {
-  loading.value = true
-  try {
-    users.value = await apiFetch<any[]>('/users')
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
-})
+onMounted(loadUsers)
 </script>
 
 <style scoped>

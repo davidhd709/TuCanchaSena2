@@ -245,8 +245,13 @@ definePageMeta({ layout: 'dashboard', middleware: ['auth', 'role'] })
 
 const { apiFetch, apiList } = useApi()
 
-const business = ref<any>(null)
-const loading = ref(false)
+const { data: business, loading, execute: loadBusiness } = useAsyncState<any>(
+  async () => {
+    const list = await apiList<any>('/businesses/my-businesses')
+    return list[0] ?? null
+  },
+  null,
+)
 const formDialog = ref(false)
 const editMode = ref(false)
 const scheduleEditorKey = ref(0)
@@ -387,16 +392,6 @@ const saveBusiness = async () => {
     notify(e?.data?.message || 'Error al guardar el negocio', 'error')
   } finally {
     actionLoading.value = false
-  }
-}
-
-const loadBusiness = async () => {
-  loading.value = true
-  try {
-    const list = await apiList<any>('/businesses/my-businesses')
-    business.value = list[0] ?? null
-  } finally {
-    loading.value = false
   }
 }
 
