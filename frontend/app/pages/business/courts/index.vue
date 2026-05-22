@@ -112,108 +112,14 @@
       </div>
     </AppGrid>
 
-    <!-- ─── Court Form Dialog (AppModalShell) ─── -->
-    <AppModalShell
+    <!-- ─── Court Form Dialog ─── -->
+    <CourtFormModal
       v-model="formDialog"
-      :title="editMode ? 'Editar cancha' : 'Nueva cancha'"
-      :subtitle="editMode ? 'Actualiza los datos de tu cancha.' : 'Crea una cancha y define sus características.'"
-      :width="820"
-      test-id="court-form-modal"
-    >
-      <template #tag>{{ editMode ? 'Edición' : 'Nuevo' }}</template>
-      <template #body>
-        <v-form ref="formRef">
-          <!-- Información general -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-soccer-field" /> Información general</h3>
-            </div>
-            <v-text-field
-              v-model="form.name"
-              label="Nombre de la cancha"
-              :rules="[r.required]"
-            />
-            <v-select
-              v-model="form.type"
-              label="Tipo de cancha"
-              :items="courtTypes"
-              :rules="[r.required]"
-            />
-            <p class="app-form-hint">Descripción</p>
-            <ClientOnly>
-              <RichTextEditor v-model="form.description" />
-              <template #fallback>
-                <v-textarea v-model="form.description" label="Descripción" rows="3" />
-              </template>
-            </ClientOnly>
-          </section>
-
-          <!-- Detalles -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-tune-variant" /> Detalles y disponibilidad</h3>
-            </div>
-            <div class="app-form-grid cols-2">
-              <v-text-field
-                v-model.number="form.pricePerHour"
-                label="Precio base / hora"
-                type="number"
-                prefix="$"
-                :rules="[r.required, r.positive]"
-                hint="Precio por defecto para todos los slots"
-                persistent-hint
-              />
-              <v-text-field
-                v-model.number="form.capacity"
-                label="Capacidad (jugadores)"
-                type="number"
-                :rules="[r.required, r.positive]"
-              />
-            </div>
-            <v-select
-              v-model="form.status"
-              label="Estado"
-              :items="[
-                { title: 'Disponible', value: 'available' },
-                { title: 'No disponible', value: 'unavailable' },
-                { title: 'En mantenimiento', value: 'maintenance' },
-              ]"
-            />
-            <v-select
-              v-model="form.amenities"
-              :items="COURT_AMENITY_OPTIONS"
-              label="Características de la cancha"
-              multiple
-              chips
-              closable-chips
-              prepend-inner-icon="mdi-soccer-field"
-            />
-          </section>
-
-          <!-- Imágenes -->
-          <section class="app-form-section">
-            <div class="app-form-section-head">
-              <h3 class="app-form-section-title"><span class="mdi mdi-image-multiple-outline" /> Fotos de la cancha</h3>
-              <p class="app-form-section-sub">Pega la URL de cada foto. Si no agregas ninguna, mostramos el logo de TuCancha.</p>
-            </div>
-            <v-combobox
-              v-model="form.images"
-              label="URLs de fotos (Enter para agregar)"
-              multiple
-              chips
-              closable-chips
-              prepend-inner-icon="mdi-image-multiple-outline"
-            />
-          </section>
-        </v-form>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="formDialog = false">Cancelar</v-btn>
-        <v-btn color="primary" variant="flat" :loading="actionLoading" @click="saveCourt">
-          {{ editMode ? 'Guardar cambios' : 'Crear cancha' }}
-        </v-btn>
-      </template>
-    </AppModalShell>
+      :edit-mode="editMode"
+      :initial="selectedCourt"
+      :loading="actionLoading"
+      @save="saveCourt"
+    />
 
     <!-- ─── Availability Dialog ─── -->
     <AppModalShell
@@ -279,7 +185,6 @@ const deleteDialog = ref(false)
 const editMode = ref(false)
 const selectedCourt = ref<any>(null)
 const actionLoading = ref(false)
-const formRef = ref()
 const toast = useToast()
 
 const availabilitySlots = ref<any[]>([])
@@ -288,23 +193,8 @@ const availabilityEditorKey = ref(0)
 
 const hasBusiness = computed(() => !!myBusiness.value)
 
-// ── Form ───────────────────────────────────────────────────────────────────
-const form = reactive({
-  name: '',
-  type: '',
-  description: '',
-  pricePerHour: 50000,
-  capacity: 10,
-  status: 'available',
-  images: [] as string[],
-  amenities: [] as string[],
-})
-
-const COURT_AMENITY_OPTIONS = [
-  'Iluminación LED', 'Cancha cubierta', 'Césped sintético nuevo', 'Vestidores',
-  'Hidratación', 'Arbitraje', 'Graderías', 'Marcador electrónico',
-]
-
+// courtTypes se queda en la página: lo usa courtTypeLabel para las cards
+// (el formulario tiene su propia copia en CourtFormModal).
 const courtTypes = [
   { title: 'Fútbol 5', value: 'football_5' },
   { title: 'Fútbol 7', value: 'football_7' },
@@ -314,11 +204,6 @@ const courtTypes = [
   { title: 'Fútbol Playa', value: 'beach_soccer' },
   { title: 'Mini Fútbol', value: 'mini_football' },
 ]
-
-const r = {
-  required: (v: any) => (v !== '' && v !== null && v !== undefined) || 'Requerido',
-  positive: (v: number) => v > 0 || 'Debe ser mayor a 0',
-}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const courtTypeLabel = (type: string) => courtTypes.find(t => t.value === type)?.title ?? type
@@ -360,42 +245,28 @@ const notify = (text: string, color: 'success' | 'error' | 'info' | 'warning' = 
 // ── CRUD ───────────────────────────────────────────────────────────────────
 const openCreate = () => {
   editMode.value = false
-  Object.assign(form, {
-    name: '', type: '', description: '',
-    pricePerHour: 50000, capacity: 10, status: 'available',
-    images: [], amenities: [],
-  })
+  selectedCourt.value = null
   formDialog.value = true
 }
 
 const openEdit = (court: any) => {
   editMode.value = true
   selectedCourt.value = court
-  Object.assign(form, {
-    name: court.name,
-    type: court.type,
-    description: court.description ?? '',
-    pricePerHour: Number(court.pricePerHour),
-    capacity: court.capacity ?? 10,
-    status: court.status ?? 'available',
-    images: [...(court.images ?? [])],
-    amenities: [...(court.amenities ?? [])],
-  })
   formDialog.value = true
 }
 
-const saveCourt = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+// El payload llega validado desde CourtFormModal. La creación agrega capacity y
+// businessId; la edición omite capacity (igual que antes).
+const saveCourt = async (formData: any) => {
   actionLoading.value = true
   try {
     if (editMode.value) {
       const updated = await apiFetch<any>(`/courts/${selectedCourt.value.id}`, {
         method: 'PATCH',
         body: {
-          name: form.name, type: form.type, description: form.description,
-          pricePerHour: form.pricePerHour, status: form.status,
-          images: form.images, amenities: form.amenities,
+          name: formData.name, type: formData.type, description: formData.description,
+          pricePerHour: formData.pricePerHour, status: formData.status,
+          images: formData.images, amenities: formData.amenities,
         },
       })
       const idx = courts.value.findIndex(c => c.id === selectedCourt.value.id)
@@ -403,10 +274,10 @@ const saveCourt = async () => {
       notify('Cancha actualizada correctamente')
     } else {
       const payload = {
-        name: form.name, type: form.type, description: form.description,
-        pricePerHour: form.pricePerHour, capacity: form.capacity,
-        status: form.status, businessId: myBusiness.value.id,
-        images: form.images, amenities: form.amenities,
+        name: formData.name, type: formData.type, description: formData.description,
+        pricePerHour: formData.pricePerHour, capacity: formData.capacity,
+        status: formData.status, businessId: myBusiness.value.id,
+        images: formData.images, amenities: formData.amenities,
       }
       const created = await apiFetch<any>('/courts', { method: 'POST', body: payload })
       courts.value.unshift({ ...created, availability: [] })
