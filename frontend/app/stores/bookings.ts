@@ -1,13 +1,9 @@
 import { defineStore } from 'pinia'
-
-export type BookingStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'rejected'
-  | 'cancelled'
-  | 'completed'
-  | 'no_show'
-  | 'expired'
+// Fuente canónica del tipo: el catálogo de estados en app/utils/bookingStatus.ts
+// (evita la duplicación que provocaba el warning de auto-import de unimport).
+// Se importa solo para uso local en este archivo; el auto-import global resuelve
+// `BookingStatus` desde utils.
+import type { BookingStatus } from '~/utils/bookingStatus'
 
 export interface Booking {
   id: string

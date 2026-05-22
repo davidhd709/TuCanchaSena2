@@ -4,7 +4,7 @@
     <div class="schedule-info-callout">
       <span class="mdi mdi-information-outline" />
       <span>
-        <strong>Precio base de la cancha: ${{ Number(courtBasePrice).toLocaleString('es-CO') }}/hr.</strong>
+        <strong>Precio base de la cancha: {{ formatCurrency(courtBasePrice) }}/hr.</strong>
         Los horarios sin precio propio usarán este valor.
       </span>
     </div>
@@ -87,8 +87,8 @@
             >
               {{
                 (slot.pricePerHourInput !== '' && slot.pricePerHourInput !== null)
-                  ? `$${Number(slot.pricePerHourInput).toLocaleString('es-CO')}`
-                  : `$${Number(courtBasePrice).toLocaleString('es-CO')} base`
+                  ? formatCurrency(slot.pricePerHourInput)
+                  : `${formatCurrency(courtBasePrice)} base`
               }}
             </span>
 

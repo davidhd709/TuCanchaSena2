@@ -62,7 +62,7 @@
           <div class="bc-card-stats">
             <span class="bc-stat">
               <span class="mdi mdi-cash" />
-              ${{ Number(court.pricePerHour).toLocaleString('es-CO') }}/hr
+              {{ formatCurrency(court.pricePerHour) }}/hr
             </span>
             <span class="bc-stat">
               <span class="mdi mdi-account-group-outline" />

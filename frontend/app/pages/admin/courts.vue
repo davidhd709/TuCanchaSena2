@@ -40,7 +40,7 @@
           <v-chip color="primary" size="small" variant="tonal">{{ courtTypeLabel(item.type) }}</v-chip>
         </template>
         <template #item.pricePerHour="{ item }">
-          ${{ Number(item.pricePerHour).toLocaleString('es-CO') }}
+          {{ formatCurrency(item.pricePerHour) }}
         </template>
         <template #item.status="{ item }">
           <v-chip :color="item.status === 'available' ? 'success' : 'warning'" size="small" variant="tonal">

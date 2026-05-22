@@ -171,7 +171,7 @@
               </div>
               <div class="court-footer">
                 <div class="court-price">
-                  <span class="price-amount">${{ Number(court.pricePerHour).toLocaleString('es-CO') }}</span>
+                  <span class="price-amount">{{ formatCurrency(court.pricePerHour) }}</span>
                   <span class="price-unit">/hora</span>
                 </div>
                 <NuxtLink to="/auth/login" class="court-btn" :id="`court-reserve-${i}`">
