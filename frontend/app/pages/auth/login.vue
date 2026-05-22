@@ -86,7 +86,11 @@
     </div>
 
     <!-- Register link -->
-    <NuxtLink to="/auth/register" class="register-link" id="go-register">
+    <NuxtLink
+      :to="{ path: '/auth/register', query: { redirect: route.query.redirect } }"
+      class="register-link"
+      id="go-register"
+    >
       Crear cuenta gratis
     </NuxtLink>
 
@@ -98,6 +102,7 @@ definePageMeta({ layout: 'auth' })
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const formRef = ref()
 const loading = ref(false)
@@ -123,7 +128,8 @@ const handleLogin = async () => {
 
   try {
     await authStore.login(form.email, form.password)
-    router.push('/dashboard')
+    // Vuelve al destino guardado (ej. la cancha que el usuario quería reservar).
+    router.push(safeRedirectPath(route.query.redirect))
   } catch (err: any) {
     errorMsg.value = err?.data?.message || 'Credenciales inválidas'
   } finally {
@@ -134,12 +140,11 @@ const handleLogin = async () => {
 onMounted(() => {
   authStore.hydrate()
   if (authStore.isAuthenticated) {
-    router.push('/dashboard')
+    router.push(safeRedirectPath(route.query.redirect))
     return
   }
 
   // Verificar si viene por sesión expirada
-  const route = useRoute()
   if (route.query.reason === 'session_expired') {
     const toast = useToast()
     toast.warning('Tu sesión expiró. Por favor inicia sesión nuevamente.')

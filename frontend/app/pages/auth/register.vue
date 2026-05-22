@@ -133,7 +133,11 @@
       <span class="divider-line"></span>
     </div>
 
-    <NuxtLink to="/auth/login" class="register-link" id="go-login">
+    <NuxtLink
+      :to="{ path: '/auth/login', query: { redirect: route.query.redirect } }"
+      class="register-link"
+      id="go-login"
+    >
       Iniciar sesión
     </NuxtLink>
   </div>
@@ -144,6 +148,7 @@ definePageMeta({ layout: 'auth' })
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const formRef = ref()
 const loading = ref(false)
@@ -181,7 +186,7 @@ const handleRegister = async () => {
       phone: form.phone || undefined,
       password: form.password,
     })
-    router.push('/dashboard')
+    router.push(safeRedirectPath(route.query.redirect))
   } catch (err: any) {
     errorMsg.value = err?.data?.message || 'Error al registrarse'
   } finally {
@@ -192,7 +197,7 @@ const handleRegister = async () => {
 onMounted(() => {
   authStore.hydrate()
   if (authStore.isAuthenticated) {
-    router.push('/dashboard')
+    router.push(safeRedirectPath(route.query.redirect))
   }
 })
 </script>

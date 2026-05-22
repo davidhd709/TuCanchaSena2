@@ -174,7 +174,7 @@
                   <span class="price-amount">{{ formatCurrency(court.pricePerHour) }}</span>
                   <span class="price-unit">/hora</span>
                 </div>
-                <NuxtLink to="/auth/login" class="court-btn" :id="`court-reserve-${i}`">
+                <NuxtLink :to="`/client/courts/${court.id}`" class="court-btn" :id="`court-reserve-${i}`">
                   Reservar
                   <span class="mdi mdi-arrow-right"></span>
                 </NuxtLink>

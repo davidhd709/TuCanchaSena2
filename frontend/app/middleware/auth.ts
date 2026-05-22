@@ -3,6 +3,7 @@ export default defineNuxtRouteMiddleware((to) => {
   authStore.hydrate()
 
   if (!authStore.isAuthenticated) {
-    return navigateTo('/auth/login')
+    // Guardamos el destino para volver a él tras iniciar sesión.
+    return navigateTo({ path: '/auth/login', query: { redirect: to.fullPath } })
   }
 })
