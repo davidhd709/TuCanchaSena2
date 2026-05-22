@@ -50,33 +50,20 @@
       </EmptyState>
     </template>
 
-    <AppModalShell
+    <AppConfirmDialog
       v-model="cancelDialog"
       title="¿Cancelar reserva?"
       subtitle="Esta acción no se puede deshacer."
-      :width="420"
+      icon="mdi-calendar-remove"
+      cancel-text="Volver"
+      confirm-text="Sí, cancelar"
+      :loading="cancelLoading === bookingToCancel?.id"
+      @confirm="confirmCancel"
     >
-      <template #tag>Atención</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon size="48" color="error" class="mb-2">mdi-calendar-remove</v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            Tu reserva quedará marcada como cancelada y el horario se liberará.
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
-        <v-btn
-          color="error"
-          variant="flat"
-          :loading="cancelLoading === bookingToCancel?.id"
-          @click="confirmCancel"
-        >
-          Sí, cancelar
-        </v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        Tu reserva quedará marcada como cancelada y el horario se liberará.
+      </p>
+    </AppConfirmDialog>
   </section>
 </template>
 

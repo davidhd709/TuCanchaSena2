@@ -224,66 +224,40 @@
       </template>
     </AppModalShell>
 
-    <!-- ─── Suspend Confirm Dialog (AppModalShell) ──────────────────────── -->
-    <AppModalShell
+    <!-- ─── Suspend Confirm Dialog ──────────────────────────────────────── -->
+    <AppConfirmDialog
       v-model="suspendDialog"
       :title="selectedUser?.isActive ? 'Suspender usuario' : 'Reactivar usuario'"
       :subtitle="selectedUser?.isActive ? 'El usuario no podrá iniciar sesión mientras esté suspendido.' : 'El usuario podrá volver a iniciar sesión.'"
-      :width="420"
+      :tag="selectedUser?.isActive ? 'Atención' : 'Reactivación'"
+      :icon="selectedUser?.isActive ? 'mdi-account-lock' : 'mdi-account-check'"
+      :icon-color="selectedUser?.isActive ? 'warning' : 'success'"
+      :confirm-text="selectedUser?.isActive ? 'Suspender' : 'Reactivar'"
+      :confirm-color="selectedUser?.isActive ? 'warning' : 'success'"
+      :loading="actionLoading"
+      @confirm="confirmToggleStatus"
     >
-      <template #tag>{{ selectedUser?.isActive ? 'Atención' : 'Reactivación' }}</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon
-            size="48"
-            :color="selectedUser?.isActive ? 'warning' : 'success'"
-            class="mb-3"
-          >
-            {{ selectedUser?.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}
-          </v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            ¿{{ selectedUser?.isActive ? 'Suspender' : 'Reactivar' }} a
-            <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="suspendDialog = false">Cancelar</v-btn>
-        <v-btn
-          :color="selectedUser?.isActive ? 'warning' : 'success'"
-          variant="flat"
-          :loading="actionLoading"
-          @click="confirmToggleStatus"
-        >
-          {{ selectedUser?.isActive ? 'Suspender' : 'Reactivar' }}
-        </v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        ¿{{ selectedUser?.isActive ? 'Suspender' : 'Reactivar' }} a
+        <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?
+      </p>
+    </AppConfirmDialog>
 
-    <!-- ─── Delete Confirm Dialog (AppModalShell) ───────────────────────── -->
-    <AppModalShell
+    <!-- ─── Delete Confirm Dialog ───────────────────────────────────────── -->
+    <AppConfirmDialog
       v-model="deleteDialog"
       title="Eliminar usuario"
       subtitle="Esta acción no se puede deshacer."
-      :width="420"
+      icon="mdi-account-remove"
+      confirm-text="Eliminar"
+      :loading="actionLoading"
+      @confirm="deleteUser"
     >
-      <template #tag>Atención</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon size="48" color="error" class="mb-3">mdi-account-remove</v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            Vas a eliminar permanentemente a
-            <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>.
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteUser">
-          Eliminar
-        </v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        Vas a eliminar permanentemente a
+        <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>.
+      </p>
+    </AppConfirmDialog>
 
     <!-- Snackbar -->
   </div>

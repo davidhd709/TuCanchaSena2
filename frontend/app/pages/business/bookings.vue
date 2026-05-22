@@ -235,38 +235,25 @@
       </template>
     </AppModalShell>
 
-    <!-- ── Cancel confirm dialog (AppModalShell) ────────────────────────── -->
-    <AppModalShell
+    <!-- ── Cancel confirm dialog ────────────────────────────────────────── -->
+    <AppConfirmDialog
       v-model="cancelDialog"
       title="¿Cancelar reserva?"
       subtitle="Esta acción no se puede deshacer."
-      :width="420"
+      icon="mdi-calendar-remove"
+      cancel-text="Volver"
+      confirm-text="Sí, cancelar"
+      :loading="actionLoading === 'cancel'"
+      @confirm="confirmCancelBooking"
     >
-      <template #tag>Atención</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon size="48" color="error" class="mb-3">mdi-calendar-remove</v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            La reserva de
-            <strong>{{ selectedBooking?.user?.firstName }} {{ selectedBooking?.user?.lastName }}</strong>
-            en <strong>{{ selectedBooking?.court?.name }}</strong>
-            ({{ selectedBooking?.date }} · {{ selectedBooking?.startTime?.slice(0,5) }}–{{ selectedBooking?.endTime?.slice(0,5) }})
-            quedará como cancelada.
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="cancelDialog = false">Volver</v-btn>
-        <v-btn
-          color="error"
-          variant="flat"
-          :loading="actionLoading === 'cancel'"
-          @click="confirmCancelBooking"
-        >
-          Sí, cancelar
-        </v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        La reserva de
+        <strong>{{ selectedBooking?.user?.firstName }} {{ selectedBooking?.user?.lastName }}</strong>
+        en <strong>{{ selectedBooking?.court?.name }}</strong>
+        ({{ selectedBooking?.date }} · {{ selectedBooking?.startTime?.slice(0,5) }}–{{ selectedBooking?.endTime?.slice(0,5) }})
+        quedará como cancelada.
+      </p>
+    </AppConfirmDialog>
 
     <!-- ── Reject dialog (AppModalShell) ───────────────────────────────────── -->
     <AppModalShell

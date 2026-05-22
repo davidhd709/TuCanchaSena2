@@ -179,30 +179,21 @@
       </template>
     </AppModalShell>
 
-    <!-- Delete confirm (AppModalShell) -->
-    <AppModalShell
+    <!-- Delete confirm -->
+    <AppConfirmDialog
       v-model="deleteDialog"
       title="Desactivar negocio"
       subtitle="El negocio dejará de ser visible pero sus reservas se conservan."
-      :width="420"
+      icon="mdi-store-remove"
+      confirm-text="Desactivar"
+      :loading="actionLoading"
+      @confirm="deleteBusiness"
     >
-      <template #tag>Atención</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon size="48" color="error" class="mb-3">mdi-store-remove</v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            Vas a desactivar <strong>{{ selectedBiz?.name }}</strong>.
-            Sus canchas y reservas activas seguirán existiendo pero el negocio no será visible.
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteBusiness">
-          Desactivar
-        </v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        Vas a desactivar <strong>{{ selectedBiz?.name }}</strong>.
+        Sus canchas y reservas activas seguirán existiendo pero el negocio no será visible.
+      </p>
+    </AppConfirmDialog>
 
   </div>
 </template>

@@ -245,27 +245,20 @@
     </AppModalShell>
 
     <!-- Delete Dialog -->
-    <AppModalShell
+    <AppConfirmDialog
       v-model="deleteDialog"
       title="Eliminar cancha"
       subtitle="Esta acción no se puede deshacer."
-      :width="420"
+      icon="mdi-soccer-field"
+      confirm-text="Eliminar"
+      :loading="actionLoading"
+      @confirm="deleteCourt"
     >
-      <template #tag>Atención</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon size="48" color="error" class="mb-3">mdi-soccer-field</v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            Vas a eliminar <strong>{{ selectedCourt?.name }}</strong>.
-            También se eliminarán sus horarios y reservas asociadas.
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteCourt">Eliminar</v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        Vas a eliminar <strong>{{ selectedCourt?.name }}</strong>.
+        También se eliminarán sus horarios y reservas asociadas.
+      </p>
+    </AppConfirmDialog>
 
   </div>
 </template>

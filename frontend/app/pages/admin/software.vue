@@ -89,27 +89,20 @@
       </template>
     </AppModalShell>
 
-    <!-- Delete Dialog (AppModalShell) -->
-    <AppModalShell
+    <!-- Delete Dialog -->
+    <AppConfirmDialog
       v-model="deleteDialog"
       title="Eliminar software"
       subtitle="Esta acción no se puede deshacer."
-      :width="420"
+      icon="mdi-application-cog"
+      confirm-text="Eliminar"
+      :loading="actionLoading"
+      @confirm="deleteSoftware"
     >
-      <template #tag>Atención</template>
-      <template #body>
-        <div class="text-center py-2">
-          <v-icon size="48" color="error" class="mb-3">mdi-application-cog</v-icon>
-          <p class="text-body-2 text-medium-emphasis">
-            Vas a eliminar <strong>{{ selectedSw?.nombre }}</strong>.
-          </p>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn variant="text" @click="deleteDialog = false">Cancelar</v-btn>
-        <v-btn color="error" variant="flat" :loading="actionLoading" @click="deleteSoftware">Eliminar</v-btn>
-      </template>
-    </AppModalShell>
+      <p class="text-body-2 text-medium-emphasis">
+        Vas a eliminar <strong>{{ selectedSw?.nombre }}</strong>.
+      </p>
+    </AppConfirmDialog>
 
   </div>
 </template>
