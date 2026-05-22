@@ -155,7 +155,7 @@
             </div>
 
             <template v-else-if="slots.length > 0">
-              <p class="booking-panel-label">Horarios disponibles</p>
+              <p class="booking-panel-label">Horarios disponibles · elige horas seguidas</p>
               <div class="slots-grid">
                 <button
                   v-for="slot in slots"
@@ -285,13 +285,30 @@ const totalSelected = computed(() =>
   selectedSlots.value.reduce((sum, s) => sum + effectivePrice(s), 0)
 )
 
+// Una reserva tiene un único startTime/endTime, así que la selección debe ser un
+// rango continuo (sin huecos): horas seleccionadas = horas cobradas por el backend.
+const isContiguous = (list: any[]): boolean => {
+  if (list.length <= 1) return true
+  const sorted = [...list].sort((a, b) => a.startTime.localeCompare(b.startTime))
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].startTime !== sorted[i - 1].endTime) return false
+  }
+  return true
+}
+
 const toggleSlot = (slot: any) => {
   const idx = selectedSlots.value.findIndex(s => s.startTime === slot.startTime)
   if (idx !== -1) {
-    selectedSlots.value.splice(idx, 1)
-  } else {
-    selectedSlots.value.push(slot)
+    // Deseleccionar: si al quitarlo el bloque deja de ser contiguo (slot del
+    // medio), reiniciamos para conservar un único rango continuo.
+    const remaining = selectedSlots.value.filter((_, i) => i !== idx)
+    selectedSlots.value = isContiguous(remaining) ? remaining : []
+    return
   }
+  // Seleccionar: solo si extiende el rango de forma contigua; si no, empieza un
+  // rango nuevo desde este slot.
+  const candidate = [...selectedSlots.value, slot]
+  selectedSlots.value = isContiguous(candidate) ? candidate : [slot]
 }
 
 const loadSlots = async () => {
