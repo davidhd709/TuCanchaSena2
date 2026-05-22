@@ -202,16 +202,16 @@ const slotsLoading = ref(false)
 const selectedDate = ref('')
 const selectedSlots = ref<any[]>([])
 
-const today = new Date().toISOString().split('T')[0]
+// "Hoy" en la zona horaria de las canchas (Colombia), no la del dispositivo.
+const today = todayInTimezone()
 
 // Para HOY ocultamos las franjas cuya hora de inicio ya pasó (no se puede
 // reservar una hora anterior a la actual). En otras fechas se muestran todas.
+// Se compara contra la hora actual en la TZ de las canchas, así el filtro es
+// correcto aunque el equipo del usuario tenga otra zona horaria.
 const visibleSlots = computed(() => {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  const now = new Date()
-  const localToday = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-  if (selectedDate.value !== localToday) return slots.value
-  const nowHHMM = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+  if (selectedDate.value !== todayInTimezone()) return slots.value
+  const nowHHMM = nowHHMMInTimezone()
   return slots.value.filter((s: any) => (s.startTime ?? '') > nowHHMM)
 })
 

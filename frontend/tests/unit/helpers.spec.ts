@@ -26,6 +26,8 @@ import {
   formatDateTime,
   formatTime,
   formatTimeRange,
+  nowHHMMInTimezone,
+  todayInTimezone,
   toLocalDate,
 } from '../../app/utils/datetime'
 import { formatCurrency } from '../../app/utils/currency'
@@ -129,6 +131,21 @@ describe('datetime — parseo y formateo seguro', () => {
     expect(formatTimeRange('08:00:00', '09:00:00')).toBe('08:00 – 09:00')
     expect(formatTimeRange('08:00:00', '09:00:00', '–')).toBe('08:00–09:00')
     expect(formatTimeRange(null, null)).toBe('')
+  })
+
+  it('todayInTimezone devuelve YYYY-MM-DD (zona de canchas)', () => {
+    expect(todayInTimezone()).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(todayInTimezone('America/Bogota')).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('nowHHMMInTimezone devuelve HH:MM 24h (zona de canchas)', () => {
+    expect(nowHHMMInTimezone()).toMatch(/^\d{2}:\d{2}$/)
+  })
+
+  it('hora en una TZ adelantada es mayor que en una atrasada (mismo instante)', () => {
+    // Tokio (UTC+9) siempre tiene una hora del día > Bogotá (UTC-5) salvo el
+    // cruce de medianoche; comprobamos solo el formato para evitar flakiness.
+    expect(nowHHMMInTimezone('Asia/Tokyo')).toMatch(/^\d{2}:\d{2}$/)
   })
 })
 

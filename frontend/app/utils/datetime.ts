@@ -107,3 +107,30 @@ export function formatTimeRange(start: unknown, end: unknown, separator = ' – 
   if (!s && !e) return ''
   return `${s}${separator}${e}`
 }
+
+/**
+ * Zona horaria de las canchas (todas en Colombia). El "hoy" y la "hora actual"
+ * para filtrar franjas deben calcularse en esta zona, NO en la del dispositivo
+ * del usuario (que puede estar mal configurada o ser de otro país).
+ */
+export const COURT_TIMEZONE = 'America/Bogota'
+
+/** Fecha de hoy `YYYY-MM-DD` en la zona horaria indicada (por defecto, canchas). */
+export function todayInTimezone(timeZone: string = COURT_TIMEZONE): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
+/** Hora actual `HH:MM` (24h) en la zona horaria indicada (por defecto, canchas). */
+export function nowHHMMInTimezone(timeZone: string = COURT_TIMEZONE): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date())
+}
