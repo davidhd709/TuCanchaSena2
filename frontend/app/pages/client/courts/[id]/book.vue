@@ -31,8 +31,8 @@
             </div>
           </div>
           <div class="pay-summary-total">
-            <span>Total a pagar</span>
-            <strong>{{ formatCurrency(pricePerHour + 5000) }}</strong>
+            <span>Total a pagar · {{ durationHours }} hora{{ durationHours === 1 ? '' : 's' }}</span>
+            <strong>{{ formatCurrency(totalToPay) }}</strong>
           </div>
         </section>
 
@@ -161,9 +161,10 @@
 
           <div class="pay-side-total">
             <div><span>Precio por hora</span><strong>{{ formatCurrency(pricePerHour) }}</strong></div>
-            <div><span>Cargos de gestión</span><strong>{{ formatCurrency(5000) }}</strong></div>
+            <div><span>{{ durationHours }} hora{{ durationHours === 1 ? '' : 's' }}</span><strong>{{ formatCurrency(subtotal) }}</strong></div>
+            <div><span>Cargos de gestión</span><strong>{{ formatCurrency(MANAGEMENT_FEE) }}</strong></div>
             <hr>
-            <div class="is-total"><span>Total a pagar</span><strong>{{ formatCurrency(pricePerHour + 5000) }}</strong></div>
+            <div class="is-total"><span>Total a pagar</span><strong>{{ formatCurrency(totalToPay) }}</strong></div>
           </div>
         </div>
       </aside>
@@ -214,6 +215,23 @@ const loadCourt = async () => {
 }
 
 const pricePerHour = computed(() => route.query.pricePerHour ? Number(route.query.pricePerHour) : Number(court.value?.pricePerHour ?? 0))
+
+// Horas reservadas = duración del span (endTime − startTime). El backend cobra
+// `hours × pricePerHour` (ver bookings.service), así que replicamos esa fórmula
+// para que el total mostrado coincida con el cobro real cuando se eligen varias horas.
+const durationHours = computed(() => {
+  const s = route.query.startTime as string | undefined
+  const e = route.query.endTime as string | undefined
+  if (!s || !e) return 1
+  const [sh, sm] = s.split(':').map(Number)
+  const [eh, em] = e.split(':').map(Number)
+  const h = ((eh ?? 0) * 60 + (em ?? 0) - (sh ?? 0) * 60 - (sm ?? 0)) / 60
+  return h > 0 ? h : 1
+})
+const MANAGEMENT_FEE = 5000
+const subtotal = computed(() => pricePerHour.value * durationHours.value)
+const totalToPay = computed(() => subtotal.value + MANAGEMENT_FEE)
+
 const cleanCover = computed(() => safeCover(court.value?.images?.[0]))
 const formRef = ref()
 const flowState = ref<FlowState>('idle')
