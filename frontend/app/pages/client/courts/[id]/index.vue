@@ -130,11 +130,11 @@
               <span class="text-body-2 brand-muted">Cargando horarios...</span>
             </div>
 
-            <template v-else-if="slots.length > 0">
+            <template v-else-if="visibleSlots.length > 0">
               <p class="booking-panel-label">Horarios disponibles · elige horas seguidas</p>
               <div class="slots-grid">
                 <button
-                  v-for="slot in slots"
+                  v-for="slot in visibleSlots"
                   :key="slot.startTime"
                   type="button"
                   class="slot-chip"
@@ -155,7 +155,7 @@
               </div>
 
               <p
-                v-if="slots.some(s => s.pricePerHour !== null && s.pricePerHour !== undefined)"
+                v-if="visibleSlots.some(s => s.pricePerHour !== null && s.pricePerHour !== undefined)"
                 class="slot-legend"
               >
                 ★ Precio especial para ese horario
@@ -203,6 +203,17 @@ const selectedDate = ref('')
 const selectedSlots = ref<any[]>([])
 
 const today = new Date().toISOString().split('T')[0]
+
+// Para HOY ocultamos las franjas cuya hora de inicio ya pasó (no se puede
+// reservar una hora anterior a la actual). En otras fechas se muestran todas.
+const visibleSlots = computed(() => {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const now = new Date()
+  const localToday = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+  if (selectedDate.value !== localToday) return slots.value
+  const nowHHMM = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+  return slots.value.filter((s: any) => (s.startTime ?? '') > nowHHMM)
+})
 
 const courtTypes = [
   { title: 'Fútbol 5', value: 'football_5' },
