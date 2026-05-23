@@ -1,56 +1,30 @@
 <template>
   <v-app theme="tucancha">
     <template v-if="authStore.isBusiness">
-      <!-- ── Mobile top bar ── -->
+      <!-- ── Mobile top bar (logo + menú de perfil, como el cliente) ── -->
       <header class="owner-topbar">
-        <button class="owner-topbar-hamburger" aria-label="Abrir menú" @click="drawerOpen = true">
-          <span class="mdi mdi-menu" />
-        </button>
         <NuxtLink to="/dashboard" aria-label="TuCancha — Inicio">
           <img src="/logo-nav.webp" alt="TuCancha" class="owner-topbar-logo" />
         </NuxtLink>
-        <span class="owner-avatar owner-topbar-avatar">{{ initials }}</span>
-      </header>
-
-      <!-- ── Mobile drawer overlay ── -->
-      <transition name="overlay-fade">
-        <div v-if="drawerOpen" class="owner-drawer-overlay" @click="drawerOpen = false" />
-      </transition>
-
-      <!-- ── Mobile drawer ── -->
-      <transition name="drawer-slide">
-        <aside v-if="drawerOpen" class="owner-drawer" role="dialog" aria-modal="true" aria-label="Menú de navegación">
-          <div class="owner-drawer-head">
-            <NuxtLink to="/dashboard" aria-label="TuCancha — Inicio" @click="drawerOpen = false">
-              <img src="/logo-nav.webp" alt="TuCancha" class="owner-brand-logo" />
-            </NuxtLink>
-            <button class="owner-drawer-close" aria-label="Cerrar menú" @click="drawerOpen = false">
-              <span class="mdi mdi-close" />
+        <v-menu location="bottom end" offset="10">
+          <template #activator="{ props }">
+            <button v-bind="props" class="owner-topbar-profile" aria-label="Menú de usuario">
+              <span class="owner-avatar owner-topbar-avatar">{{ initials }}</span>
             </button>
-          </div>
-          <p class="owner-brand-sub">Panel del negocio</p>
-
-          <nav class="owner-nav" @click="drawerOpen = false">
-            <NuxtLink v-for="item in businessNav" :key="item.to" :to="item.to" class="owner-link">
-              <v-icon :icon="item.icon" size="20" /> {{ item.title }}
-            </NuxtLink>
-          </nav>
-
-          <div class="owner-bottom">
-            <v-btn color="primary" block size="large" to="/business/courts" prepend-icon="mdi-plus" @click="drawerOpen = false">
-              Nueva Cancha
-            </v-btn>
-            <div class="owner-user">
-              <span class="owner-avatar">{{ initials }}</span>
-              <div class="owner-user-info">
-                <div class="owner-user-name">{{ authStore.fullName }}</div>
-                <div class="owner-user-role">Dueño del negocio</div>
-              </div>
+          </template>
+          <v-list density="comfortable" rounded="lg" min-width="220" class="pa-2">
+            <div class="px-3 py-2">
+              <div class="text-body-2 font-weight-bold">{{ authStore.fullName }}</div>
+              <div class="text-caption brand-muted">Dueño del negocio</div>
             </div>
-            <v-btn variant="text" color="error" prepend-icon="mdi-logout" @click="handleLogout">Cerrar Sesión</v-btn>
-          </div>
-        </aside>
-      </transition>
+            <v-divider class="my-1" />
+            <v-list-item to="/business/courts" prepend-icon="mdi-plus" title="Nueva cancha" rounded="lg" />
+            <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi perfil" rounded="lg" />
+            <v-divider class="my-1" />
+            <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" rounded="lg" base-color="error" @click="handleLogout" />
+          </v-list>
+        </v-menu>
+      </header>
 
       <!-- ── Desktop shell ── -->
       <div class="owner-shell">
@@ -85,6 +59,19 @@
           <div class="owner-content"><slot /></div>
         </main>
       </div>
+
+      <!-- ── Bottom nav móvil (como el cliente) ── -->
+      <nav class="owner-bottom-nav" aria-label="Navegación móvil">
+        <NuxtLink
+          v-for="item in businessNav"
+          :key="item.to"
+          :to="item.to"
+          class="owner-bottom-link"
+        >
+          <v-icon :icon="item.icon" size="22" />
+          <span>{{ item.short }}</span>
+        </NuxtLink>
+      </nav>
     </template>
 
     <template v-else>
@@ -112,12 +99,6 @@
 
 <script setup lang="ts">
 const authStore = useAuthStore()
-const route = useRoute()
-
-const drawerOpen = ref(false)
-
-// Cierra el drawer automáticamente al cambiar de ruta
-watch(() => route.fullPath, () => { drawerOpen.value = false })
 
 const initials = computed(() => {
   if (!authStore.user) return '?'
@@ -133,10 +114,10 @@ const adminNav = [
 ]
 
 const businessNav = [
-  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Inicio' },
-  { to: '/business/courts', icon: 'mdi-soccer-field', title: 'Canchas' },
-  { to: '/business/bookings', icon: 'mdi-calendar-check-outline', title: 'Reservas' },
-  { to: '/business', icon: 'mdi-store-outline', title: 'Mi Negocio' },
+  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Inicio', short: 'Inicio' },
+  { to: '/business/courts', icon: 'mdi-soccer-field', title: 'Canchas', short: 'Canchas' },
+  { to: '/business/bookings', icon: 'mdi-calendar-check-outline', title: 'Reservas', short: 'Reservas' },
+  { to: '/business', icon: 'mdi-store-outline', title: 'Mi Negocio', short: 'Negocio' },
 ]
 
 const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/login') }
@@ -158,73 +139,52 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   border-bottom: 1px solid var(--border-soft);
 }
 .owner-topbar-logo { height: 32px; width: auto; display: block; }
-.owner-topbar-hamburger {
-  width: 40px; height: 40px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg-elev);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 1.3rem;
+.owner-topbar-profile {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  display: inline-flex;
+  border-radius: 50%;
 }
-.owner-topbar-hamburger:hover { background: var(--bg-card); border-color: var(--border-medium); }
 .owner-topbar-avatar {
   width: 36px !important; height: 36px !important;
   font-size: .78rem !important;
 }
 
-/* ── Mobile drawer overlay ───────────────────────────────────────────── */
-.owner-drawer-overlay {
+/* ── Bottom nav móvil (mismo patrón que el cliente) ──────────────────── */
+.owner-bottom-nav {
+  display: none;
   position: fixed;
-  inset: 0;
-  z-index: 299;
-  background: rgba(0, 0, 0, 0.58);
-  backdrop-filter: blur(2px);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(12, 16, 20, 0.92);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border-soft);
+  padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+  justify-content: space-around;
 }
-.overlay-fade-enter-active,
-.overlay-fade-leave-active { transition: opacity .25s ease; }
-.overlay-fade-enter-from,
-.overlay-fade-leave-to { opacity: 0; }
-
-/* ── Mobile drawer ───────────────────────────────────────────────────── */
-.owner-drawer {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: min(300px, 88vw);
-  z-index: 300;
-  background: linear-gradient(180deg, var(--bg-subtle), var(--bg-app));
-  border-right: 1px solid var(--border-soft);
-  padding: 20px 16px 24px;
+.owner-bottom-link {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-}
-.owner-drawer-head {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-.owner-drawer-close {
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg-elev);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-md);
+  gap: 2px;
+  padding: 6px 4px;
+  text-decoration: none;
   color: var(--text-muted);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  font-size: .68rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  transition: color .2s ease, background .2s ease;
 }
-.owner-drawer-close:hover { color: var(--text-primary); background: var(--bg-card); }
-
-.drawer-slide-enter-active { transition: transform .28s cubic-bezier(0.22, 1, 0.36, 1); }
-.drawer-slide-leave-active  { transition: transform .22s cubic-bezier(0.55, 0, 1, 0.45); }
-.drawer-slide-enter-from,
-.drawer-slide-leave-to { transform: translateX(-100%); }
+/* exact-active evita que "/business" (Mi Negocio) marque también courts/bookings. */
+.owner-bottom-link.router-link-exact-active {
+  color: var(--green-bright);
+  background: var(--green-soft);
+}
 
 /* ── Desktop shell ───────────────────────────────────────────────────── */
 .owner-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
@@ -359,11 +319,13 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   .owner-content { padding: 24px 20px; }
 }
 
-/* ── Móvil: ocultar sidebar, mostrar topbar ──────────────────────────── */
+/* ── Móvil: ocultar sidebar, mostrar topbar + bottom-nav ─────────────── */
 @media (max-width: 768px) {
   .owner-topbar { display: flex; }
   .owner-shell  { display: block; }
   .owner-sidebar { display: none; }
-  .owner-content { padding: 18px 14px; }
+  /* padding inferior extra para no quedar tapado por la bottom-nav */
+  .owner-content { padding: 18px 14px 96px; }
+  .owner-bottom-nav { display: flex; }
 }
 </style>
