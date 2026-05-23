@@ -1,241 +1,142 @@
 <template>
   <v-app theme="tucancha">
+    <!-- ── Mobile top bar (logo + menú de perfil) ── -->
+    <header class="client-topbar">
+      <NuxtLink to="/dashboard" aria-label="TuCancha — Inicio">
+        <img src="/logo-nav.webp" alt="TuCancha" class="client-topbar-logo" />
+      </NuxtLink>
+      <v-menu location="bottom end" offset="10">
+        <template #activator="{ props }">
+          <button v-bind="props" class="client-topbar-profile" aria-label="Menú de usuario">
+            <span class="client-avatar client-topbar-avatar">{{ initials }}</span>
+          </button>
+        </template>
+        <v-list density="comfortable" rounded="lg" min-width="220" class="pa-2">
+          <div class="px-3 py-2">
+            <div class="text-body-2 font-weight-bold">{{ authStore.fullName }}</div>
+            <div class="text-caption brand-muted">{{ authStore.user?.email }}</div>
+          </div>
+          <v-divider class="my-1" />
+          <v-list-item to="/dashboard" prepend-icon="mdi-home-outline" title="Inicio" rounded="lg" />
+          <v-list-item to="/client/businesses" prepend-icon="mdi-stadium-variant" title="Negocios" rounded="lg" />
+          <v-list-item to="/client/courts" prepend-icon="mdi-soccer-field" title="Canchas" rounded="lg" />
+          <v-list-item to="/client/bookings" prepend-icon="mdi-calendar-account-outline" title="Mis reservas" rounded="lg" />
+          <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi perfil" rounded="lg" />
+          <v-divider class="my-1" />
+          <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" rounded="lg" base-color="error" @click="handleLogout" />
+        </v-list>
+      </v-menu>
+    </header>
+
+    <!-- ── Desktop shell (sidebar) ── -->
     <div class="client-shell">
-      <header class="client-nav">
-        <div class="client-nav-inner">
-          <NuxtLink to="/dashboard" class="client-brand" aria-label="TuCancha — Inicio">
+      <aside class="client-sidebar">
+        <div>
+          <NuxtLink to="/dashboard" aria-label="TuCancha — Inicio">
             <img src="/logo-nav.webp" alt="TuCancha" class="client-brand-logo" />
           </NuxtLink>
+          <p class="client-brand-sub">Panel de usuario</p>
+        </div>
 
-          <nav class="client-links" aria-label="Navegación principal">
-            <NuxtLink
-              v-for="item in navItems"
-              :key="item.to"
-              :to="item.to"
-              class="client-link"
-            >
-              {{ item.title }}
-            </NuxtLink>
-          </nav>
+        <nav class="client-nav">
+          <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="client-link">
+            <v-icon :icon="item.icon" size="20" /> {{ item.title }}
+          </NuxtLink>
+        </nav>
 
-          <div class="client-right">
-            <v-menu location="bottom end" offset="10">
-              <template #activator="{ props }">
-                <button v-bind="props" class="client-profile" aria-label="Menú de usuario">
-                  <span class="client-profile-avatar">{{ initials }}</span>
-                  <span class="client-profile-name">{{ firstName }}</span>
-                  <v-icon icon="mdi-chevron-down" size="18" />
-                </button>
-              </template>
-              <v-list density="comfortable" rounded="lg" min-width="240" class="pa-2">
-                <div class="px-3 py-2">
-                  <div class="text-body-2 font-weight-bold">{{ authStore.fullName }}</div>
-                  <div class="text-caption brand-muted">{{ authStore.user?.email }}</div>
-                </div>
-                <v-divider class="my-1" />
-                <v-list-item to="/dashboard" prepend-icon="mdi-home-outline" title="Inicio" rounded="lg" />
-                <v-list-item to="/client/businesses" prepend-icon="mdi-stadium-variant" title="Negocios" rounded="lg" />
-                <v-list-item to="/client/courts" prepend-icon="mdi-soccer-field" title="Canchas" rounded="lg" />
-                <v-list-item to="/client/bookings" prepend-icon="mdi-calendar-account-outline" title="Mis reservas" rounded="lg" />
-                <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi perfil" rounded="lg" />
-                <v-divider class="my-1" />
-                <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" rounded="lg" base-color="error" @click="handleLogout" />
-              </v-list>
-            </v-menu>
+        <div class="client-bottom">
+          <!-- Opcional: botón destacado para clientes, p. ej. "Explorar Canchas" -->
+          <v-btn
+            color="primary"
+            block
+            size="large"
+            to="/client/courts"
+            prepend-icon="mdi-magnify"
+          >
+            Buscar Cancha
+          </v-btn>
+          <div class="client-user">
+            <span class="client-avatar">{{ initials }}</span>
+            <div class="client-user-info">
+              <div class="client-user-name">{{ authStore.fullName }}</div>
+              <div class="client-user-role">Cliente</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-direction: column;">
+            <v-btn variant="text" prepend-icon="mdi-account-outline" to="/profile" class="justify-start text-none" style="color: var(--text-secondary)">Mi Perfil</v-btn>
+            <v-btn variant="text" color="error" prepend-icon="mdi-logout" @click="handleLogout" class="justify-start text-none">Cerrar Sesión</v-btn>
           </div>
         </div>
-      </header>
+      </aside>
 
       <main class="client-main">
         <div class="client-content"><slot /></div>
       </main>
-
-      <footer class="client-footer">
-        <div class="client-footer-inner">
-          <div>
-            <div class="client-footer-brand">
-              <img src="/logo-nav.webp" alt="TuCancha" class="client-footer-logo" />
-            </div>
-            <p>© 2026 TuCancha · Reserva canchas sintéticas en minutos.</p>
-          </div>
-          <div class="client-footer-links">
-            <a href="#">Términos</a>
-            <a href="#">Privacidad</a>
-            <a href="#">Soporte</a>
-          </div>
-        </div>
-      </footer>
-
-      <nav class="client-bottom-nav" aria-label="Navegación móvil">
-        <NuxtLink to="/dashboard" class="client-bottom-link">
-          <span class="mdi mdi-home-variant-outline" />
-          <span>Inicio</span>
-        </NuxtLink>
-        <NuxtLink to="/client/businesses" class="client-bottom-link">
-          <span class="mdi mdi-stadium-variant" />
-          <span>Negocios</span>
-        </NuxtLink>
-        <NuxtLink to="/client/courts" class="client-bottom-link">
-          <span class="mdi mdi-soccer-field" />
-          <span>Canchas</span>
-        </NuxtLink>
-        <NuxtLink to="/client/bookings" class="client-bottom-link">
-          <span class="mdi mdi-calendar-check-outline" />
-          <span>Reservas</span>
-        </NuxtLink>
-      </nav>
     </div>
+
+    <!-- ── Bottom nav móvil ── -->
+    <nav class="client-bottom-nav" aria-label="Navegación móvil">
+      <NuxtLink
+        v-for="item in navItems"
+        :key="item.to"
+        :to="item.to"
+        class="client-bottom-link"
+      >
+        <v-icon :icon="item.icon" size="22" />
+        <span>{{ item.short }}</span>
+      </NuxtLink>
+    </nav>
   </v-app>
 </template>
 
 <script setup lang="ts">
 const authStore = useAuthStore()
+
 const initials = computed(() => {
   if (!authStore.user) return '?'
   return `${authStore.user.firstName?.[0] ?? ''}${authStore.user.lastName?.[0] ?? ''}`.toUpperCase()
 })
-const firstName = computed(() => authStore.user?.firstName ?? 'Cliente')
+
 const navItems = [
-  { to: '/dashboard', title: 'Inicio' },
-  { to: '/client/businesses', title: 'Negocios' },
-  { to: '/client/courts', title: 'Canchas' },
-  { to: '/client/bookings', title: 'Mis reservas' },
+  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Inicio', short: 'Inicio' },
+  { to: '/client/businesses', icon: 'mdi-store-outline', title: 'Negocios', short: 'Negocios' },
+  { to: '/client/courts', icon: 'mdi-soccer-field', title: 'Canchas', short: 'Canchas' },
+  { to: '/client/bookings', icon: 'mdi-calendar-check-outline', title: 'Reservas', short: 'Reservas' },
 ]
+
 const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/login') }
 </script>
 
 <style scoped>
-.client-shell {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ── Top nav dark premium ─────────────────────────────────────────────── */
-.client-nav {
+/* ── Mobile top bar (solo visible en móvil) ──────────────────────────── */
+.client-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 58px;
   position: sticky;
   top: 0;
-  z-index: 100;
-  background: rgba(12, 16, 20, 0.78);
-  backdrop-filter: blur(14px) saturate(140%);
+  z-index: 200;
+  background: rgba(12, 16, 20, 0.92);
+  backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid var(--border-soft);
 }
-.client-nav-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  height: 68px;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-.client-brand {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-}
-.client-brand-logo {
-  height: 36px;
-  width: auto;
-  display: block;
-}
-.client-links {
-  display: flex;
-  gap: 28px;
-  margin-left: 24px;
-  flex: 1;
-}
-.client-link {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: .92rem;
-  font-weight: 600;
-  padding: 6px 2px;
-  border-bottom: 2px solid transparent;
-  transition: color .2s ease, border-color .2s ease;
-}
-.client-link:hover { color: var(--text-primary); }
-.client-link.router-link-active {
-  color: var(--green-bright);
-  border-bottom-color: var(--green-bright);
-}
-
-.client-right { display: flex; align-items: center; gap: 8px; }
-.client-profile {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px 4px 4px;
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-pill);
-  background: var(--bg-card);
-  color: var(--text-primary);
+.client-topbar-logo { height: 32px; width: auto; display: block; }
+.client-topbar-profile {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  font-size: .85rem;
-  font-weight: 700;
-  transition: border-color .2s ease, box-shadow .2s ease;
-}
-.client-profile:hover { border-color: var(--green-bright); box-shadow: var(--shadow-sm); }
-.client-profile-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  display: inline-grid; place-items: center;
-  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
-  color: #04170f;
-  font-size: .72rem;
-  font-weight: 800;
-}
-.client-profile-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* ── Main ──────────────────────────────────────────────────────────────── */
-.client-main { flex: 1; display: flex; flex-direction: column; }
-.client-content {
-  max-width: 1280px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 28px 24px 60px;
-}
-.client-content > * {
-  animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both;
-}
-
-/* ── Footer ────────────────────────────────────────────────────────────── */
-.client-footer {
-  border-top: 1px solid var(--border-soft);
-  background: var(--bg-subtle);
-}
-.client-footer-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 22px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  color: var(--text-muted);
-  font-size: .85rem;
-}
-.client-footer-brand {
   display: inline-flex;
-  align-items: center;
-  margin-bottom: 8px;
+  border-radius: 50%;
 }
-.client-footer-logo {
-  height: 30px;
-  width: auto;
-  display: block;
-  opacity: 0.9;
+.client-topbar-avatar {
+  width: 36px !important; height: 36px !important;
+  font-size: .78rem !important;
 }
-.client-footer-links { display: flex; gap: 22px; }
-.client-footer-links a {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-weight: 600;
-  transition: color .2s ease;
-}
-.client-footer-links a:hover { color: var(--green-bright); }
 
-/* ── Bottom nav móvil ──────────────────────────────────────────────────── */
+/* ── Bottom nav móvil (mismo patrón que el dueño) ──────────────────── */
 .client-bottom-nav {
   display: none;
   position: fixed;
@@ -263,18 +164,97 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   border-radius: var(--radius-sm);
   transition: color .2s ease, background .2s ease;
 }
-.client-bottom-link .mdi { font-size: 1.3rem; }
-.client-bottom-link.router-link-active {
+.client-bottom-link.router-link-exact-active {
   color: var(--green-bright);
   background: var(--green-soft);
 }
 
-@media (max-width: 900px) {
-  .client-nav-inner { height: 60px; padding: 0 16px; gap: 12px; }
-  .client-links { display: none; }
-  .client-content { padding: 18px 16px 100px; }
-  .client-profile-name { display: none; }
-  .client-footer-inner { padding: 18px 16px; flex-direction: column; align-items: flex-start; }
+/* ── Desktop shell ───────────────────────────────────────────────────── */
+.client-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+.client-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  border-right: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--bg-subtle), var(--bg-app));
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.client-brand-logo { height: 38px; width: auto; display: block; }
+.client-brand-sub { color: var(--text-muted); font-size: .82rem; margin-top: 8px; }
+.client-nav { display: flex; flex-direction: column; gap: 4px; }
+.client-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: .92rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.client-link:hover { background: var(--bg-elev); color: var(--text-primary); }
+.client-link.router-link-active {
+  background: var(--green-soft);
+  color: var(--green-bright);
+  border-color: rgba(52, 198, 146, 0.28);
+  font-weight: 800;
+}
+.client-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.client-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+}
+.client-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-weight: 800; font-size: .82rem;
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  color: #04170f;
+  flex-shrink: 0;
+}
+.client-user-info { flex: 1; min-width: 0; }
+.client-user-name {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: .9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.client-user-role { color: var(--text-muted); font-size: .76rem; }
+.client-main { background: transparent; min-width: 0; }
+.client-content { padding: 30px 28px; max-width: 1280px; width: 100%; margin: 0 auto; }
+.client-content > * { animation: tc-fade-up .42s cubic-bezier(.22, 1, .36, 1) both; }
+.client-content > *:nth-child(2) { animation-delay: .03s; }
+.client-content > *:nth-child(3) { animation-delay: .06s; }
+.client-content > *:nth-child(4) { animation-delay: .09s; }
+
+/* ── Tablet: sidebar más angosta ─────────────────────────────────────── */
+@media (max-width: 1100px) and (min-width: 769px) {
+  .client-shell { grid-template-columns: 240px 1fr; }
+  .client-content { padding: 24px 20px; }
+}
+
+/* ── Móvil: ocultar sidebar, mostrar topbar + bottom-nav ─────────────── */
+@media (max-width: 768px) {
+  .client-topbar { display: flex; }
+  .client-shell  { display: block; }
+  .client-sidebar { display: none; }
+  /* padding inferior extra para no quedar tapado por la bottom-nav */
+  .client-content { padding: 18px 14px 96px; }
   .client-bottom-nav { display: flex; }
 }
 </style>
