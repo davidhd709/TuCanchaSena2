@@ -7,15 +7,16 @@
       subtitle="Calendario de movimiento y detalle de las reservas de tus canchas"
     >
       <template #action>
-        <v-select
-          v-model="selectedCourtId"
-          :items="courtOptions"
-          label="Filtrar por cancha"
-          prepend-inner-icon="mdi-soccer-field"
-          hide-details
-          density="compact"
-          style="max-width: 280px"
-        />
+        <div class="bk-filter-wrap">
+          <v-select
+            v-model="selectedCourtId"
+            :items="courtOptions"
+            label="Filtrar por cancha"
+            prepend-inner-icon="mdi-soccer-field"
+            hide-details
+            density="compact"
+          />
+        </div>
       </template>
     </PageHeader>
 
@@ -591,11 +592,21 @@ onMounted(async () => {
   letter-spacing: .01em;
 }
 
+/* ── Filtro de cancha: ancho máximo en desktop, full-width en móvil ── */
+.bk-filter-wrap { width: 280px; }
+
 @media (max-width: 960px) {
   .bk-cards { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-  .bk-cards { grid-template-columns: 1fr; }
+  .bk-filter-wrap { width: 100%; }
+
+  .bk-list { margin-top: 20px; }
+  .bk-list-title { font-size: 1rem; margin-bottom: 10px; }
+  .bk-cards { grid-template-columns: 1fr; gap: 10px; }
+
+  .bk-card { padding: 14px; }
+  .bk-card-body { /* sin cambio extra */ }
 
   /* Acciones rápidas más tocables en móvil: altura mínima 44px (target táctil),
      gap mayor y separación clara del cuerpo de la card. */

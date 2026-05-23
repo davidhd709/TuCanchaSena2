@@ -418,8 +418,41 @@ onMounted(loadBusiness)
   margin-bottom: 22px;
 }
 
-@media (max-width: 880px) {
+/* ── Tablet ── */
+@media (max-width: 960px) {
   .mn-grid { grid-template-columns: 1fr; }
   .mn-aside { position: static; }
+}
+
+/* ── Móvil ── */
+@media (max-width: 600px) {
+  .mn-panel { padding: 16px 14px; }
+
+  /* El encabezado del negocio: logo + info se quedan en fila,
+     el badge de estado se mueve a una línea propia */
+  .mn-biz-head {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .mn-biz-id { min-width: 0; flex: 1 1 0; }
+  .mn-status {
+    /* salta a segunda línea ocupando el espacio disponible */
+    order: 3;
+    align-self: flex-start;
+  }
+  .mn-biz-name { font-size: 1.05rem; }
+
+  /* Chips de contacto, amenities y schedule */
+  .mn-biz-contact { gap: 6px; }
+  .mn-contact-chip { font-size: 0.78rem; padding: 5px 10px; }
+
+  .mn-schedule-row { font-size: 0.82rem; }
+
+  /* Estado vacío */
+  .mn-empty { padding: 40px 16px; }
+  .mn-empty-icon { width: 68px; height: 68px; margin-bottom: 14px; }
+  .mn-empty-icon .mdi { font-size: 2rem; }
+  .mn-empty-title { font-size: 1rem; }
+  .mn-empty-text { font-size: 0.86rem; }
 }
 </style>
