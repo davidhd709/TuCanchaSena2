@@ -24,6 +24,7 @@
         :loading="loading"
         item-value="id"
         hover
+        :mobile-breakpoint="768"
       >
         <template #item.name="{ item }">
           <div class="d-flex align-center gap-3 py-1">

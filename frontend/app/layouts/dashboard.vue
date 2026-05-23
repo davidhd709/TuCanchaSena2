@@ -93,6 +93,19 @@
         </div>
       </header>
       <main class="dash-main"><div class="dash-content"><slot /></div></main>
+
+      <!-- ── Bottom nav móvil (mismo patrón que cliente/negocio) ── -->
+      <nav class="owner-bottom-nav" aria-label="Navegación móvil">
+        <NuxtLink
+          v-for="item in adminNav"
+          :key="item.to"
+          :to="item.to"
+          class="owner-bottom-link"
+        >
+          <v-icon :icon="item.icon" size="22" />
+          <span>{{ item.short }}</span>
+        </NuxtLink>
+      </nav>
     </template>
   </v-app>
 </template>
@@ -106,11 +119,11 @@ const initials = computed(() => {
 })
 
 const adminNav = [
-  { to: '/dashboard', title: 'Inicio' },
-  { to: '/admin/users', title: 'Usuarios' },
-  { to: '/admin/businesses', title: 'Negocios' },
-  { to: '/admin/courts', title: 'Canchas' },
-  { to: '/admin/bookings', title: 'Reservas' },
+  { to: '/dashboard', icon: 'mdi-view-dashboard-outline', title: 'Inicio', short: 'Inicio' },
+  { to: '/admin/users', icon: 'mdi-account-group-outline', title: 'Usuarios', short: 'Usuarios' },
+  { to: '/admin/businesses', icon: 'mdi-store-outline', title: 'Negocios', short: 'Negocios' },
+  { to: '/admin/courts', icon: 'mdi-soccer-field', title: 'Canchas', short: 'Canchas' },
+  { to: '/admin/bookings', icon: 'mdi-calendar-check-outline', title: 'Reservas', short: 'Reservas' },
 ]
 
 const businessNav = [
@@ -321,9 +334,14 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
 
 /* ── Móvil: ocultar sidebar, mostrar topbar + bottom-nav ─────────────── */
 @media (max-width: 768px) {
+  /* Negocio */
   .owner-topbar { display: flex; }
   .owner-shell  { display: block; }
   .owner-sidebar { display: none; }
+  /* Admin: ocultar links del top nav (van en la bottom-nav) */
+  .dash-nav-inner { padding: 0 16px; }
+  .dash-nav-links { display: none; }
+  .dash-content { padding: 22px 16px 96px; }
   /* padding inferior extra para no quedar tapado por la bottom-nav */
   .owner-content { padding: 18px 14px 96px; }
   .owner-bottom-nav { display: flex; }

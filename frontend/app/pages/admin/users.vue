@@ -53,6 +53,7 @@
         item-value="id"
         hover
         :items-per-page="10"
+        :mobile-breakpoint="768"
       >
         <!-- User column -->
         <template #item.name="{ item }">
