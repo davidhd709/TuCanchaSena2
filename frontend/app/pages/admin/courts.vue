@@ -17,42 +17,50 @@
       </template>
     </PageHeader>
 
-    <v-card rounded="lg" class="admin-shell-card">
-      <v-data-table
-        :headers="headers"
-        :items="filteredCourts"
-        :loading="loading"
-        item-value="id"
-        hover
-        :mobile-breakpoint="768"
-      >
-        <template #item.name="{ item }">
-          <div class="d-flex align-center gap-3 py-1">
-            <v-avatar color="success" variant="tonal" size="36" rounded="lg">
-              <v-icon size="18">mdi-soccer-field</v-icon>
-            </v-avatar>
-            <div>
-              <div class="text-body-2 font-weight-medium">{{ item.name }}</div>
-              <div class="text-caption text-medium-emphasis">{{ item.business?.name }}</div>
+    <!-- Cards grid (mismo diseño que negocio/cliente) -->
+    <v-row>
+      <v-col v-for="court in filteredCourts" :key="court.id" cols="12" sm="6" lg="4">
+        <v-card rounded="lg" hover class="admin-card">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center mb-3">
+              <v-avatar color="success" variant="tonal" size="48" rounded="lg" class="mr-3">
+                <v-icon>mdi-soccer-field</v-icon>
+              </v-avatar>
+              <div class="flex-1-1" style="min-width:0">
+                <div class="text-subtitle-2 font-weight-bold line-clamp-1">{{ court.name }}</div>
+                <div class="text-caption text-medium-emphasis line-clamp-1">{{ court.business?.name }}</div>
+              </div>
+              <v-chip :color="court.status === 'available' ? 'success' : 'warning'" size="x-small" variant="tonal">
+                {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
+              </v-chip>
             </div>
-          </div>
-        </template>
-        <template #item.type="{ item }">
-          <v-chip color="primary" size="small" variant="tonal">{{ courtTypeLabel(item.type) }}</v-chip>
-        </template>
-        <template #item.pricePerHour="{ item }">
-          {{ formatCurrency(item.pricePerHour) }}
-        </template>
-        <template #item.status="{ item }">
-          <v-chip :color="item.status === 'available' ? 'success' : 'warning'" size="small" variant="tonal">
-            {{ item.status === 'available' ? 'Disponible' : 'No disponible' }}
-          </v-chip>
-        </template>
-        <template #item.actions="{ item }">
-          <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="confirmDelete(item)" />
-        </template>
-      </v-data-table>
-    </v-card>
+
+            <div class="d-flex flex-wrap gap-2">
+              <v-chip color="primary" size="small" variant="tonal">{{ courtTypeLabel(court.type) }}</v-chip>
+              <v-chip size="small" variant="tonal" prepend-icon="mdi-cash">
+                {{ formatCurrency(court.pricePerHour) }}/hr
+              </v-chip>
+              <v-chip size="small" variant="tonal" prepend-icon="mdi-account-group-outline">
+                {{ court.capacity ?? '—' }} jug.
+              </v-chip>
+            </div>
+          </v-card-text>
+
+          <v-divider />
+          <v-card-actions class="pa-3">
+            <v-spacer />
+            <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="confirmDelete(court)" />
+          </v-card-actions>
+        </v-card>
+      </v-col>
+
+      <v-col v-if="loading" cols="12" class="text-center py-10">
+        <v-progress-circular indeterminate color="primary" />
+      </v-col>
+      <v-col v-if="!loading && filteredCourts.length === 0" cols="12">
+        <v-alert type="info" variant="tonal" rounded="lg">No hay canchas registradas.</v-alert>
+      </v-col>
+    </v-row>
 
     <AppConfirmDialog
       v-model="deleteDialog"
@@ -82,15 +90,6 @@ const deleteDialog = ref(false)
 const selectedCourt = ref<any>(null)
 const actionLoading = ref(false)
 const toast = useToast()
-
-const headers = [
-  { title: 'Cancha', key: 'name', sortable: false },
-  { title: 'Tipo', key: 'type' },
-  { title: 'Precio/hora', key: 'pricePerHour' },
-  { title: 'Jugadores', key: 'capacity' },
-  { title: 'Estado', key: 'status' },
-  { title: 'Acciones', key: 'actions', sortable: false, align: 'end' as const },
-]
 
 const filteredCourts = computed(() => {
   if (!search.value) return courts.value
@@ -129,23 +128,17 @@ onMounted(loadCourts)
 </script>
 
 <style scoped>
-.admin-shell-card {
+.admin-card {
   border: 1px solid var(--border-soft);
   background: var(--bg-card) !important;
   border-radius: var(--radius-lg) !important;
+  height: 100%;
 }
-:deep(.v-data-table .v-table__wrapper table tbody tr:hover) {
-  background: var(--green-soft);
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-:deep(.v-data-table .v-table__wrapper table tbody td) {
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-}
-:deep(.v-data-table .v-table__wrapper table thead th) {
-  font-size: 0.72rem !important;
-  letter-spacing: 0.08em;
-}
-:deep(.v-chip) {
-  font-weight: 700;
-}
+:deep(.v-chip) { font-weight: 700; }
 </style>

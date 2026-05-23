@@ -12,139 +12,95 @@
       </template>
     </PageHeader>
 
-    <v-card rounded="lg" class="admin-shell-card">
-      <!-- Filters -->
-      <v-card-text class="pb-0 admin-toolbar">
-        <v-row dense>
-          <v-col cols="12" sm="6">
-            <v-text-field
-              v-model="search"
-              placeholder="Buscar por nombre o email..."
-              prepend-inner-icon="mdi-magnify"
-              clearable
-              hide-details
-            />
-          </v-col>
-          <v-col cols="6" sm="3">
-            <v-select
-              v-model="roleFilter"
-              :items="roleOptions"
-              label="Rol"
-              clearable
-              hide-details
-            />
-          </v-col>
-          <v-col cols="6" sm="3">
-            <v-select
-              v-model="statusFilter"
-              :items="[{title:'Activo',value:true},{title:'Inactivo',value:false}]"
-              label="Estado"
-              clearable
-              hide-details
-            />
-          </v-col>
-        </v-row>
-      </v-card-text>
+    <!-- Filtros -->
+    <v-row dense class="mb-4">
+      <v-col cols="12" sm="6">
+        <v-text-field
+          v-model="search"
+          placeholder="Buscar por nombre o email..."
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          hide-details
+        />
+      </v-col>
+      <v-col cols="6" sm="3">
+        <v-select
+          v-model="roleFilter"
+          :items="roleOptions"
+          label="Rol"
+          clearable
+          hide-details
+        />
+      </v-col>
+      <v-col cols="6" sm="3">
+        <v-select
+          v-model="statusFilter"
+          :items="[{title:'Activo',value:true},{title:'Inactivo',value:false}]"
+          label="Estado"
+          clearable
+          hide-details
+        />
+      </v-col>
+    </v-row>
 
-      <v-data-table
-        :headers="headers"
-        :items="filteredUsers"
-        :loading="loading"
-        item-value="id"
-        hover
-        :items-per-page="10"
-        :mobile-breakpoint="768"
-      >
-        <!-- User column -->
-        <template #item.name="{ item }">
-          <div class="d-flex align-center gap-3 py-2">
-            <v-avatar
-              :color="item.isActive ? 'primary' : 'grey'"
-              variant="tonal"
-              size="38"
-            >
-              <span class="text-caption font-weight-bold">
-                {{ item.firstName[0] }}{{ item.lastName[0] }}
-              </span>
-            </v-avatar>
-            <div>
-              <div class="text-body-2 font-weight-medium">
-                {{ item.firstName }} {{ item.lastName }}
+    <!-- Cards grid (mismo diseño que negocio/cliente) -->
+    <v-row>
+      <v-col v-for="u in filteredUsers" :key="u.id" cols="12" sm="6" lg="4">
+        <v-card rounded="lg" hover class="admin-card">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center mb-3">
+              <v-avatar :color="u.isActive ? 'primary' : 'grey'" variant="tonal" size="48" rounded="lg" class="mr-3">
+                <span class="text-caption font-weight-bold">{{ u.firstName[0] }}{{ u.lastName[0] }}</span>
+              </v-avatar>
+              <div class="flex-1-1" style="min-width:0">
+                <div class="text-subtitle-2 font-weight-bold line-clamp-1">{{ u.firstName }} {{ u.lastName }}</div>
+                <div class="text-caption text-medium-emphasis line-clamp-1">{{ u.email }}</div>
               </div>
-              <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
+              <v-chip :color="u.isActive ? 'success' : 'error'" size="x-small" variant="tonal">
+                {{ u.isActive ? 'Activo' : 'Suspendido' }}
+              </v-chip>
             </div>
-          </div>
-        </template>
 
-        <!-- Role column -->
-        <template #item.role="{ item }">
-          <v-chip :color="roleColor(item.role)" size="small" variant="tonal">
-            <v-icon start size="13">{{ roleIcon(item.role) }}</v-icon>
-            {{ roleLabel(item.role) }}
-          </v-chip>
-        </template>
+            <div class="d-flex flex-wrap align-center gap-2">
+              <v-chip :color="roleColor(u.role)" size="small" variant="tonal">
+                <v-icon start size="13">{{ roleIcon(u.role) }}</v-icon>
+                {{ roleLabel(u.role) }}
+              </v-chip>
+              <span v-if="u.phone" class="text-caption text-medium-emphasis d-inline-flex align-center gap-1">
+                <v-icon size="14">mdi-phone-outline</v-icon> {{ u.phone }}
+              </span>
+            </div>
+          </v-card-text>
 
-        <!-- Status column -->
-        <template #item.isActive="{ item }">
-          <v-chip
-            :color="item.isActive ? 'success' : 'error'"
-            size="small"
-            variant="tonal"
-          >
-            <v-icon start size="13">
-              {{ item.isActive ? 'mdi-check-circle' : 'mdi-minus-circle' }}
-            </v-icon>
-            {{ item.isActive ? 'Activo' : 'Suspendido' }}
-          </v-chip>
-        </template>
-
-        <!-- Actions column -->
-        <template #item.actions="{ item }">
-          <div class="d-flex align-center justify-end gap-1">
-            <!-- Edit -->
+          <v-divider />
+          <v-card-actions class="pa-3">
+            <v-btn variant="text" size="small" color="primary" prepend-icon="mdi-pencil" @click="openEdit(u)">
+              Editar
+            </v-btn>
+            <v-spacer />
             <v-btn
-              icon="mdi-pencil"
+              :icon="u.isActive ? 'mdi-account-lock' : 'mdi-account-check'"
               variant="text"
               size="small"
-              color="primary"
-              :aria-label="`Editar usuario ${item.firstName} ${item.lastName}`"
-              @click="openEdit(item)"
+              :color="u.isActive ? 'warning' : 'success'"
+              :aria-label="u.isActive ? 'Suspender usuario' : 'Reactivar usuario'"
+              @click="toggleStatus(u)"
             >
-              <v-icon>mdi-pencil</v-icon>
-              <v-tooltip activator="parent" location="top">Editar</v-tooltip>
+              <v-icon>{{ u.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}</v-icon>
+              <v-tooltip activator="parent" location="top">{{ u.isActive ? 'Suspender' : 'Reactivar' }}</v-tooltip>
             </v-btn>
+            <v-btn icon="mdi-delete" variant="text" size="small" color="error" aria-label="Eliminar usuario" @click="openDelete(u)" />
+          </v-card-actions>
+        </v-card>
+      </v-col>
 
-            <!-- Suspend / Reactivate toggle -->
-            <v-btn
-              :icon="item.isActive ? 'mdi-account-lock' : 'mdi-account-check'"
-              variant="text"
-              size="small"
-              :color="item.isActive ? 'warning' : 'success'"
-              :aria-label="item.isActive ? `Suspender usuario ${item.firstName} ${item.lastName}` : `Reactivar usuario ${item.firstName} ${item.lastName}`"
-              @click="toggleStatus(item)"
-            >
-              <v-icon>{{ item.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}</v-icon>
-              <v-tooltip activator="parent" location="top">
-                {{ item.isActive ? 'Suspender' : 'Reactivar' }}
-              </v-tooltip>
-            </v-btn>
-
-            <!-- Delete -->
-            <v-btn
-              icon="mdi-delete"
-              variant="text"
-              size="small"
-              color="error"
-              :aria-label="`Eliminar usuario ${item.firstName} ${item.lastName}`"
-              @click="openDelete(item)"
-            >
-              <v-icon>mdi-delete</v-icon>
-              <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
-            </v-btn>
-          </div>
-        </template>
-      </v-data-table>
-    </v-card>
+      <v-col v-if="loading" cols="12" class="text-center py-10">
+        <v-progress-circular indeterminate color="primary" />
+      </v-col>
+      <v-col v-if="!loading && filteredUsers.length === 0" cols="12">
+        <v-alert type="info" variant="tonal" rounded="lg">No hay usuarios con esos filtros.</v-alert>
+      </v-col>
+    </v-row>
 
     <!-- ─── Create / Edit Dialog ─────────────────────────────────────────── -->
     <UserFormModal
@@ -225,14 +181,6 @@ const roleOptions = [
   { title: 'Super Admin', value: 'admin' },
   { title: 'Negocio', value: 'business' },
   { title: 'Cliente', value: 'client' },
-]
-
-const headers = [
-  { title: 'Usuario', key: 'name', sortable: false, minWidth: '220px' },
-  { title: 'Teléfono', key: 'phone', sortable: false },
-  { title: 'Rol', key: 'role' },
-  { title: 'Estado', key: 'isActive' },
-  { title: 'Acciones', key: 'actions', sortable: false, align: 'end' as const },
 ]
 
 // ── Computed ───────────────────────────────────────────────────────────────
@@ -391,34 +339,17 @@ onMounted(loadUsers)
 </script>
 
 <style scoped>
-.admin-shell-card {
+.admin-card {
   border: 1px solid var(--border-soft);
   background: var(--bg-card) !important;
   border-radius: var(--radius-lg) !important;
+  height: 100%;
 }
-.admin-toolbar {
-  border-bottom: 1px solid var(--border-soft);
-  margin-bottom: 12px;
-  padding-bottom: 14px !important;
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-:deep(.v-data-table .v-table__wrapper table tbody tr:hover) {
-  background: var(--green-soft);
-}
-:deep(.v-data-table .v-table__wrapper table tbody td) {
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-}
-:deep(.v-data-table .v-table__wrapper table thead th) {
-  font-size: 0.72rem !important;
-  letter-spacing: 0.08em;
-}
-:deep(.v-chip) {
-  font-weight: 700;
-}
-:deep(.v-btn) {
-  letter-spacing: 0.01em;
-}
-:deep(.v-btn:hover) {
-  transform: translateY(-1px);
-}
+:deep(.v-chip) { font-weight: 700; }
 </style>
