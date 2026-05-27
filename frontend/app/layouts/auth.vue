@@ -24,8 +24,6 @@
         <!-- Slot: login / register card -->
         <slot />
 
-        <!-- Footer legal -->
-        <p class="auth-footer">© {{ new Date().getFullYear() }} TuCancha · Todos los derechos reservados</p>
       </div>
 
     </v-main>
@@ -44,17 +42,18 @@
   font-family: 'Manrope', sans-serif;
 }
 
-/* full-page hero background image */
+/* full-page hero background image with pan/zoom animation */
 .auth-hero-img {
   position: fixed;
-  inset: 0;
-  background-image: url('/hero-court.png');
+  inset: -5%; /* Extra padding to prevent clipping during animation */
+  background-image: url('/ultraresolucion.png');
   background-size: cover;
   background-position: center;
   z-index: 0;
+  animation: cinematicZoom 35s ease-in-out infinite alternate;
 }
 
-/* dark gradient overlay */
+/* dark dynamic gradient overlay */
 .auth-overlay {
   position: fixed;
   inset: 0;
@@ -64,7 +63,9 @@
     rgba(18, 24, 31, 0.78) 50%,
     rgba(12, 16, 22, 0.9) 100%
   );
+  background-size: 200% 200%;
   z-index: 1;
+  animation: overlayShift 18s ease-in-out infinite alternate;
 }
 
 /* subtle dark surface layer */
@@ -110,7 +111,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   animation: tc-fade-up .45s cubic-bezier(.22, 1, .36, 1) both;
 }
 
@@ -121,26 +122,17 @@
   justify-content: center;
 }
 .auth-brand-logo {
-  height: 90px;
+  height: 72px;
   width: auto;
   object-fit: contain;
   border-radius: 12px;
-  /* subtle glow matching the green logo */
   filter: drop-shadow(0 0 16px rgba(47, 161, 138, 0.3));
-  transition: filter 0.3s;
-  transform: scale(1.4);
+  transition: filter 0.3s, transform 0.3s;
+  transform: scale(1.3);
   transform-origin: center center;
 }
 .auth-brand-logo:hover {
   filter: drop-shadow(0 0 24px rgba(47, 161, 138, 0.5));
-}
-
-/* ─── Footer ────────────────────────────────────────── */
-.auth-footer {
-  font-size: 0.72rem;
-  color: #7d6a56;
-  text-align: center;
-  margin-top: 4px;
 }
 
 /* ─── Animations ────────────────────────────────────── */
@@ -152,9 +144,70 @@
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-14px); }
 }
+@keyframes cinematicZoom {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.06) translate(1%, 1.5%); }
+}
+@keyframes overlayShift {
+  0% { background-position: 0% 50%; opacity: 0.95; }
+  100% { background-position: 100% 50%; opacity: 1; }
+}
 
 /* ─── Responsive ────────────────────────────────────── */
 @media (max-width: 520px) {
-  .auth-container { padding: 16px 12px; }
+  .auth-main {
+    align-items: flex-start;
+    padding-top: 24px;
+  }
+  .auth-container {
+    padding: 12px 16px;
+    gap: 10px;
+    max-width: 100%;
+  }
+  .brand-header {
+    margin-bottom: -2px;
+  }
+  .auth-brand-logo {
+    height: 56px;
+    transform: scale(1.15);
+  }
+  /* Darker overlay on mobile for better readability */
+  .auth-overlay {
+    background: linear-gradient(
+      135deg,
+      rgba(10, 13, 18, 0.92) 0%,
+      rgba(14, 18, 24, 0.88) 50%,
+      rgba(8, 12, 18, 0.94) 100%
+    ) !important;
+  }
+  /* Subtler animation on small screens */
+  .auth-hero-img {
+    animation-duration: 50s;
+  }
+  /* Smaller blobs */
+  .blob-1 {
+    width: 200px;
+    height: 200px;
+    top: -40px;
+    left: -60px;
+  }
+  .blob-2 {
+    width: 160px;
+    height: 160px;
+    bottom: -30px;
+    right: -30px;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 380px) {
+  .auth-container {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .auth-brand-logo {
+    height: 48px;
+    transform: scale(1.1);
+  }
 }
 </style>

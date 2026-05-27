@@ -12,19 +12,19 @@
         </NuxtLink>
 
         <!-- Links -->
-        <div class="nav-links" :class="{ 'nav-links--open': menuOpen }">
-          <a href="#canchas" class="nav-link" @click="menuOpen = false">Canchas</a>
-          <a href="#como-funciona" class="nav-link" @click="menuOpen = false">¿Cómo funciona?</a>
-          <a href="#beneficios" class="nav-link" @click="menuOpen = false">Beneficios</a>
-          <NuxtLink to="/auth/login" class="nav-cta" id="nav-login" @click="menuOpen = false">
+        <div class="nav-links">
+          <a href="#canchas" class="nav-link">Canchas</a>
+          <a href="#como-funciona" class="nav-link">¿Cómo funciona?</a>
+          <a href="#beneficios" class="nav-link">Beneficios</a>
+          <NuxtLink to="/auth/login" class="nav-cta" id="nav-login">
             Iniciar sesión
           </NuxtLink>
         </div>
 
-        <!-- Mobile hamburger -->
-        <button class="hamburger" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="Menú">
-          <span :class="`mdi ${menuOpen ? 'mdi-close' : 'mdi-menu'}`"></span>
-        </button>
+        <!-- Mobile Login (Replaces hamburger) -->
+        <NuxtLink to="/auth/login" class="nav-cta mobile-nav-cta">
+          Iniciar sesión
+        </NuxtLink>
       </div>
     </nav>
 
@@ -32,7 +32,9 @@
          HERO SECTION
     ════════════════════════════════════════════════ -->
     <section class="hero" id="inicio">
-      <div class="hero-bg"></div>
+      <video autoplay muted loop playsinline class="hero-bg">
+        <source src="/hero-video.mp4" type="video/mp4" />
+      </video>
       <div class="hero-overlay"></div>
 
       <!-- Decorative blobs -->
@@ -316,7 +318,6 @@ if (authStore.isAuthenticated) {
 
 // ─── Navbar scroll effect ──────────────────────────
 const scrolled = ref(false)
-const menuOpen = ref(false)
 
 // ─── Canchas reales desde el backend ───────────────
 const { apiList } = useApi()
@@ -523,16 +524,26 @@ const features = [
   font-weight: 600;
   transition: all 0.25s;
   box-shadow: 0 4px 14px rgba(22,101,52,0.24);
+  position: relative;
+  overflow: hidden;
+}
+.nav-cta::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-25deg);
+}
+.nav-cta:hover::after {
+  animation: shineHover 0.75s forwards;
 }
 .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(22,101,52,0.3); filter: brightness(1.08); }
 
-.hamburger {
+.mobile-nav-cta {
   display: none;
-  background: none;
-  border: none;
-  color: var(--white);
-  font-size: 1.5rem;
-  cursor: pointer;
 }
 
 /* ═══════════════════════════════════════════
@@ -552,9 +563,9 @@ const features = [
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/hero-court.png');
-  background-size: cover;
-  background-position: center 30%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   z-index: 0;
   transform: scale(1.04);
   transition: transform 8s ease;
@@ -677,6 +688,21 @@ const features = [
   transition: all 0.25s;
   box-shadow: 0 6px 28px rgba(47, 161, 138, 0.35);
   letter-spacing: 0.2px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-hero-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-25deg);
+}
+.btn-hero-primary:hover::after {
+  animation: shineHover 0.75s forwards;
 }
 .btn-hero-primary:hover {
   transform: translateY(-3px);
@@ -750,6 +776,10 @@ const features = [
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-16px); }
+}
+@keyframes shineHover {
+  0% { left: -100%; }
+  100% { left: 200%; }
 }
 
 /* ═══════════════════════════════════════════
@@ -1118,6 +1148,21 @@ const features = [
   font-weight: 700;
   transition: all 0.25s;
   box-shadow: 0 6px 24px rgba(47, 161, 138, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.btn-cta-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-25deg);
+}
+.btn-cta-primary:hover::after {
+  animation: shineHover 0.75s forwards;
 }
 .btn-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(47, 161, 138, 0.5); filter: brightness(1.08); }
 
@@ -1190,19 +1235,13 @@ const features = [
 @media (max-width: 680px) {
   .nav-links {
     display: none;
-    position: fixed;
-    inset: 0;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: rgba(6,8,16,0.97);
-    backdrop-filter: blur(20px);
-    z-index: 200;
-    gap: 28px;
-    font-size: 1.1rem;
   }
-  .nav-links--open { display: flex; }
-  .hamburger { display: flex; z-index: 210; }
+  
+  .mobile-nav-cta {
+    display: inline-flex;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
 
   /* Hero más compacto en móvil para que el CTA "Reservar ahora" quede sobre el pliegue. */
   .hero {
@@ -1296,4 +1335,36 @@ const features = [
   .hero-perks { padding: 12px 14px; }
   .hero-perks li { font-size: .88rem; }
 }
+
+/* Shine effect para botones faltantes */
+.court-btn,
+.btn-outline-green,
+.btn-green-solid,
+.btn-hero-secondary,
+.btn-cta-secondary {
+  position: relative;
+  overflow: hidden;
+}
+.court-btn::after,
+.btn-outline-green::after,
+.btn-green-solid::after,
+.btn-hero-secondary::after,
+.btn-cta-secondary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
+  transform: skewX(-25deg);
+}
+.court-btn:hover::after,
+.btn-outline-green:hover::after,
+.btn-green-solid:hover::after,
+.btn-hero-secondary:hover::after,
+.btn-cta-secondary:hover::after {
+  animation: shineHover 0.75s forwards;
+}
+
 </style>
