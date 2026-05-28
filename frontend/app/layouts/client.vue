@@ -17,10 +17,6 @@
             <div class="text-caption brand-muted">{{ authStore.user?.email }}</div>
           </div>
           <v-divider class="my-1" />
-          <v-list-item to="/dashboard" prepend-icon="mdi-home-outline" title="Inicio" rounded="lg" />
-          <v-list-item to="/client/businesses" prepend-icon="mdi-stadium-variant" title="Negocios" rounded="lg" />
-          <v-list-item to="/client/courts" prepend-icon="mdi-soccer-field" title="Canchas" rounded="lg" />
-          <v-list-item to="/client/bookings" prepend-icon="mdi-calendar-account-outline" title="Mis reservas" rounded="lg" />
           <v-list-item to="/profile" prepend-icon="mdi-account-outline" title="Mi perfil" rounded="lg" />
           <v-divider class="my-1" />
           <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" rounded="lg" base-color="error" @click="handleLogout" />
@@ -256,5 +252,19 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   /* padding inferior extra para no quedar tapado por la bottom-nav */
   .client-content { padding: 18px 14px 96px; }
   .client-bottom-nav { display: flex; }
+}
+</style>
+
+<style>
+/* ── Estilos globales para arreglar desbordamientos en móvil (Hero) ──── */
+.client-home-hero-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+.client-home-hero-actions .v-btn {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
 }
 </style>

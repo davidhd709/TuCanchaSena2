@@ -85,7 +85,7 @@
 
         <!-- Leyenda precio especial -->
         <div
-          v-if="slots.some((s) => s.pricePerHour !== null && s.pricePerHour !== undefined)"
+          v-if="slots.some((s) => s.pricePerHour != null && s.pricePerHour !== props.pricePerHour)"
           class="text-caption text-medium-emphasis mb-3"
         >
           ★ Precio especial para este horario
