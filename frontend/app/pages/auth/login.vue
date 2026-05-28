@@ -164,23 +164,27 @@ onMounted(() => {
   padding: 36px 32px 28px;
   box-shadow: var(--shadow-lg);
   font-family: 'Manrope', sans-serif;
+  animation: cardAppear 0.5s cubic-bezier(.22, 1, .36, 1) both;
+  animation-delay: 0.1s;
 }
 
 /* ─── Header ────────────────────────────────────────── */
 .card-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   text-align: center;
 }
 .card-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.55rem;
+  font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 4px;
-  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
 }
 .card-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: #64748b;
+  opacity: 0.85;
 }
 
 /* ─── Error alert ───────────────────────────────────── */
@@ -241,10 +245,35 @@ onMounted(() => {
   color: var(--text-primary) !important;
   min-height: 44px !important;
 }
+/* Forzar reset del input interno (evita doble borde de Tailwind u otros frameworks) */
+:deep(.auth-input input),
+:deep(.auth-input input:focus),
+:deep(.auth-input input:active) {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  --tw-ring-shadow: 0 0 transparent !important;
+}
 :deep(.auth-input .v-field__input::placeholder) { color: #64748b !important; opacity: 1 !important; }
 :deep(.auth-input .v-field) {
   background: linear-gradient(180deg, rgba(28, 35, 45, .72), rgba(22, 27, 35, .72)) !important;
-  border-color: rgba(47, 161, 138, 0.24) !important;
+  border: 1px solid rgba(47, 161, 138, 0.3) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease !important;
+}
+:deep(.auth-input .v-field--focused) {
+  border-color: var(--green-bright) !important;
+  box-shadow: 0 0 0 3px rgba(47, 161, 138, 0.15) !important;
+  background: linear-gradient(180deg, rgba(32, 40, 52, .82), rgba(26, 32, 42, .82)) !important;
+}
+:deep(.auth-input .v-field:hover:not(.v-field--focused)) {
+  border-color: rgba(47, 161, 138, 0.6) !important;
+}
+/* Ocultamos el outline duplicado nativo de Vuetify */
+:deep(.auth-input .v-field__outline) {
+  display: none !important;
 }
 :deep(.auth-input .v-field__prepend-inner .v-icon),
 :deep(.auth-input .v-field__append-inner .v-icon) {
@@ -278,19 +307,38 @@ onMounted(() => {
 /* ─── Submit button ─────────────────────────────────── */
 .submit-btn {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   background: linear-gradient(135deg, var(--green-bright), var(--green-dark));
   color: #fff;
   font-family: 'Manrope', sans-serif;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
   letter-spacing: 0.3px;
   box-shadow: 0 4px 20px rgba(47,161,138,0.3);
-  margin-top: 4px;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-25deg);
+}
+.submit-btn:hover:not(:disabled)::after {
+  animation: shineHover 0.75s forwards;
 }
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -300,6 +348,11 @@ onMounted(() => {
 .submit-btn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+@keyframes shineHover {
+  0% { left: -100%; }
+  100% { left: 200%; }
 }
 .loading-spinner { display: flex; align-items: center; justify-content: center; gap: 6px; }
 
@@ -340,8 +393,83 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 
+.register-link {
+  position: relative;
+  overflow: hidden;
+}
+.register-link::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-25deg);
+}
+.register-link:hover::after {
+  animation: shineHover 0.75s forwards;
+}
+
+/* ─── Animations ───────────────────────────────────── */
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* ─── Responsive ────────────────────────────────────── */
 @media (max-width: 520px) {
-  .login-card { padding: 28px 20px 22px; }
+  .login-card {
+    padding: 24px 18px 20px;
+    border-radius: 18px;
+    border-color: rgba(255,255,255,0.06);
+  }
+  .card-header {
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: 1.3rem;
+  }
+  .card-subtitle {
+    font-size: 0.8rem;
+  }
+  .auth-form {
+    gap: 14px;
+  }
+  .field-label {
+    font-size: 0.72rem;
+  }
+  :deep(.auth-input .v-field__input) {
+    min-height: 42px !important;
+    font-size: 0.87rem !important;
+  }
+  .submit-btn {
+    padding: 14px;
+    font-size: 0.9rem;
+    min-height: 48px;
+    margin-top: 6px;
+  }
+  .forgot-link {
+    font-size: 0.74rem;
+  }
+  .divider {
+    margin: 14px 0 12px;
+  }
+  .register-link {
+    padding: 11px;
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-card {
+    padding: 20px 14px 16px;
+  }
+  .card-title {
+    font-size: 1.2rem;
+  }
+  .submit-btn {
+    min-height: 46px;
+  }
 }
 </style>

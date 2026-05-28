@@ -214,11 +214,13 @@ onMounted(() => {
   padding: 32px 32px 24px;
   box-shadow: var(--shadow-lg);
   font-family: 'Manrope', sans-serif;
+  animation: cardAppear 0.5s cubic-bezier(.22, 1, .36, 1) both;
+  animation-delay: 0.1s;
 }
 
-.card-header { margin-bottom: 24px; text-align: center; }
-.card-title { font-size: 1.45rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.3px; }
-.card-subtitle { font-size: 0.85rem; color: #64748b; }
+.card-header { margin-bottom: 20px; text-align: center; }
+.card-title { font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; letter-spacing: -0.4px; line-height: 1.2; }
+.card-subtitle { font-size: 0.84rem; color: #64748b; opacity: 0.85; }
 
 .error-alert {
   display: flex;
@@ -246,10 +248,34 @@ onMounted(() => {
 
 .auth-input { margin-bottom: 0 !important; }
 :deep(.auth-input .v-field__input) { font-family: 'Manrope', sans-serif !important; font-size: 0.88rem !important; color: var(--text-primary) !important; min-height: 44px !important; }
+/* Forzar reset del input interno (evita doble borde de Tailwind u otros frameworks) */
+:deep(.auth-input input),
+:deep(.auth-input input:focus),
+:deep(.auth-input input:active) {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  --tw-ring-shadow: 0 0 transparent !important;
+}
 :deep(.auth-input .v-field__input::placeholder) { color: #64748b !important; opacity: 1 !important; }
 :deep(.auth-input .v-field) {
   background: linear-gradient(180deg, rgba(28, 35, 45, .72), rgba(22, 27, 35, .72)) !important;
-  border-color: rgba(47, 161, 138, 0.24) !important;
+  border: 1px solid rgba(47, 161, 138, 0.3) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease !important;
+}
+:deep(.auth-input .v-field--focused) {
+  border-color: var(--green-bright) !important;
+  box-shadow: 0 0 0 3px rgba(47, 161, 138, 0.15) !important;
+  background: linear-gradient(180deg, rgba(32, 40, 52, .82), rgba(26, 32, 42, .82)) !important;
+}
+:deep(.auth-input .v-field:hover:not(.v-field--focused)) {
+  border-color: rgba(47, 161, 138, 0.6) !important;
+}
+:deep(.auth-input .v-field__outline) {
+  display: none !important;
 }
 :deep(.auth-input .v-field__prepend-inner .v-icon),
 :deep(.auth-input .v-field__append-inner .v-icon) { color: #64748b !important; }
@@ -260,21 +286,46 @@ onMounted(() => {
 
 .submit-btn {
   width: 100%;
-  padding: 13px;
+  padding: 14px;
   background: linear-gradient(135deg, var(--green-bright), var(--green-dark));
   color: #fff;
   font-family: 'Manrope', sans-serif;
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
   box-shadow: 0 4px 20px rgba(47,161,138,0.3);
-  margin-top: 4px;
+  margin-top: 6px;
+  position: relative;
+  overflow: hidden;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-25deg);
+}
+.submit-btn:hover:not(:disabled)::after {
+  animation: shineHover 0.75s forwards;
 }
 .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(47,161,138,0.45); filter: brightness(1.08); }
 .submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+@keyframes shineHover {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
 .loading-spinner { display: flex; align-items: center; justify-content: center; gap: 6px; }
 
 .divider { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; }
@@ -295,8 +346,88 @@ onMounted(() => {
 }
 .register-link:hover { background: rgba(47,161,138,0.12); border-color: var(--green-bright); transform: translateY(-1px); }
 
+.register-link {
+  position: relative;
+  overflow: hidden;
+}
+.register-link::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-25deg);
+}
+.register-link:hover::after {
+  animation: shineHover 0.75s forwards;
+}
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (max-width: 520px) {
-  .login-card { padding: 24px 18px 20px; }
-  .field-row { grid-template-columns: 1fr; }
+  .login-card {
+    padding: 22px 16px 18px;
+    border-radius: 18px;
+    border-color: rgba(255,255,255,0.06);
+  }
+  .card-header {
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 1.25rem;
+  }
+  .card-subtitle {
+    font-size: 0.78rem;
+  }
+  .auth-form {
+    gap: 10px;
+  }
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .field-label {
+    font-size: 0.7rem;
+  }
+  .field-group {
+    gap: 4px;
+  }
+  :deep(.auth-input .v-field__input) {
+    min-height: 40px !important;
+    font-size: 0.85rem !important;
+  }
+  .submit-btn {
+    padding: 13px;
+    font-size: 0.88rem;
+    min-height: 46px;
+    margin-top: 4px;
+  }
+  .divider {
+    margin: 12px 0 10px;
+  }
+  .register-link {
+    padding: 10px;
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-card {
+    padding: 18px 12px 14px;
+  }
+  .card-title {
+    font-size: 1.15rem;
+  }
+  .auth-form {
+    gap: 8px;
+  }
+  .submit-btn {
+    min-height: 44px;
+  }
 }
 </style>
