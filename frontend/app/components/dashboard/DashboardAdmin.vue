@@ -1,19 +1,19 @@
 <template>
-  <div>
+  <div class="admin-dashboard-container">
     <PageHeader
       tag="Panel"
       title="Panel de Administración"
       subtitle="Resumen general del sistema"
     />
-    <v-row class="mb-6">
+    <v-row class="mb-8">
       <v-col v-for="stat in adminStats" :key="stat.label" cols="12" sm="6" lg="3">
         <StatCard :label="stat.label" :value="stat.value" :icon="stat.icon" :accent="stat.color" />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="gap-6">
       <v-col cols="12" md="6">
-        <v-card rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">Acciones Rápidas</v-card-title>
+        <v-card rounded="lg" class="mb-6" style="padding: 16px !important;">
+          <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3" style="margin-bottom: 12px !important;">Acciones Rápidas</v-card-title>
           <v-list lines="two" class="px-2 pb-2">
             <v-list-item
               v-for="action in adminActions"
@@ -24,6 +24,7 @@
               :subtitle="action.subtitle"
               rounded="lg"
               color="primary"
+              style="padding-top: 12px !important; padding-bottom: 12px !important; padding-left: 16px !important;"
             >
               <template #append><v-icon>mdi-chevron-right</v-icon></template>
             </v-list-item>
@@ -31,8 +32,8 @@
         </v-card>
       </v-col>
       <v-col cols="12" md="6">
-        <v-card rounded="lg">
-          <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3">Últimas Reservas</v-card-title>
+        <v-card rounded="lg" class="mb-6" style="padding: 16px !important;">
+          <v-card-title class="text-subtitle-1 font-weight-bold pa-5 pb-3" style="margin-bottom: 12px !important;">Últimas Reservas</v-card-title>
           <v-list lines="two" class="px-2 pb-2">
             <v-list-item
               v-for="booking in recentBookings"
@@ -43,10 +44,10 @@
             >
               <template #append><BookingStatusChip :status="booking.status" /></template>
             </v-list-item>
-            <v-list-item v-if="recentBookings.length === 0" title="Sin reservas recientes" class="text-medium-emphasis" />
+            <v-list-item v-if="recentBookings.length === 0" title="Sin reservas recientes" class="text-medium-emphasis" style="padding: 12px !important;" />
           </v-list>
           <v-card-actions class="px-4 pb-4">
-            <v-btn to="/admin/bookings" variant="tonal" color="primary" size="small">Ver todas</v-btn>
+            <v-btn to="/admin/bookings" variant="tonal" color="primary" size="small" style="margin-top: 12px !important; padding-left: 12px !important; padding-right: 12px !important;">Ver todas</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -99,3 +100,15 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.admin-dashboard-container {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.gap-6 {
+  gap: 24px;
+}
+</style>

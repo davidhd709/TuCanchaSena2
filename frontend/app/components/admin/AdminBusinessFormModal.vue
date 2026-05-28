@@ -33,7 +33,20 @@
             prepend-inner-icon="mdi-store"
             :rules="[r.required]"
           />
-          <v-textarea v-model="form.description" label="Descripción" rows="2" />
+          <v-text-field
+            v-model="form.imageUrl"
+            label="URL de la foto del negocio"
+            prepend-inner-icon="mdi-image"
+          />
+          <v-textarea 
+            v-model="form.description" 
+            label="Descripción" 
+            rows="4" 
+            auto-grow
+            @input="adjustTextareaHeight"
+            ref="descriptionTextarea"
+            style="resize: none;"
+          />
           <div class="app-form-grid cols-2">
             <v-text-field
               v-model="form.phone"
@@ -87,8 +100,8 @@
       </v-form>
     </template>
     <template #footer>
-      <v-btn variant="text" @click="emit('update:modelValue', false)">Cancelar</v-btn>
-      <v-btn color="primary" variant="flat" :loading="loading" @click="onSave">
+      <v-btn variant="text" @click="emit('update:modelValue', false)" style="padding-left: 24px !important; padding-right: 24px !important;">Cancelar</v-btn>
+      <v-btn color="primary" variant="flat" :loading="loading" @click="onSave" style="padding-left: 24px !important; padding-right: 24px !important;">
         {{ editMode ? 'Guardar cambios' : 'Crear negocio' }}
       </v-btn>
     </template>
@@ -112,6 +125,7 @@ export interface AdminBusinessFormData {
   ownerId: string
   name: string
   description: string
+  imageUrl: string
   phone: string
   email: string
   address: string
@@ -148,9 +162,18 @@ const defaultSchedules = (): BusinessSchedule[] =>
   ALL_DAYS.map((day) => ({ dayOfWeek: day, openTime: '08:00', closeTime: '22:00', isOpen: day !== 'sunday' }))
 
 const formRef = ref()
+const descriptionTextarea = ref()
+
+const adjustTextareaHeight = () => {
+  const el = descriptionTextarea.value?.$el.querySelector('textarea')
+  if (el) {
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }
+}
 const editorKey = ref(0)
 const form = reactive<AdminBusinessFormData>({
-  ownerId: '', name: '', description: '', phone: '', email: '',
+  ownerId: '', name: '', description: '', imageUrl: '', phone: '', email: '',
   address: '', latitude: 0, longitude: 0, schedules: defaultSchedules(),
 })
 
@@ -161,6 +184,7 @@ const resetForm = () => {
       ownerId: b.ownerId ?? '',
       name: b.name,
       description: b.description ?? '',
+      imageUrl: b.images?.[0] ?? '',
       phone: b.phone ?? '',
       email: b.email ?? '',
       address: b.address ?? '',
@@ -180,7 +204,7 @@ const resetForm = () => {
     })
   } else {
     Object.assign(form, {
-      ownerId: '', name: '', description: '', phone: '', email: '',
+      ownerId: '', name: '', description: '', imageUrl: '', phone: '', email: '',
       address: '', latitude: 0, longitude: 0, schedules: defaultSchedules(),
     })
   }
@@ -196,6 +220,7 @@ watch(
 const onSave = async () => {
   const { valid } = await formRef.value.validate()
   if (!valid) return
-  emit('save', { ...form })
+  const payload = { ...form, images: form.imageUrl ? [form.imageUrl] : [] }
+  emit('save', payload)
 }
 </script>

@@ -92,7 +92,7 @@ const scheduleLabel = computed(() => {
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   text-decoration: none;
-  height: 100%;
+  height: auto;
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 .biz-card:hover {
