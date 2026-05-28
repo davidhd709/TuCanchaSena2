@@ -6,14 +6,14 @@
       subtitle="Gestión completa de usuarios del sistema"
     >
       <template #action>
-        <v-btn color="primary" prepend-icon="mdi-account-plus" @click="openCreate">
+        <v-btn color="primary" prepend-icon="mdi-account-plus" size="default" class="px-5" style="padding-left: 16px !important; padding-right: 16px !important;" @click="openCreate">
           Nuevo Usuario
         </v-btn>
       </template>
     </PageHeader>
 
     <!-- Filtros -->
-    <v-row dense class="mb-4">
+    <v-row dense class="mb-6">
       <v-col cols="12" sm="6">
         <v-text-field
           v-model="search"
@@ -21,6 +21,7 @@
           prepend-inner-icon="mdi-magnify"
           clearable
           hide-details
+          class="pa-0"
         />
       </v-col>
       <v-col cols="6" sm="3">
@@ -30,6 +31,7 @@
           label="Rol"
           clearable
           hide-details
+          class="pa-0"
         />
       </v-col>
       <v-col cols="6" sm="3">
@@ -39,57 +41,67 @@
           label="Estado"
           clearable
           hide-details
+          class="pa-0"
         />
       </v-col>
     </v-row>
 
     <!-- Cards grid (mismo diseño que negocio/cliente) -->
-    <v-row>
-      <v-col v-for="u in filteredUsers" :key="u.id" cols="12" sm="6" lg="4">
-        <v-card rounded="lg" hover class="admin-card">
-          <v-card-text class="pa-5">
-            <div class="d-flex align-center mb-3">
-              <v-avatar :color="u.isActive ? 'primary' : 'grey'" variant="tonal" size="48" rounded="lg" class="mr-3">
+    <v-row class="gap-4">
+      <v-col v-for="u in filteredUsers" :key="u.id" cols="12" sm="6" lg="4" class="pa-4">
+        <v-card rounded="lg" hover class="admin-card h-100">
+          <v-card-text class="pt-4 pb-2 px-4" style="padding-top: 16px !important; padding-left: 16px !important; padding-right: 16px !important;">
+            <div class="d-flex align-center mb-3 pl-1 pt-3">
+              <v-avatar :color="u.isActive ? 'primary' : 'grey'" variant="tonal" size="48" rounded="lg" style="margin-right: 16px;">
                 <span class="text-caption font-weight-bold">{{ u.firstName[0] }}{{ u.lastName[0] }}</span>
               </v-avatar>
               <div class="flex-1-1" style="min-width:0">
-                <div class="text-subtitle-2 font-weight-bold line-clamp-1">{{ u.firstName }} {{ u.lastName }}</div>
+                <div class="text-subtitle-2 font-weight-bold line-clamp-1 mb-1">{{ u.firstName }} {{ u.lastName }}</div>
                 <div class="text-caption text-medium-emphasis line-clamp-1">{{ u.email }}</div>
               </div>
-              <v-chip :color="u.isActive ? 'success' : 'error'" size="x-small" variant="tonal">
+              <v-chip :color="u.isActive ? 'success' : 'error'" size="x-small" variant="tonal" class="mr-1" style="padding-left: 10px !important; padding-right: 10px !important;">
                 {{ u.isActive ? 'Activo' : 'Suspendido' }}
               </v-chip>
             </div>
 
-            <div class="d-flex flex-wrap align-center gap-2">
-              <v-chip :color="roleColor(u.role)" size="small" variant="tonal">
-                <v-icon start size="13">{{ roleIcon(u.role) }}</v-icon>
+            <div class="d-flex align-center justify-space-between mt-3 pb-3" style="margin-top: 12px; margin-bottom: 12px !important;">
+              <v-chip :color="roleColor(u.role)" size="small" variant="tonal" style="gap: 6px; display: inline-flex; align-items: center; padding-left: 10px !important; padding-right: 10px !important;">
+                <v-icon start size="13" style="margin-right: 4px;">{{ roleIcon(u.role) }}</v-icon>
                 {{ roleLabel(u.role) }}
               </v-chip>
-              <span v-if="u.phone" class="text-caption text-medium-emphasis d-inline-flex align-center gap-1">
+              <span v-if="u.phone" class="text-caption text-medium-emphasis d-inline-flex align-center gap-1" style="margin-right: 8px;">
                 <v-icon size="14">mdi-phone-outline</v-icon> {{ u.phone }}
               </span>
             </div>
           </v-card-text>
 
           <v-divider />
-          <v-card-actions class="pa-3">
-            <v-btn variant="text" size="small" color="primary" prepend-icon="mdi-pencil" @click="openEdit(u)">
+          <v-card-actions class="pa-4 d-flex align-center">
+            <v-btn 
+              v-if="authStore.user?.role !== 'admin'"
+              variant="text" 
+              size="small" 
+              color="primary" 
+              prepend-icon="mdi-pencil" 
+              @click="openEdit(u)"
+            >
               Editar
             </v-btn>
             <v-spacer />
-            <v-btn
-              :icon="u.isActive ? 'mdi-account-lock' : 'mdi-account-check'"
-              variant="text"
-              size="small"
-              :color="u.isActive ? 'warning' : 'success'"
-              :aria-label="u.isActive ? 'Suspender usuario' : 'Reactivar usuario'"
-              @click="toggleStatus(u)"
-            >
-              <v-icon>{{ u.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}</v-icon>
-              <v-tooltip activator="parent" location="top">{{ u.isActive ? 'Suspender' : 'Reactivar' }}</v-tooltip>
-            </v-btn>
-            <v-btn icon="mdi-delete" variant="text" size="small" color="error" aria-label="Eliminar usuario" @click="openDelete(u)" />
+            <div class="d-flex align-center gap-2" style="display: flex; align-items: center; gap: 8px;">
+              <v-btn
+                :icon="u.isActive ? 'mdi-account-lock' : 'mdi-account-check'"
+                variant="text"
+                size="small"
+                :color="u.isActive ? 'warning' : 'success'"
+                :aria-label="u.isActive ? 'Suspender usuario' : 'Reactivar usuario'"
+                @click="toggleStatus(u)"
+              >
+                <v-icon>{{ u.isActive ? 'mdi-account-lock' : 'mdi-account-check' }}</v-icon>
+                <v-tooltip activator="parent" location="top">{{ u.isActive ? 'Suspender' : 'Reactivar' }}</v-tooltip>
+              </v-btn>
+              <v-btn icon="mdi-delete" variant="text" size="small" color="error" aria-label="Eliminar usuario" @click="openDelete(u)" />
+            </div>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -187,11 +199,10 @@ const roleOptions = [
 const filteredUsers = computed(() => {
   let result = [...users.value]
   if (search.value) {
-    const q = search.value.toLowerCase()
+    const q = search.value.toLowerCase().trim()
     result = result.filter(
       u =>
-        u.firstName.toLowerCase().includes(q) ||
-        u.lastName.toLowerCase().includes(q) ||
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q)
     )
   }

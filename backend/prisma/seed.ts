@@ -22,13 +22,13 @@ const img = (seed: string) => `https://picsum.photos/seed/${seed}/900/600`
 async function main() {
   console.log('Seeding database...')
 
-  const passwordHash = await bcrypt.hash('Password123!', 10)
+  const passwordHash = await bcrypt.hash('12345678', 10)
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@tucancha.local' },
+    where: { email: 'adminn@tucancha.local' },
     update: {},
     create: {
-      email: 'admin@tucancha.local',
+      email: 'adminn@tucancha.local',
       password: passwordHash,
       firstName: 'Super',
       lastName: 'Admin',

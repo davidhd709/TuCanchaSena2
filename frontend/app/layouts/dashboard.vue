@@ -59,7 +59,13 @@
               <div class="owner-user-role">{{ roleLabel }}</div>
             </div>
           </div>
-          <v-btn variant="text" color="error" prepend-icon="mdi-logout" @click="handleLogout">Cerrar Sesión</v-btn>
+          <v-btn 
+            variant="text" 
+            color="error" 
+            prepend-icon="mdi-logout" 
+            @click="handleLogout"
+            class="owner-logout-btn"
+          >Cerrar Sesión</v-btn>
         </div>
       </aside>
 
@@ -205,6 +211,15 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   font-weight: 600;
   border: 1px solid transparent;
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.owner-logout-btn {
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding: 11px 14px !important;
+  font-size: .92rem !important;
+  font-weight: 600 !important;
+  height: auto !important;
+  width: 100% !important;
 }
 .owner-link:hover { background: var(--bg-elev); color: var(--text-primary); }
 .owner-link.router-link-active {
