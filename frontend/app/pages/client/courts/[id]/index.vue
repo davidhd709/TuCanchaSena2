@@ -301,7 +301,20 @@ const loadSlots = async () => {
     const response = await apiFetch<any>(
       `/bookings/court/${route.params.id}/available-slots?date=${selectedDate.value}`
     )
-    slots.value = response.slots ?? []
+    
+    // Filtrar slots duplicados priorizando los de precio especial
+    const uniqueSlots = new Map()
+    for (const s of (response.slots || [])) {
+      if (!uniqueSlots.has(s.startTime)) {
+        uniqueSlots.set(s.startTime, s)
+      } else {
+        // Si ya existe un slot para esta hora, preferir el que tenga precio especial
+        if (s.pricePerHour !== null && s.pricePerHour !== undefined) {
+          uniqueSlots.set(s.startTime, s)
+        }
+      }
+    }
+    slots.value = Array.from(uniqueSlots.values()).sort((a, b) => a.startTime.localeCompare(b.startTime))
   } catch (e) {
     slots.value = []
   } finally {
@@ -318,6 +331,7 @@ const goToBook = () => {
       date: selectedDate.value,
       startTime: sorted[0].startTime,
       endTime: sorted[sorted.length - 1].endTime,
+      totalPrice: totalSelected.value,
     },
   })
 }
@@ -427,8 +441,9 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 16px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
@@ -495,13 +510,13 @@ onMounted(async () => {
   color: var(--text-muted);
 }
 
-.court-section { margin-top: 8px; }
+.court-section { margin-top: 32px; }
 .court-section-title {
   font-family: 'Manrope', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 /* Panel de reserva */
@@ -606,9 +621,15 @@ onMounted(async () => {
 
 /* ─── Responsive ─── */
 @media (max-width: 880px) {
-  .court-grid { grid-template-columns: 1fr; gap: 24px; }
-  .court-booking { position: static; }
-  .court-features { grid-template-columns: 1fr; }
+  .court-grid { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 24px; 
+  }
+  .court-info { display: contents; }
+  .court-features { grid-template-columns: 1fr; order: 1; margin-bottom: 0; }
+  .court-booking { position: static; order: 2; width: 100%; }
+  .court-section { order: 3; width: 100%; }
   .court-amenities { grid-template-columns: 1fr; }
 }
 </style>

@@ -222,6 +222,13 @@ body {
   border-radius: 6px;
 }
 
+/* Evitar que el outline global afecte a los inputs de Vuetify (causa el doble borde) */
+.v-field__input:focus-visible,
+.v-field *:focus-visible,
+.v-input *:focus-visible {
+  outline: none !important;
+}
+
 /* ─────────────────────────────────────────────────────────────
    OVERRIDES VUETIFY (mínimos, no agresivos)
    ─────────────────────────────────────────────────────────── */
@@ -269,7 +276,6 @@ body {
 .v-field {
   border-radius: var(--radius-md) !important;
   background: var(--bg-elev) !important;
-  border: 1px solid var(--border-soft) !important;
   box-shadow: none !important;
 }
 .v-field--variant-outlined .v-field__outline {
@@ -280,8 +286,7 @@ body {
   color: var(--green-bright) !important;
 }
 .v-field--focused {
-  border-color: var(--green-bright) !important;
-  box-shadow: 0 0 0 3px var(--green-soft) !important;
+  box-shadow: none !important;
 }
 .v-field__input,
 .v-field__field,
