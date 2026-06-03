@@ -122,6 +122,7 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
   background: rgba(12, 16, 20, 0.78);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(52, 198, 146, 0.28);
+  white-space: nowrap;
 }
 
 .court-card-body { padding: 14px 16px 16px; }
@@ -150,7 +151,7 @@ const typeLabel = computed(() => TYPE_LABELS[props.court.type] ?? 'Cancha')
 .court-card-rating .mdi { font-size: 1rem; }
 
 .court-card-meta {
-  margin-top: 6px;
+  margin-top: 12px;
   color: var(--text-muted);
   font-size: .82rem;
   display: inline-flex;

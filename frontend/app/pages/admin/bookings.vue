@@ -12,52 +12,65 @@
           label="Filtrar por estado"
           clearable
           hide-details
-          style="max-width:220px"
+          variant="solo"
+          flat
+          density="compact"
+          style="width:260px"
+          class="rounded-lg"
         />
       </template>
     </PageHeader>
 
-    <v-card rounded="lg" class="admin-shell-card">
+    <v-card rounded="xl" class="admin-shell-card pa-6">
       <v-data-table
         :headers="headers"
         :items="filteredBookings"
         :loading="loading"
         item-value="id"
         hover
+        class="bookings-table-modern"
       >
         <template #item.court="{ item }">
-          <div class="text-body-2 font-weight-medium">{{ item.court?.name ?? '—' }}</div>
-          <div class="text-caption text-medium-emphasis">{{ item.court?.business?.name ?? '' }}</div>
+          <div class="d-flex flex-column py-2">
+            <span class="text-body-2 font-weight-bold">{{ item.court?.name ?? '—' }}</span>
+            <span class="text-caption text-medium-emphasis">{{ item.court?.business?.name ?? '' }}</span>
+          </div>
         </template>
         <template #item.client="{ item }">
-          {{ item.user?.firstName }} {{ item.user?.lastName }}
+          <span class="text-body-2 font-weight-medium">{{ item.user?.firstName }} {{ item.user?.lastName }}</span>
         </template>
         <template #item.datetime="{ item }">
-          <div class="text-body-2">{{ item.date }}</div>
-          <div class="text-caption text-medium-emphasis">{{ item.startTime }} – {{ item.endTime }}</div>
+          <div class="d-flex flex-column py-2">
+            <span class="text-body-2 font-weight-medium">{{ new Date(item.date).toLocaleDateString() }}</span>
+            <span class="text-caption text-medium-emphasis">{{ item.startTime }} – {{ item.endTime }}</span>
+          </div>
         </template>
         <template #item.status="{ item }">
-          <BookingStatusChip :status="item.status" />
+          <div class="d-flex justify-center">
+            <BookingStatusChip :status="item.status" />
+          </div>
         </template>
         <template #item.paymentProof="{ item }">
-          <v-btn
-            v-if="item.paymentProof"
-            icon="mdi-image"
-            variant="text"
-            color="primary"
-            size="small"
-            :href="item.paymentProof"
-            target="_blank"
-            aria-label="Ver comprobante de pago"
-          />
-          <span v-else class="text-caption text-medium-emphasis">—</span>
+          <div class="d-flex justify-center">
+            <v-btn
+              v-if="item.paymentProof"
+              icon="mdi-image-outline"
+              variant="tonal"
+              color="primary"
+              size="small"
+              :href="item.paymentProof"
+              target="_blank"
+              class="rounded-circle"
+            />
+            <span v-else class="text-caption text-medium-emphasis">—</span>
+          </div>
         </template>
         <template #no-data>
           <EmptyState
             icon="mdi-calendar-remove-outline"
             title="Sin reservas registradas"
             description="Aún no hay reservas en el sistema."
-            class="my-4"
+            class="my-12"
           />
         </template>
       </v-data-table>

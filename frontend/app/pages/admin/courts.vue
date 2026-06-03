@@ -8,48 +8,75 @@
       <template #action>
         <v-text-field
           v-model="search"
-          placeholder="Buscar..."
+          placeholder="Buscar canchas..."
           prepend-inner-icon="mdi-magnify"
           clearable
           hide-details
-          style="max-width:260px"
+          variant="outlined"
+          density="compact"
+          style="width:300px"
+          class="custom-search-field rounded-lg"
         />
       </template>
     </PageHeader>
 
-    <!-- Cards grid (mismo diseño que negocio/cliente) -->
-    <v-row>
+    <v-row class="pa-4">
       <v-col v-for="court in filteredCourts" :key="court.id" cols="12" sm="6" lg="4">
-        <v-card rounded="lg" hover class="admin-card">
-          <v-card-text class="pa-5">
-            <div class="d-flex align-center mb-3">
-              <v-avatar color="success" variant="tonal" size="48" rounded="lg" class="mr-3">
-                <v-icon>mdi-soccer-field</v-icon>
-              </v-avatar>
-              <div class="flex-1-1" style="min-width:0">
-                <div class="text-subtitle-2 font-weight-bold line-clamp-1">{{ court.name }}</div>
-                <div class="text-caption text-medium-emphasis line-clamp-1">{{ court.business?.name }}</div>
-              </div>
-              <v-chip :color="court.status === 'available' ? 'success' : 'warning'" size="x-small" variant="tonal">
+        <v-card rounded="xl" hover class="admin-card-modern">
+          <v-img
+            :src="court.image || 'https://cdn.vuetifyjs.com/images/cards/castle.jpg'"
+            height="200"
+            cover
+            class="rounded-t-xl"
+          >
+            <div class="d-flex justify-end pa-3">
+              <v-chip 
+                :color="court.status === 'available' ? 'success' : 'warning'" 
+                size="small" 
+                class="status-chip font-weight-bold"
+                variant="flat"
+              >
                 {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
               </v-chip>
             </div>
+          </v-img>
 
-            <div class="d-flex flex-wrap gap-2">
-              <v-chip color="primary" size="small" variant="tonal">{{ courtTypeLabel(court.type) }}</v-chip>
-              <v-chip size="small" variant="tonal" prepend-icon="mdi-cash">
-                {{ formatCurrency(court.pricePerHour) }}/hr
-              </v-chip>
-              <v-chip size="small" variant="tonal" prepend-icon="mdi-account-group-outline">
-                {{ court.capacity ?? '—' }} jug.
-              </v-chip>
+          <v-card-text class="pa-6">
+            <div class="mb-6">
+              <div class="text-h6 font-weight-bold mb-1 line-clamp-1">{{ court.name }}</div>
+              <div class="text-caption text-medium-emphasis d-flex align-center">
+                <v-icon size="14" class="mr-1">mdi-office-building</v-icon>
+                {{ court.business?.name }}
+              </div>
+            </div>
+
+            <div class="d-flex justify-between align-center py-4 border-y">
+              <div class="d-flex flex-column align-center flex-1-1">
+                <span class="text-overline text-medium-emphasis" style="font-size: 0.6rem">Tipo</span>
+                <span class="text-body-2 font-weight-bold">{{ courtTypeLabel(court.type) }}</span>
+              </div>
+              <v-divider vertical inset />
+              <div class="d-flex flex-column align-center flex-1-1">
+                <span class="text-overline text-medium-emphasis" style="font-size: 0.6rem">Precio</span>
+                <span class="text-body-2 font-weight-bold text-primary">{{ formatCurrency(court.pricePerHour) }}</span>
+              </div>
+              <v-divider vertical inset />
+              <div class="d-flex flex-column align-center flex-1-1">
+                <span class="text-overline text-medium-emphasis" style="font-size: 0.6rem">Capacidad</span>
+                <span class="text-body-2 font-weight-bold">{{ court.capacity ?? '—' }} jug.</span>
+              </div>
             </div>
           </v-card-text>
 
-          <v-divider />
-          <v-card-actions class="pa-3">
-            <v-spacer />
-            <v-btn icon="mdi-delete" variant="text" color="error" size="small" @click="confirmDelete(court)" />
+          <v-card-actions class="pa-4 pt-0 d-flex justify-end">
+            <v-btn 
+              icon="mdi-delete" 
+              variant="tonal" 
+              color="error" 
+              size="small" 
+              @click="confirmDelete(court)"
+              class="rounded-lg"
+            />
           </v-card-actions>
         </v-card>
       </v-col>
@@ -141,4 +168,53 @@ onMounted(loadCourts)
   overflow: hidden;
 }
 :deep(.v-chip) { font-weight: 700; }
+
+/* FIX: Borde doble en el buscador */
+:deep(.custom-search-field .v-field__outline) {
+  display: none !important;
+}
+:deep(.custom-search-field .v-field) {
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 8px !important;
+  transition: border-color 0.2s ease !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:deep(.custom-search-field .v-field--focused) {
+  border-color: var(--primary) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:deep(.custom-search-field input) {
+  box-shadow: none !important;
+  outline: none !important;
+  border: none !important;
+}
+:deep(.custom-search-field .v-field__outline__start),
+:deep(.custom-search-field .v-field__outline__end),
+:deep(.custom-search-field .v-field__outline__gap) {
+  display: none !important;
+}
+
+/* FIX: Etiqueta Disponible completa */
+.status-chip {
+  min-width: 90px !important;
+  text-align: center !important;
+  padding: 0 12px !important;
+}
+
+/* Modern Card Styles */
+.admin-card-modern {
+  border: 1px solid var(--border-soft) !important;
+  background: var(--bg-card) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.admin-card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+.border-y {
+  border-top: 1px solid var(--border-soft) !important;
+  border-bottom: 1px solid var(--border-soft) !important;
+}
 </style>
