@@ -54,24 +54,26 @@
         </div>
 
         <div class="bc-card-body">
-          <div class="bc-card-top">
-            <h3 class="bc-card-name line-clamp-1">{{ court.name }}</h3>
-            <span class="bc-card-type">{{ courtTypeLabel(court.type) }}</span>
-          </div>
+          <div class="bc-info-content">
+            <div class="bc-card-top">
+              <h3 class="bc-card-name line-clamp-1">{{ court.name }}</h3>
+              <span class="bc-card-type">{{ courtTypeLabel(court.type) }}</span>
+            </div>
 
-          <div class="bc-card-stats">
-            <span class="bc-stat">
-              <span class="mdi mdi-cash" />
-              {{ formatCurrency(court.pricePerHour) }}/hr
-            </span>
-            <span class="bc-stat">
-              <span class="mdi mdi-account-group-outline" />
-              {{ court.capacity ?? '—' }} jug.
-            </span>
-            <span v-if="hasCustomSlotPrices(court)" class="bc-stat is-accent">
-              <span class="mdi mdi-tag-outline" />
-              Precios especiales
-            </span>
+            <div class="bc-card-stats">
+              <span class="bc-stat">
+                <span class="mdi mdi-cash" />
+                {{ formatCurrency(court.pricePerHour) }}/hr
+              </span>
+              <span class="bc-stat">
+                <span class="mdi mdi-account-group-outline" />
+                {{ court.capacity ?? '—' }} jug.
+              </span>
+              <span v-if="hasCustomSlotPrices(court)" class="bc-stat is-accent">
+                <span class="mdi mdi-tag-outline" />
+                Precios especiales
+              </span>
+            </div>
           </div>
 
           <div class="bc-card-slots">
@@ -425,24 +427,20 @@ onMounted(async () => {
 .bc-card-status.is-maintenance { color: #93c5fd; }
 .bc-card-status.is-maintenance .bc-card-status-dot { background: var(--accent-info); }
 
-.bc-card-body { display: flex; flex-direction: column; padding: 15px 16px 16px; flex: 1; }
+.bc-card-body { display: flex; flex-direction: column; padding: 15px 0px 16px; flex: 1; }
+.bc-info-content {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  box-sizing: border-box !important;
+}
 .bc-card-top {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 4px;
+  margin-bottom: 10px;
 }
-.bc-card-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
-.bc-card-type {
-  flex-shrink: 0;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 4px 9px;
-  border-radius: 8px;
-  background: var(--green-soft);
-  color: var(--green-bright);
-}
-
+.bc-card-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-left: 0; }
 .bc-card-stats { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 10px; }
 .bc-stat {
   display: inline-flex;
