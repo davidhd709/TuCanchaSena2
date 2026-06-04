@@ -68,7 +68,7 @@
             </span>
           </p>
           <div class="hero-actions">
-            <NuxtLink to="/auth/register" class="btn-hero-primary" id="hero-cta-register">
+            <NuxtLink to="/auth/login" class="btn-hero-primary" id="hero-cta-login">
               <span class="mdi mdi-calendar-check"></span>
               Reservar ahora
             </NuxtLink>

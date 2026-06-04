@@ -628,9 +628,4 @@ form { display: grid; gap: 10px; min-width: 0; width: 100%; }
   }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   MOUSE GLOW — Efecto de luz interactiva
-   ─────────────────────────────────────────────────────────── */
-#mouse-glow {
-  transition: left 0.1s ease-out, top 0.1s ease-out;
-}
+
