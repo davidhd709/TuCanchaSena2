@@ -23,4 +23,5 @@
 
 <script setup lang="ts">
 const toast = useToast()
+useMouseGlow()
 </script>
