@@ -35,7 +35,7 @@
           <span class="court-card-price-unit">/ hora</span>
         </div>
         <span class="court-card-cta">
-          Ver detalles
+          Reservar
           <span class="mdi mdi-arrow-right" />
         </span>
       </div>

@@ -45,21 +45,21 @@
         <div class="court-info">
           <div class="court-features">
             <div class="court-feature">
-              <div class="court-feature-icon"><span class="mdi mdi-cash" /></div>
+              <span class="court-feature-icon"><span class="mdi mdi-cash" /></span>
               <div>
                 <div class="court-feature-value">{{ formatCurrency(court.pricePerHour) }}</div>
                 <div class="court-feature-label">por hora</div>
               </div>
             </div>
             <div class="court-feature">
-              <div class="court-feature-icon"><span class="mdi mdi-account-group-outline" /></div>
+              <span class="court-feature-icon"><span class="mdi mdi-account-group-outline" /></span>
               <div>
                 <div class="court-feature-value">{{ court.capacity }}</div>
                 <div class="court-feature-label">jugadores</div>
               </div>
             </div>
             <div class="court-feature">
-              <div class="court-feature-icon"><span class="mdi mdi-soccer-field" /></div>
+              <span class="court-feature-icon"><span class="mdi mdi-soccer-field" /></span>
               <div>
                 <div class="court-feature-value">{{ courtTypeLabel(court.type) }}</div>
                 <div class="court-feature-label">tipo de cancha</div>
@@ -340,6 +340,9 @@ onMounted(async () => {
   loading.value = true
   try {
     court.value = await apiFetch<any>(`/courts/${route.params.id}`)
+    // 2.2 Auto-select today and load available slots immediately
+    selectedDate.value = today
+    await loadSlots()
   } finally {
     loading.value = false
   }
@@ -408,26 +411,26 @@ onMounted(async () => {
   color: var(--green-bright);
 }
 
-/* Comodidades */
+/* Comodidades — chips compactos estilo dashboard negocio */
 .court-amenities {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .court-amenity {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: var(--bg-card);
+  gap: 7px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  background: var(--bg-subtle);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
-  font-size: 0.86rem;
-  color: var(--text-primary);
 }
 .court-amenity .mdi {
-  font-size: 1.1rem;
   color: var(--green-primary);
+  font-size: 1rem;
 }
 
 .court-meta-link {
@@ -476,37 +479,42 @@ onMounted(async () => {
 .court-features {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 28px;
 }
 .court-feature {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px 14px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
+  width: 100%;
 }
+/* Icono estilo chip negocio: pequeño cuadro redondeado con fondo verde */
 .court-feature-icon {
-  width: 40px;
-  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   border-radius: var(--radius-sm);
   background: var(--green-soft);
   color: var(--green-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 .court-feature-value {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .court-feature-label {
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
 }
 
@@ -627,10 +635,18 @@ onMounted(async () => {
     gap: 24px; 
   }
   .court-info { display: contents; }
-  .court-features { grid-template-columns: 1fr; order: 1; margin-bottom: 0; }
-  .court-booking { position: static; order: 2; width: 100%; }
-  .court-section { order: 3; width: 100%; }
-  .court-amenities { grid-template-columns: 1fr; }
+  /* 2.1: Tarjetas de características: columna única y ancho completo */
+  .court-features {
+    grid-template-columns: 1fr;
+    width: 100%;
+    box-sizing: border-box;
+    order: 1;
+    margin-bottom: 0;
+  }
+  .court-feature  { width: 100%; box-sizing: border-box; }
+  .court-booking  { position: static; order: 2; width: 100%; }
+  .court-section  { order: 3; width: 100%; }
+  /* amenities ya son flex-wrap, sin override necesario */
 }
 </style>
 
