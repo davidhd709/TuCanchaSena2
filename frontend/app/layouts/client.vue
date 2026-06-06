@@ -8,7 +8,10 @@
       <v-menu location="bottom end" offset="10">
         <template #activator="{ props }">
           <button v-bind="props" class="client-topbar-profile" aria-label="Menú de usuario">
-            <span class="client-avatar client-topbar-avatar">{{ initials }}</span>
+                        <span class="client-avatar client-topbar-avatar">
+              <img v-if="authStore.user?.avatarUrl" :src="authStore.user.avatarUrl" class="client-avatar-img" alt="avatar" />
+              <template v-else>{{ initials }}</template>
+            </span>
           </button>
         </template>
         <v-list density="comfortable" rounded="lg" min-width="220" class="pa-2">
@@ -52,7 +55,10 @@
             Buscar Cancha
           </v-btn>
           <div class="client-user">
-            <span class="client-avatar">{{ initials }}</span>
+                        <span class="client-avatar">
+              <img v-if="authStore.user?.avatarUrl" :src="authStore.user.avatarUrl" class="client-avatar-img" alt="avatar" />
+              <template v-else>{{ initials }}</template>
+            </span>
             <div class="client-user-info">
               <div class="client-user-name">{{ authStore.fullName }}</div>
               <div class="client-user-role">Cliente</div>
@@ -252,6 +258,15 @@ const handleLogout = async () => { authStore.logout(); await navigateTo('/auth/l
   /* padding inferior extra para no quedar tapado por la bottom-nav */
   .client-content { padding: 18px 14px 96px; }
   .client-bottom-nav { display: flex; }
+}
+
+.client-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
 }
 </style>
 

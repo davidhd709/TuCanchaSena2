@@ -157,6 +157,7 @@
                 variant="outlined"
                 block
                 prepend-icon="mdi-open-in-new"
+                class="mt-3"
               >
                 {{ isPdfProof ? 'Abrir PDF' : 'Ver en tamaño completo' }}
               </v-btn>
@@ -445,6 +446,7 @@ const confirmCancel = async () => {
 <style scoped>
 .status-hero {
   min-height: 100px;
+  margin-bottom: 20px;
 }
 /* Hero de estado alineado con la paleta del design system. */
 .hero-pending {
@@ -474,5 +476,62 @@ const confirmCancel = async () => {
   color: var(--green-bright);
   line-height: 1.1;
   letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .status-hero {
+    margin-bottom: 16px;
+  }
+  .v-card {
+    margin-bottom: 12px !important;
+  }
+  .v-col {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+}
+
+/* Ajustes de padding solicitados */
+/* 1. Datos de la reserva (está en md-7) */
+.v-col-md-7 .v-card .v-card-text.pa-5 {
+  padding: 20px !important;
+}
+
+/* 3. Cards de Total Reserva e Información (están en md-5) */
+.v-col-md-5 .v-card .v-card-text.pa-5 {
+  padding: 24px !important;
+}
+
+/* Espaciado interno de las cards en móvil */
+.v-list-item.px-0 {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.v-card-text.pa-5 {
+  padding: 20px 16px !important;
+}
+
+/* Margen entre imagen y botón del comprobante */
+.v-img.mb-3 {
+  margin-bottom: 12px !important;
+}
+
+/* Padding en card de total e información */
+.v-card .v-card-text {
+  padding: 16px !important;
+}
+
+/* Margen entre secciones principales */
+.v-row.mt-4 {
+  margin-top: 20px !important;
+}
+
+.v-col > .v-card {
+  margin-bottom: 16px;
+}
+
+.v-alert {
+  padding: 16px 20px !important;
 }
 </style>

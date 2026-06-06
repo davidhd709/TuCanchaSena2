@@ -1,5 +1,7 @@
 import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UploadsController } from './uploads.controller';
+import { UploadsService } from './uploads.service';
 import { LocalStorageDriver } from './local-storage.driver';
 import { S3StorageDriver } from './s3-storage.driver';
 import { STORAGE_DRIVER } from './storage.driver';
@@ -12,7 +14,9 @@ import { STORAGE_DRIVER } from './storage.driver';
  */
 @Global()
 @Module({
+  controllers: [UploadsController],
   providers: [
+    UploadsService,
     {
       provide: STORAGE_DRIVER,
       inject: [ConfigService],

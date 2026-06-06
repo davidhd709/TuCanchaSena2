@@ -41,6 +41,16 @@ export class UsersController {
     return this.users.update(id, dto);
   }
 
+  @Patch(':id/avatar')
+  updateAvatar(
+    @Param('id') id: string,
+    @Body() body: { avatarUrl: string },
+    @CurrentUser() user: JwtUser,
+  ) {
+    const targetId = user.role !== 'admin' && user.sub !== id ? user.sub : id;
+    return this.users.update(targetId, { avatarUrl: body.avatarUrl });
+  }
+
   @Delete(':id')
   @Roles('admin')
   remove(@Param('id') id: string) {
