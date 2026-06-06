@@ -171,15 +171,29 @@
     </div>
 
     <v-dialog v-model="successDialog" max-width="420" persistent>
-      <v-card rounded="xl" class="text-center overflow-hidden" data-testid="booking-success">
+      <v-card rounded="xl" class="success-dialog-card text-center overflow-hidden" data-testid="booking-success">
         <div class="success-header pa-8 pb-6">
-          <v-icon size="80" color="white" class="mb-4">mdi-check-circle</v-icon>
-          <h2 class="text-h6 font-weight-bold text-white mb-1">¡Reserva Enviada!</h2>
-          <p class="text-body-2 text-white" style="opacity: 0.9">Tu reserva está pendiente de confirmación.</p>
+          <div class="success-icon-wrapper mb-4">
+            <span class="success-sparkle s1">✦</span>
+            <span class="success-sparkle s2">•</span>
+            <span class="success-sparkle s3">✦</span>
+            <span class="success-sparkle s4">•</span>
+            <v-icon size="64" color="success" class="success-check-icon">mdi-check-circle</v-icon>
+          </div>
+          <h2 class="text-h5 font-weight-bold text-white mb-2">¡Reserva Enviada!</h2>
+          <p class="text-body-1 text-white" style="opacity: 0.9">Tu reserva está pendiente de confirmación.</p>
+          <v-btn
+            variant="outlined"
+            block
+            size="large"
+            prepend-icon="mdi-eye"
+            class="success-btn mt-6"
+            data-testid="view-booking"
+            @click="goToBookingDetail"
+          >
+            Ver mi reserva
+          </v-btn>
         </div>
-        <v-card-text class="pa-6">
-          <v-btn color="success" variant="flat" block size="large" prepend-icon="mdi-eye" data-testid="view-booking" @click="goToBookingDetail">Ver mi reserva</v-btn>
-        </v-card-text>
       </v-card>
     </v-dialog>
   </section>
@@ -312,13 +326,18 @@ const submitBooking = async () => {
 .pay-grid {
   display: grid;
   grid-template-columns: 1.25fr .9fr;
-  gap: 18px;
+  gap: 24px;
 }
 .pay-card {
   border: 1px solid var(--border-soft) !important;
   border-radius: 18px !important;
   background: var(--bg-card) !important;
   box-shadow: var(--shadow-sm) !important;
+  margin-bottom: 16px;
+}
+.pay-card .v-card-text,
+.pay-card > .pa-6 {
+  padding: 28px 24px !important;
 }
 .pay-title {
   display: flex; align-items: center; gap: 8px;
@@ -531,7 +550,44 @@ const submitBooking = async () => {
   font-weight: 800;
 }
 
-.success-header { background: linear-gradient(135deg, var(--green-bright), var(--green-primary)); }
+.success-header {
+  background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
+  padding: 48px 32px 40px !important;
+}
+.success-dialog-card {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.success-icon-wrapper {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.success-check-icon {
+  background: rgba(255,255,255,0.95);
+  border-radius: 50%;
+  padding: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+.success-sparkle {
+  position: absolute;
+  color: rgba(255,255,255,0.8);
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+.success-sparkle.s1 { top: -4px; left: 4px; font-size: 1.3rem; }
+.success-sparkle.s2 { top: 8px; right: 0; font-size: 0.6rem; }
+.success-sparkle.s3 { bottom: 0; right: 4px; font-size: 1rem; }
+.success-sparkle.s4 { bottom: 8px; left: 0; font-size: 0.55rem; }
+.success-btn {
+  border-color: rgba(255,255,255,0.6) !important;
+  color: white !important;
+  border-radius: 50px !important;
+}
 
 @media (max-width: 980px) {
   .pay-grid { grid-template-columns: 1fr; }
@@ -540,5 +596,46 @@ const submitBooking = async () => {
   .pay-steps { margin-bottom: 10px; }
   .pay-step span { width: 36px; height: 36px; font-size: .85rem; }
   .pay-step small { font-size: .75rem; }
+}
+
+.booking-upload-preview {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  display: block;
+}
+.upload-file-info {
+  margin-top: 12px;
+  font-size: .85rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.upload-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.upload-actions .v-btn {
+  min-width: 110px !important;
+  font-size: .88rem !important;
+}
+
+.pay-next {
+  margin-top: 8px;
+}
+
+/* Botones con más padding interno */
+.v-btn {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  letter-spacing: 0.01em;
+}
+
+/* Empty state — margen superior */
+.empty-state {
+  padding-top: 32px;
+  padding-bottom: 32px;
 }
 </style>

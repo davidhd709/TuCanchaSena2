@@ -53,14 +53,12 @@
       </transition>
 
       <!-- Preview imagen -->
-      <div v-if="uploadState === 'uploaded' && previewUrl && !isPdf" class="mb-3">
+      <div v-if="uploadState === 'uploaded' && previewUrl && !isPdf" class="upload-preview-box mb-3">
         <v-img
           :src="previewUrl"
-          max-height="160"
           cover
           rounded="lg"
-          class="mx-auto"
-          style="max-width: 300px"
+          class="upload-preview-img"
         />
       </div>
 
@@ -274,6 +272,7 @@ watch(
   background: rgba(var(--v-theme-primary), 0.03);
   transition: all 0.2s ease;
   cursor: pointer;
+  padding: 24px 20px !important;
 }
 .upload-zone:hover {
   border-color: rgba(var(--v-theme-primary), 0.8);
@@ -307,5 +306,19 @@ watch(
 }
 .upload-spin {
   animation: spin 1s linear infinite;
+}
+
+.upload-preview-box {
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.upload-preview-img {
+  width: 100%;
+  height: 220px;
+}
+.upload-zone .d-flex.gap-2 {
+  gap: 12px !important;
+  margin-top: 10px;
 }
 </style>

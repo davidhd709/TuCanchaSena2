@@ -27,7 +27,14 @@
     <div class="profile-shell">
       <!-- ── Columna izquierda: resumen del usuario ───────────────────────── -->
       <aside class="profile-summary-card">
-        <div class="profile-avatar">{{ initials }}</div>
+        <div class="profile-avatar-wrapper">
+          <img v-if="authStore.user?.avatarUrl" :src="authStore.user.avatarUrl" class="profile-avatar-img" alt="Foto de perfil" />
+          <div v-else class="profile-avatar">{{ initials }}</div>
+          <label class="profile-avatar-edit" title="Cambiar foto">
+            <span class="mdi mdi-camera" />
+            <input type="file" accept="image/*" class="profile-avatar-input" @change="onAvatarChange" />
+          </label>
+        </div>
         <h2 class="profile-name">{{ authStore.fullName }}</h2>
         <p class="profile-email">{{ authStore.user?.email }}</p>
         <span class="profile-role-badge" :class="`is-${authStore.user?.role}`">
@@ -50,78 +57,82 @@
       <!-- ── Columna derecha: formularios ─────────────────────────────────── -->
       <div class="profile-main">
         <!-- Información personal -->
-        <section class="profile-form-card">
-          <div class="form-section-header">
-            <h3 class="form-section-title"><span class="mdi mdi-account-outline" /> Información personal</h3>
-            <p class="form-section-sub">Actualiza tus datos básicos de contacto.</p>
-          </div>
+        <v-card class="profile-form-card">
+          <v-card-text class="pa-8">
+            <div class="form-section-header">
+              <h3 class="form-section-title"><span class="mdi mdi-account-outline" /> Información personal</h3>
+              <p class="form-section-sub">Actualiza tus datos básicos de contacto.</p>
+            </div>
 
-          <v-form ref="formRef" @submit.prevent="saveProfile">
-            <div class="app-form-grid cols-2">
+            <v-form ref="formRef" @submit.prevent="saveProfile">
+              <div class="app-form-grid cols-2">
+                <v-text-field
+                  v-model="form.firstName"
+                  label="Nombre"
+                  placeholder="Tu nombre"
+                  :rules="[r.required]"
+                />
+                <v-text-field
+                  v-model="form.lastName"
+                  label="Apellido"
+                  placeholder="Tu apellido"
+                  :rules="[r.required]"
+                />
+              </div>
               <v-text-field
-                v-model="form.firstName"
-                label="Nombre"
-                placeholder="Tu nombre"
-                :rules="[r.required]"
+                v-model="form.phone"
+                label="Teléfono"
+                placeholder="Ej: 300 123 4567"
+                prepend-inner-icon="mdi-phone-outline"
               />
-              <v-text-field
-                v-model="form.lastName"
-                label="Apellido"
-                placeholder="Tu apellido"
-                :rules="[r.required]"
-              />
-            </div>
-            <v-text-field
-              v-model="form.phone"
-              label="Teléfono"
-              placeholder="Ej: 300 123 4567"
-              prepend-inner-icon="mdi-phone-outline"
-            />
-            <div class="form-actions">
-              <v-btn type="submit" color="primary" variant="flat" :loading="loading" class="form-actions-btn">
-                Guardar cambios
-              </v-btn>
-            </div>
-          </v-form>
-        </section>
+              <div class="form-actions">
+                <v-btn type="submit" color="primary" variant="flat" :loading="loading" class="form-actions-btn">
+                  Guardar cambios
+                </v-btn>
+              </div>
+            </v-form>
+          </v-card-text>
+        </v-card>
 
         <!-- Seguridad -->
-        <section class="profile-form-card">
-          <div class="form-section-header">
-            <h3 class="form-section-title"><span class="mdi mdi-lock-outline" /> Seguridad</h3>
-            <p class="form-section-sub">Cambia tu contraseña de acceso.</p>
-          </div>
+        <v-card class="profile-form-card">
+          <v-card-text class="pa-8">
+            <div class="form-section-header">
+              <h3 class="form-section-title"><span class="mdi mdi-lock-outline" /> Seguridad</h3>
+              <p class="form-section-sub">Cambia tu contraseña de acceso.</p>
+            </div>
 
-          <v-form ref="passwordFormRef" @submit.prevent="changePassword">
-            <div class="app-form-grid cols-2">
-              <v-text-field
-                v-model="passwordForm.newPassword"
-                label="Nueva contraseña"
-                placeholder="••••••••"
-                :type="showPwd ? 'text' : 'password'"
-                :append-inner-icon="showPwd ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
-                :rules="[r.required, r.minLength]"
-                @click:append-inner="showPwd = !showPwd"
-              />
-              <v-text-field
-                v-model="passwordForm.confirm"
-                label="Confirmar contraseña"
-                placeholder="••••••••"
-                :type="showPwd ? 'text' : 'password'"
-                :rules="[r.required, r.passwordMatch]"
-              />
-            </div>
-            <p class="form-microcopy">
-              <span class="mdi mdi-information-outline" />
-              Usa una contraseña segura de mínimo 8 caracteres.
-            </p>
-            <div class="form-actions">
-              <v-btn type="submit" color="primary" variant="tonal" :loading="pwdLoading" class="form-actions-btn">
-                Actualizar contraseña
-              </v-btn>
-            </div>
-          </v-form>
-        </section>
+            <v-form ref="passwordFormRef" @submit.prevent="changePassword">
+              <div class="app-form-grid cols-2">
+                <v-text-field
+                  v-model="passwordForm.newPassword"
+                  label="Nueva contraseña"
+                  placeholder="••••••••"
+                  :type="showPwd ? 'text' : 'password'"
+                  :append-inner-icon="showPwd ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+                  :rules="[r.required, r.minLength]"
+                  @click:append-inner="showPwd = !showPwd"
+                />
+                <v-text-field
+                  v-model="passwordForm.confirm"
+                  label="Confirmar contraseña"
+                  placeholder="••••••••"
+                  :type="showPwd ? 'text' : 'password'"
+                  :rules="[r.required, r.passwordMatch]"
+                />
+              </div>
+              <p class="form-microcopy">
+                <span class="mdi mdi-information-outline" />
+                Usa una contraseña segura de mínimo 8 caracteres.
+              </p>
+              <div class="form-actions">
+                <v-btn type="submit" color="primary" variant="tonal" :loading="pwdLoading" class="form-actions-btn">
+                  Actualizar contraseña
+                </v-btn>
+              </div>
+            </v-form>
+          </v-card-text>
+        </v-card>
       </div>
     </div>
   </div>
@@ -189,8 +200,10 @@ const saveProfile = async () => {
     authStore.user = { ...authStore.user!, ...updated }
     authStore._persist()
     successMsg.value = 'Perfil actualizado correctamente'
+    setTimeout(() => { successMsg.value = '' }, 5000)
   } catch (e: any) {
     errorMsg.value = e?.data?.message || 'Error al actualizar'
+    setTimeout(() => { errorMsg.value = '' }, 5000)
   } finally {
     loading.value = false
   }
@@ -207,12 +220,38 @@ const changePassword = async () => {
       body: { password: passwordForm.newPassword },
     })
     successMsg.value = 'Contraseña actualizada correctamente'
+    setTimeout(() => { successMsg.value = '' }, 5000)
     passwordForm.newPassword = ''
     passwordForm.confirm = ''
   } catch (e: any) {
     errorMsg.value = e?.data?.message || 'Error al cambiar contraseña'
+    setTimeout(() => { errorMsg.value = '' }, 5000)
   } finally {
     pwdLoading.value = false
+  }
+}
+
+const onAvatarChange = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const formData = new FormData()
+  formData.append('file', file)
+  try {
+    const res = await apiFetch<{ url: string }>('/uploads', {
+      method: 'POST',
+      body: formData,
+    })
+    await apiFetch(`/users/${authStore.user!.id}/avatar`, {
+      method: 'PATCH',
+      body: { avatarUrl: res.url },
+    })
+    authStore.user = { ...authStore.user!, avatarUrl: res.url }
+    authStore._persist()
+    successMsg.value = 'Foto de perfil actualizada'
+    setTimeout(() => { successMsg.value = '' }, 5000)
+  } catch {
+    errorMsg.value = 'Error al subir la foto. Intenta de nuevo.'
+    setTimeout(() => { errorMsg.value = '' }, 5000)
   }
 }
 </script>
@@ -240,6 +279,36 @@ const changePassword = async () => {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
+.profile-avatar-wrapper {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 14px;
+}
+.profile-avatar-img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--shadow-glow);
+}
+.profile-avatar-edit {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--green-primary);
+  color: #04170f;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.profile-avatar-input {
+  display: none;
+}
 .profile-avatar {
   width: 88px;
   height: 88px;
@@ -252,7 +321,7 @@ const changePassword = async () => {
   color: #04170f;
   background: linear-gradient(135deg, var(--green-bright), var(--green-primary));
   box-shadow: var(--shadow-glow);
-  margin-bottom: 14px;
+  margin-bottom: 0;
 }
 .profile-name {
   font-family: 'Manrope', sans-serif;
@@ -324,8 +393,26 @@ const changePassword = async () => {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  padding: 24px;
+  padding: 28px 32px;
 }
+
+.profile-form-card .v-form {
+  padding: 0 8px;
+}
+
+.profile-form-card .form-section-header {
+  padding: 0 8px;
+}
+
+.profile-form-card .v-row {
+  margin: 0 !important;
+}
+
+.profile-form-card .v-col {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
 .form-section-header { margin-bottom: 18px; }
 .form-section-title {
   display: flex;
@@ -357,6 +444,12 @@ const changePassword = async () => {
   display: flex;
   justify-content: flex-end;
   margin-top: 6px;
+  padding-right: 4px;
+}
+
+.form-actions-btn {
+  max-width: 100%;
+  overflow: hidden;
 }
 
 @media (max-width: 880px) {
@@ -365,7 +458,25 @@ const changePassword = async () => {
     gap: 16px;
   }
   .profile-summary-card { position: static; }
-  .form-actions { justify-content: stretch; }
+  .form-actions { justify-content: stretch; margin-top: 12px; }
   .form-actions-btn { width: 100%; }
+  .profile-form-card {
+    padding: 20px 20px;
+  }
+}
+
+.v-alert {
+  position: fixed !important;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  min-width: 320px;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  padding: 16px 20px !important;
+}
+
+.v-alert + .v-alert {
+  top: 90px;
 }
 </style>

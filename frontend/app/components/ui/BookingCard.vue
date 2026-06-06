@@ -88,7 +88,8 @@ const formattedDate = computed(() => formatDate(props.booking.date, DATE_FORMAT_
 
 .booking-card-thumb {
   flex-shrink: 0;
-  width: 110px;
+  width: 90px;
+  height: 90px;
   aspect-ratio: 1 / 1;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -175,7 +176,7 @@ const formattedDate = computed(() => formatDate(props.booking.date, DATE_FORMAT_
 
 @media (max-width: 600px) {
   .booking-card { padding: 12px; gap: 12px; }
-  .booking-card-thumb { width: 84px; }
+  .booking-card-thumb { width: 80px; height: 80px; }
   .booking-card-name { font-size: .95rem; }
   .booking-card-rows { gap: 4px 10px; }
 }
