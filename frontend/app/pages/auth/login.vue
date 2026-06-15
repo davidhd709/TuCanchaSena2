@@ -114,9 +114,17 @@ const form = reactive({
   password: '',
 })
 
+// SEO
+useHead({
+  title: 'Iniciar Sesión | TuCancha',
+  meta: [
+    { name: 'description', content: 'Accede a tu cuenta de TuCancha para reservar las mejores canchas sintéticas de tu ciudad.' }
+  ]
+})
+
 const rules = {
-  required: (v: string) => !!v || 'Este campo es requerido',
-  email: (v: string) => /.+@.+\..+/.test(v) || 'Email inválido',
+  required: commonRules.required,
+  email: commonRules.email,
 }
 
 const handleLogin = async () => {
@@ -275,9 +283,17 @@ onMounted(() => {
 :deep(.auth-input .v-field__outline) {
   display: none !important;
 }
+:deep(.auth-input .v-field__prepend-inner) {
+  padding-right: 12px !important;
+  padding-left: 4px !important;
+}
+:deep(.auth-input .v-field__append-inner) {
+  padding-left: 10px !important;
+}
 :deep(.auth-input .v-field__prepend-inner .v-icon),
 :deep(.auth-input .v-field__append-inner .v-icon) {
   color: #64748b !important;
+  font-size: 1.2rem !important; /* Ligeramente más grandes para mejor visibilidad */
 }
 :deep(.auth-input .v-field--focused .v-field__prepend-inner .v-icon),
 :deep(.auth-input .v-field--focused .v-field__append-inner .v-icon) {

@@ -8,34 +8,33 @@ export const useMouseGlow = () => {
 
     const glow = document.createElement('div')
     glow.id = 'mouse-glow'
-    // Dot with blurred effect and contrast
+    // Design: A soft ambient emerald/teal glow that follows the natural cursor
     glow.style.cssText = `
       position: fixed;
       top: 0;
       left: 0;
-      width: 16px;
-      height: 16px;
+      width: 250px;
+      height: 250px;
       border-radius: 50%;
-      background: white;
-      box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.8);
+      background: radial-gradient(circle, rgba(47, 161, 138, 0.15) 0%, rgba(47, 161, 138, 0) 70%);
       pointer-events: none;
       z-index: 9999;
-      mix-blend-mode: difference;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.5s ease;
       will-change: transform;
-      transform: translate3d(-100px, -100px, 0);
+      transform: translate3d(-100% , -100%, 0);
+      filter: blur(20px);
     `
     document.body.appendChild(glow)
     
-    // Hide the default cursor
-    document.documentElement.style.cursor = 'none'
+    // We KEEP the default cursor now as requested
+    document.documentElement.style.cursor = 'auto'
 
-    // Using requestAnimationFrame for smooth 60fps hardware-accelerated tracking
-    let targetX = window.innerWidth / 2
-    let targetY = window.innerHeight / 2
-    let currentX = targetX
-    let currentY = targetY
+    // Tracking variables
+    let targetX = 0
+    let targetY = 0
+    let currentX = 0
+    let currentY = 0
     let isVisible = false
     let rafId: number
 
@@ -44,9 +43,12 @@ export const useMouseGlow = () => {
     }
 
     const animate = () => {
-      currentX = lerp(currentX, targetX, 0.25)
-      currentY = lerp(currentY, targetY, 0.25)
-      glow.style.transform = `translate3d(${currentX - 8}px, ${currentY - 8}px, 0)`
+      // Increased reaction speed (0.2 instead of 0.1) to reduce lag on fast moves
+      currentX = lerp(currentX, targetX, 0.2)
+      currentY = lerp(currentY, targetY, 0.2)
+      
+      // Center the 250px glow on the cursor (125px offset)
+      glow.style.transform = `translate3d(${currentX - 125}px, ${currentY - 125}px, 0)`
       rafId = requestAnimationFrame(animate)
     }
 
@@ -54,6 +56,9 @@ export const useMouseGlow = () => {
       targetX = e.clientX
       targetY = e.clientY
       if (!isVisible) {
+        // Snap to initial position immediately on first move to avoid coming from (0,0)
+        currentX = targetX
+        currentY = targetY
         glow.style.opacity = '1'
         isVisible = true
       }

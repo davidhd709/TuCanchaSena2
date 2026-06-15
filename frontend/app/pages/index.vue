@@ -100,17 +100,17 @@
         <!-- Stats bar -->
         <div class="hero-stats animate-up" style="animation-delay: 0.35s">
           <div class="stat-item">
-            <span class="stat-value">+200</span>
+            <span class="stat-value">+{{ stats.totalCourts }}</span>
             <span class="stat-label">Canchas disponibles</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">+5K</span>
+            <span class="stat-value">+{{ formatStatNumber(stats.totalBookings) }}</span>
             <span class="stat-label">Reservas realizadas</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-value">4.9★</span>
+            <span class="stat-value">{{ stats.averageRating }}★</span>
             <span class="stat-label">Calificación promedio</span>
           </div>
         </div>
@@ -139,49 +139,83 @@
           Cargando canchas...
         </div>
 
-        <!-- Grid de canchas reales -->
-        <div v-else-if="courts.length > 0" class="courts-grid">
-          <div
-            v-for="(court, i) in courts"
-            :key="court.id"
-            class="court-card"
-            :style="`animation-delay: ${i * 0.12}s`"
+        <!-- Carousel de canchas -->
+        <div v-else-if="courts.length > 0" class="courts-carousel-wrapper">
+          <!-- Botón izquierdo -->
+          <button
+            class="carousel-arrow carousel-arrow--left"
+            :class="{ 'carousel-arrow--hidden': !canScrollLeft }"
+            @click="scrollCarousel('left')"
+            aria-label="Ver canchas anteriores"
           >
-            <div class="court-img-wrap">
-              <img
-                v-if="safeCover(court.images?.[0])"
-                :src="safeCover(court.images?.[0])"
-                :alt="court.name"
-                class="court-img"
-                loading="lazy"
-              />
-              <AppMediaPlaceholder v-else type="court" class="court-img-placeholder" />
-              <div class="court-img-overlay"></div>
-              <span class="court-badge">
-                {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
-              </span>
-            </div>
-            <div class="court-info">
-              <div class="court-meta">
-                <span class="mdi mdi-map-marker-outline court-loc-icon"></span>
-                <span class="court-location">{{ court.business.name }}</span>
+            <span class="mdi mdi-chevron-left"></span>
+          </button>
+
+          <div ref="carouselRef" class="courts-carousel" @scroll="onCarouselScroll">
+            <div
+              v-for="(court, i) in courts"
+              :key="court.id"
+              class="court-card"
+              :style="`animation-delay: ${i * 0.12}s`"
+            >
+              <div class="court-img-wrap">
+                <img
+                  v-if="safeCover(court.images?.[0])"
+                  :src="safeCover(court.images?.[0])"
+                  :alt="court.name"
+                  class="court-img"
+                  loading="lazy"
+                />
+                <AppMediaPlaceholder v-else type="court" class="court-img-placeholder" />
+                <div class="court-img-overlay"></div>
+                <span class="court-badge">
+                  {{ court.status === 'available' ? 'Disponible' : 'No disponible' }}
+                </span>
               </div>
-              <h3 class="court-name">{{ court.name }}</h3>
-              <div class="court-tags">
-                <span class="court-tag">{{ courtTypeLabel(court.type) }}</span>
-                <span class="court-tag">{{ court.capacity }} jugadores</span>
-              </div>
-              <div class="court-footer">
-                <div class="court-price">
-                  <span class="price-amount">{{ formatCurrency(court.pricePerHour) }}</span>
-                  <span class="price-unit">/hora</span>
+              <div class="court-info">
+                <div class="court-meta">
+                  <span class="mdi mdi-map-marker-outline court-loc-icon"></span>
+                  <span class="court-location">{{ court.business.name }}</span>
                 </div>
-                <NuxtLink :to="`/client/courts/${court.id}`" class="court-btn" :id="`court-reserve-${i}`">
-                  Reservar
-                  <span class="mdi mdi-arrow-right"></span>
-                </NuxtLink>
+                <h3 class="court-name">{{ court.name }}</h3>
+                <div class="court-tags">
+                  <span class="court-tag">{{ courtTypeLabel(court.type) }}</span>
+                  <span class="court-tag">{{ court.capacity }} jugadores</span>
+                </div>
+                <div class="court-footer">
+                  <div class="court-price">
+                    <span class="price-amount">{{ formatCurrency(court.pricePerHour) }}</span>
+                    <span class="price-unit">/hora</span>
+                  </div>
+                  <NuxtLink :to="`/client/courts/${court.id}`" class="court-btn" :id="`court-reserve-${i}`">
+                    Reservar
+                    <span class="mdi mdi-arrow-right"></span>
+                  </NuxtLink>
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Botón derecho -->
+          <button
+            class="carousel-arrow carousel-arrow--right"
+            :class="{ 'carousel-arrow--hidden': !canScrollRight }"
+            @click="scrollCarousel('right')"
+            aria-label="Ver más canchas"
+          >
+            <span class="mdi mdi-chevron-right"></span>
+          </button>
+
+          <!-- Indicadores de scroll -->
+          <div v-if="courts.length > 1" class="carousel-dots">
+            <button
+              v-for="(_, i) in courts"
+              :key="i"
+              class="carousel-dot"
+              :class="{ 'carousel-dot--active': i === activeSlide }"
+              @click="scrollToSlide(i)"
+              :aria-label="`Ir a cancha ${i + 1}`"
+            />
           </div>
         </div>
 
@@ -316,11 +350,21 @@ if (authStore.isAuthenticated) {
   navigateTo('/dashboard')
 }
 
+// SEO & Metadata
+useHead({
+  title: 'TuCancha | Reserva tu cancha sintética en segundos',
+  meta: [
+    { name: 'description', content: 'Encuentra las mejores canchas sintéticas cerca de ti. Reserva en segundos, juega sin complicaciones con TuCancha.' },
+    { property: 'og:title', content: 'TuCancha - Plataforma #1 de reservas deportivas' },
+    { property: 'og:image', content: '/logo-lateral.png' }
+  ]
+})
+
 // ─── Navbar scroll effect ──────────────────────────
 const scrolled = ref(false)
 
 // ─── Canchas reales desde el backend ───────────────
-const { apiList } = useApi()
+const { apiList, apiFetch } = useApi()
 type HomeCourt = {
   id: string
   name: string
@@ -333,7 +377,17 @@ type HomeCourt = {
 }
 
 const courts = ref<HomeCourt[]>([])
-const courtsLoading = ref(true)
+
+const stats = ref({
+  totalCourts: 0,
+  totalBookings: 0,
+  averageRating: 4.9
+})
+
+const formatStatNumber = (num: number) => {
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k'
+  return num
+}
 
 const COURT_TYPES: Record<string, string> = {
   football_5: 'Fútbol 5',
@@ -346,38 +400,107 @@ const COURT_TYPES: Record<string, string> = {
 }
 const courtTypeLabel = (type: string) => COURT_TYPES[type] ?? type
 
-onMounted(async () => {
+// ─── Carga de datos con SSR Optimization ───────────
+const { data: statsData } = await useAsyncData('home-stats', () => apiFetch<any>('/public/stats'))
+const { data: courtsData, pending: courtsLoading } = await useAsyncData('home-courts', () => apiList<HomeCourt>('/courts'))
+
+watch(statsData, (val) => {
+  if (val) stats.value = val
+}, { immediate: true })
+
+watch(courtsData, (val) => {
+  if (val && val.length > 0) {
+    courts.value = val.slice(0, 10).map((c: any) => ({
+      id: String(c.id || c._id || Math.random()),
+      name: String(c.name || 'Cancha sin nombre'),
+      type: c.type || 'futsal',
+      capacity: Number(c.capacity || 0),
+      status: c.status || 'available',
+      pricePerHour: Number(c.pricePerHour || 0),
+      images: Array.isArray(c.images) ? c.images : [],
+      business: { name: c.business?.name || 'Local Sport' },
+    }))
+  }
+}, { immediate: true })
+
+onMounted(() => {
   window.addEventListener('scroll', () => {
     scrolled.value = window.scrollY > 60
   })
-  try {
-    // Solo canchas reales de BD, activas/disponibles y con datos mínimos válidos.
-    const dbCourts = await apiList<any>('/courts')
-    courts.value = dbCourts
-      .filter((c: any) =>
-        c &&
-        typeof c.id === 'string' &&
-        typeof c.name === 'string' &&
-        typeof c.business?.name === 'string' &&
-        Number.isFinite(Number(c.pricePerHour)) &&
-        c.status === 'available',
-      )
-      .slice(0, 6)
-      .map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        type: c.type,
-        capacity: Number(c.capacity ?? 0),
-        status: c.status,
-        pricePerHour: Number(c.pricePerHour),
-        images: Array.isArray(c.images) ? c.images : [],
-        business: { name: c.business.name },
-      }))
-  } catch {
-    courts.value = []
-  } finally {
-    courtsLoading.value = false
+  
+  nextTick(() => {
+    onCarouselScroll()
+  })
+})
+
+// ─── Carousel controls ───────────────────────────
+const carouselRef = ref<HTMLElement | null>(null)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(true)
+const activeSlide = ref(0)
+
+function onCarouselScroll() {
+  const el = carouselRef.value
+  if (!el) return
+  canScrollLeft.value = el.scrollLeft > 10
+  canScrollRight.value = el.scrollLeft < el.scrollWidth - el.clientWidth - 10
+
+  // Calculate active slide based on scroll position
+  const cardWidth = el.querySelector('.court-card')?.clientWidth ?? 0
+  const gap = 20
+  if (cardWidth > 0) {
+    activeSlide.value = Math.round(el.scrollLeft / (cardWidth + gap))
   }
+}
+
+function scrollCarousel(direction: 'left' | 'right') {
+  const el = carouselRef.value
+  if (!el) return
+  const cardWidth = el.querySelector('.court-card')?.clientWidth ?? 320
+  const gap = 20
+  const scrollAmount = cardWidth + gap
+  el.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' })
+}
+
+function scrollToSlide(index: number) {
+  const el = carouselRef.value
+  if (!el) return
+  const cardWidth = el.querySelector('.court-card')?.clientWidth ?? 320
+  const gap = 20
+  el.scrollTo({ left: index * (cardWidth + gap), behavior: 'smooth' })
+}
+
+// ─── Autoplay ─────────────────────────────
+const autoplayInterval = ref<any>(null)
+
+function startAutoplay() {
+  if (autoplayInterval.value) return
+  autoplayInterval.value = setInterval(() => {
+    if (courts.value.length <= 1) return
+    const next = (activeSlide.value + 1) % courts.value.length
+    scrollToSlide(next)
+  }, 10000) // 10 segundos
+}
+
+function stopAutoplay() {
+  if (autoplayInterval.value) {
+    clearInterval(autoplayInterval.value)
+    autoplayInterval.value = null
+  }
+}
+
+// Check scroll state after courts load
+watch(courts, () => {
+  nextTick(() => {
+    onCarouselScroll()
+    if (courts.value.length > 1) {
+      startAutoplay()
+    }
+  })
+})
+
+onUnmounted(() => {
+  stopAutoplay()
 })
 
 // ─── Steps ─────────────────────────────────────────
@@ -809,14 +932,226 @@ const features = [
 .section-desc { color: #64748b; font-size: 0.97rem; line-height: 1.7; max-width: 520px; margin: 0 auto; }
 
 /* ═══════════════════════════════════════════
-   CANCHAS SECTION
+   CANCHAS SECTION — CAROUSEL
 ════════════════════════════════════════════ */
 .canchas-section { background: var(--bg-app); }
 
-.courts-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+.courts-carousel-wrapper {
+  position: relative;
+}
+
+.courts-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding: 8px 4px 24px;
+}
+.courts-carousel::-webkit-scrollbar { display: none; }
+
+.courts-carousel .court-card {
+  flex: 0 0 340px;
+  scroll-snap-align: start;
+  /* Base card styles */
+  background: #0f1420;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
+.court-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(47, 161, 138, 0.2);
+  border-color: rgba(47, 161, 138, 0.2);
+}
+
+.court-img-wrap { position: relative; height: 200px; overflow: hidden; }
+.court-img,
+.court-img-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.court-card:hover .court-img,
+.court-card:hover .court-img-placeholder { transform: scale(1.06); }
+.court-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15,20,32,0.85) 0%, transparent 60%);
+}
+
+.courts-loading {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95rem;
+  padding: 48px 0;
+}
+.courts-loading .mdi { font-size: 1.3rem; color: #2fa18a; vertical-align: -2px; }
+
+.courts-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 56px 24px;
+}
+.courts-empty .mdi {
+  font-size: 3rem;
+  color: rgba(22,101,52,0.3);
+  display: block;
+  margin-bottom: 12px;
+}
+.courts-empty p { font-size: 0.92rem; }
+.court-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(47, 161, 138, 0.9);
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 100px;
+  backdrop-filter: blur(6px);
+  letter-spacing: 0.3px;
+}
+
+.court-info { padding: 20px; }
+.court-meta { display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
+.court-loc-icon { font-size: 0.85rem; color: #2fa18a; }
+.court-location { font-size: 0.77rem; color: #64748b; }
+.court-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+.court-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.court-tag {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px;
+  color: var(--text-muted);
+}
+
+.court-footer { display: flex; align-items: center; justify-content: space-between; }
+.court-price { display: flex; align-items: baseline; gap: 3px; }
+.price-amount { font-size: 1.1rem; font-weight: 800; color: #2fa18a; }
+.price-unit { font-size: 0.75rem; color: #64748b; }
+
+.court-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #2fa18a, #1d6f5e);
+  color: var(--white);
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.25s;
+}
+.court-btn:hover { transform: translateY(-1px); filter: brightness(1.1); box-shadow: 0 6px 18px rgba(47, 161, 138, 0.35); }
+
+.courts-cta { text-align: center; margin-top: 48px; }
+.btn-outline-green {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border: 2px solid rgba(22,101,52,0.3);
+  color: #2fa18a;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: all 0.25s;
+}
+.btn-outline-green:hover { background: rgba(47, 161, 138, 0.1); border-color: #2fa18a; transform: translateY(-2px); }
+
+
+/* ── Arrow Buttons ── */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-60%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(47, 161, 138, 0.25);
+  background: rgba(15, 20, 32, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #2fa18a;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.carousel-arrow:hover {
+  background: rgba(47, 161, 138, 0.15);
+  border-color: #2fa18a;
+  box-shadow: 0 0 24px rgba(47, 161, 138, 0.25);
+  transform: translateY(-60%) scale(1.1);
+}
+.carousel-arrow--left { left: -22px; }
+.carousel-arrow--right { right: -22px; }
+.carousel-arrow--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Dots / Indicators ── */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 100px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+.carousel-dot:hover {
+  background: rgba(47, 161, 138, 0.4);
+}
+.carousel-dot--active {
+  width: 24px;
+  background: linear-gradient(135deg, #2fa18a, #34c692);
+  box-shadow: 0 0 10px rgba(47, 161, 138, 0.4);
+}
+
+/* ── Edge fade gradients ── */
+.courts-carousel-wrapper::before,
+.courts-carousel-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 40px;
+  width: 40px;
+  z-index: 5;
+  pointer-events: none;
+}
+.courts-carousel-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-app), transparent);
+}
+.courts-carousel-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-app), transparent);
 }
 
 .court-card {
@@ -1217,11 +1552,16 @@ const features = [
    RESPONSIVE
 ════════════════════════════════════════════ */
 @media (max-width: 900px) {
-  .courts-grid,
   .steps-grid { grid-template-columns: 1fr; }
   .steps-grid::before { display: none; }
   .benefits-inner { grid-template-columns: 1fr; gap: 48px; }
   .features-grid { grid-template-columns: 1fr 1fr; }
+
+  .courts-carousel .court-card {
+    flex: 0 0 300px;
+  }
+  .carousel-arrow--left { left: 4px; }
+  .carousel-arrow--right { right: 4px; }
 }
 
 /* Variantes desktop/móvil de título y subtítulo:
@@ -1315,13 +1655,59 @@ const features = [
   .stat-value { font-size: 1.1rem; }
   .stat-label { font-size: .7rem; }
 
-  .features-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .footer-inner { flex-direction: column; text-align: center; }
   .footer-copy { order: 2; }
+
+  /* Compact "How it works" & "Features" for mobile */
+  .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .step-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .step-card:last-child {
+    grid-column: span 2;
+  }
+  .step-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .step-icon { font-size: 1.3rem; }
+  .step-title { font-size: 0.9rem; margin-bottom: 6px; }
+  .step-desc { font-size: 0.75rem; line-height: 1.4; }
+  .step-number { font-size: 0.6rem; margin-bottom: 8px; }
+
+  .feat-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .feat-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .feat-icon { font-size: 1.1rem; }
+  .feat-title { font-size: 0.82rem; margin-bottom: 4px; }
+  .feat-desc { font-size: 0.72rem; line-height: 1.4; }
 }
 
 @media (max-width: 480px) {
-  .courts-grid { grid-template-columns: 1fr; }
+  .courts-carousel .court-card {
+    flex: 0 0 calc(100vw - 72px);
+  }
+  .carousel-arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+  .carousel-arrow--left { left: 2px; }
+  .carousel-arrow--right { right: 2px; }
   .hero-actions { flex-direction: column; width: 100%; }
   .btn-hero-primary { width: 100%; justify-content: center; }
   /* En 480 el enlace secundario queda centrado debajo del CTA. */
