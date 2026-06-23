@@ -164,11 +164,20 @@ const form = reactive({
   confirmPassword: '',
 })
 
+// SEO
+useHead({
+  title: 'Crear Cuenta | TuCancha',
+  meta: [
+    { name: 'description', content: 'Regístrate en TuCancha y empieza a reservar canchas de fútbol sintéticas en segundos.' }
+  ]
+})
+
 const rules = {
-  required: (v: string) => !!v || 'Este campo es requerido',
-  email: (v: string) => /.+@.+\..+/.test(v) || 'Email inválido',
-  minLength: (v: string) => v.length >= 6 || 'Mínimo 6 caracteres',
-  passwordMatch: (v: string) => v === form.password || 'Las contraseñas no coinciden',
+  required: commonRules.required,
+  email: commonRules.email,
+  minLength: commonRules.min(6),
+  phone: commonRules.phone,
+  passwordMatch: commonRules.match(form.password),
 }
 
 const handleRegister = async () => {
@@ -277,8 +286,15 @@ onMounted(() => {
 :deep(.auth-input .v-field__outline) {
   display: none !important;
 }
+:deep(.auth-input .v-field__prepend-inner) {
+  padding-right: 12px !important;
+  padding-left: 4px !important;
+}
+:deep(.auth-input .v-field__append-inner) {
+  padding-left: 10px !important;
+}
 :deep(.auth-input .v-field__prepend-inner .v-icon),
-:deep(.auth-input .v-field__append-inner .v-icon) { color: #64748b !important; }
+:deep(.auth-input .v-field__append-inner .v-icon) { color: #64748b !important; font-size: 1.15rem !important; }
 :deep(.auth-input .v-field--focused .v-field__prepend-inner .v-icon),
 :deep(.auth-input .v-field--focused .v-field__append-inner .v-icon) { color: var(--green-bright) !important; }
 :deep(.auth-input .v-messages) { font-family: 'Manrope', sans-serif !important; font-size: 0.73rem !important; color: #f87171 !important; min-height: 14px; }
